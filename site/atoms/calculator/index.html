@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atom Factory Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a lab bench sheet. Inputs on the left, readouts on the right, caveats in full width below. */
+:root {
+  --bg: #f1f4f6;
+  --surface: #ffffff;
+  --ink: #15202b;
+  --muted: #566573;
+  --line: #d3dae1;
+  --accent: #0e6a78;
+  --accent-soft: rgba(14, 106, 120, 0.16);
+  --measured: #1c7449;
+  --estimated: #8f5b00;
+  --madeup: #a8382c;
+  --choice: #566573;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151b; --surface: #172029; --ink: #e5eaef; --muted: #98a6b3; --line: #2a3642;
+    --accent: #56b9c8; --accent-soft: rgba(86, 185, 200, 0.2);
+    --measured: #62c592; --estimated: #dfa84c; --madeup: #ee8676; --choice: #98a6b3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #172029; --ink: #e5eaef; --muted: #98a6b3; --line: #2a3642;
+  --accent: #56b9c8; --accent-soft: rgba(86, 185, 200, 0.2);
+  --measured: #62c592; --estimated: #dfa84c; --madeup: #ee8676; --choice: #98a6b3;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.page { max-width: 1120px; margin: 0 auto; padding: 28px 20px 48px; display: flex; flex-direction: column; gap: 20px; }
+header h1 { font-size: 28px; line-height: 1.15; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 0; max-width: 68ch; color: var(--muted); }
+header p strong { color: var(--ink); font-weight: 600; }
+.grid { display: grid; gap: 20px; grid-template-columns: minmax(300px, 380px) 1fr; grid-template-areas: "inputs summary" "inputs chart" "inputs levers"; grid-template-rows: auto auto 1fr; align-items: start; }
+.inputs { grid-area: inputs; } .summary { grid-area: summary; } .chart { grid-area: chart; } .levers { grid-area: levers; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; grid-template-areas: "summary" "inputs" "chart" "levers"; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0 0 14px; padding: 0; list-style: none; font-size: 12.5px; color: var(--muted); }
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tag::before { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 2px solid currentColor; flex: none; }
+.tag.measured { color: var(--measured); } .tag.measured::before { background: currentColor; }
+.tag.estimated { color: var(--estimated); } .tag.estimated::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.tag.madeup { color: var(--madeup); }
+.tag.choice { color: var(--choice); } .tag.choice::before { border-radius: 2px; transform: rotate(45deg); width: 7px; height: 7px; }
+.field { padding: 14px 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.field:first-of-type { border-top: 0; padding-top: 0; }
+.field-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.field label { font-weight: 600; }
+.field output { font-family: var(--font-num); font-weight: 500; font-variant-numeric: tabular-nums; }
+.field .hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.subfield { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; }
+#wear-wrap { display: flex; flex-direction: column; }
+#wear-wrap[hidden], #wq-wrap[hidden] { display: none; }
+.wear-note { margin: 0; font-size: 13.5px; }
+.wear-note[hidden] { display: none; }
+.curve-ref { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--muted); margin: 0 0 6px; padding: 0; list-style: none; }
+.chart-legend[hidden] { display: none; }
+.chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend .sw { width: 22px; height: 0; border-top: 2px solid var(--accent); }
+.chart-legend .sw.ref { border-top: 2px dashed var(--muted); }
+select, input[type="range"] { width: 100%; accent-color: var(--accent); }
+select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; }
+select:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 480px) { .tiles { grid-template-columns: 1fr; } }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tile .k { font-size: 12.5px; color: var(--muted); }
+.tile .v { font-family: var(--font-body); font-size: 25px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tile .r { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tile.lead { border-color: var(--accent); background: var(--accent-soft); }
+.basis { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.basis p { margin: 0; font-size: 13.5px; }
+.basis ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; }
+.basis li { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.chart-wrap { position: relative; }
+svg { display: block; width: 100%; height: auto; }
+.axis-text { fill: var(--muted); font-family: var(--font-num); font-size: 11px; }
+.axis-title { fill: var(--muted); font-family: var(--font-body); font-size: 12px; }
+.gridline { stroke: var(--line); stroke-width: 1; }
+.band { fill: var(--accent-soft); }
+.curve { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.marker-line { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.55; }
+.marker-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.marker-text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; font-weight: 600; }
+.cross { stroke: var(--muted); stroke-width: 1; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 6px 8px; border-radius: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; transform: translate(-50%, -110%); display: none; }
+.chart-note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+details { margin-top: 10px; font-size: 13px; }
+summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; font-size: 12.5px; min-width: 100%; }
+th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+.lever { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(60px, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.lever:first-of-type { border-top: 0; }
+.lever .name { font-size: 13.5px; }
+.lever .bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.lever .bar span { display: block; height: 100%; background: var(--accent); border-radius: 4px; min-width: 2px; }
+.lever .mult { font-family: var(--font-body); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; min-width: 92px; }
+.lever .best { display: block; font-family: var(--font-body); font-size: 11px; font-weight: 600; color: var(--accent); }
+.notes { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+@media (max-width: 860px) { .notes { grid-template-columns: 1fr; } }
+.notes ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+.notes p { margin: 0 0 10px; max-width: 70ch; }
+a { color: var(--accent); }
+footer { font-size: 12.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<p style="max-width:1180px;margin:0 auto;padding:14px 20px 0;font:14px/1.5 'IBM Plex Sans',system-ui,sans-serif"><a href="../index.html">Atom by atom</a> &middot; <a href="../../index.html#projects">Jak Potvin, projects</a></p>
+<div class="page">
+  <header>
+    <h1>Atom Factory Calculator</h1>
+    <p>How many good parts could an atom-by-atom machine make in a day, and what holds it back? Change the inputs and see. <strong>This explores assumptions. It is not a forecast.</strong></p>
+  </header>
+
+  <div class="grid">
+    <section class="panel inputs" aria-labelledby="h-inputs">
+      <h2 id="h-inputs">Inputs</h2>
+      <ul class="legend" aria-label="Where each number comes from">
+        <li><span class="tag measured">Measured</span> published counts</li>
+        <li><span class="tag estimated">Estimated</span> from a related result</li>
+        <li><span class="tag madeup">Made up</span> no data exists</li>
+        <li><span class="tag choice">Your choice</span> a design decision</li>
+      </ul>
+
+      <div class="field">
+        <div class="field-head"><label for="step">Success rate per step</label><span class="tag measured" id="tag-p">Measured</span></div>
+        <select id="step"></select>
+        <div id="custom-wrap" hidden>
+          <div class="field-head"><span class="hint">Your own rate</span><output id="out-p" for="p-custom"></output></div>
+          <input type="range" id="p-custom" min="0" max="14" step="1" value="6" aria-label="Your own success rate per step">
+        </div>
+        <p class="hint" id="hint-p"></p>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="c">Failed steps caught and repaired</label><span class="tag madeup">Made up</span></div>
+        <div class="field-head"><span class="hint">Share of failures that get fixed</span><output id="out-c" for="c"></output></div>
+        <input type="range" id="c" min="0" max="12" step="1" value="6">
+        <p class="hint">No experiment has reported this as a rate. It is the number that most needs measuring.</p>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="n">Steps to build one part</label><span class="tag choice">Your choice</span></div>
+        <div class="field-head"><span class="hint">One step places one atom</span><output id="out-n" for="n"></output></div>
+        <input type="range" id="n" min="0" max="11" step="1" value="6">
+        <p class="hint">Published builds so far are a handful of steps long.</p>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="ta">Time per attempt, with its check</label><span class="tag madeup">Made up</span></div>
+        <div class="field-head"><span class="hint">Place, then image the result</span><output id="out-ta" for="ta"></output></div>
+        <input type="range" id="ta" min="0" max="10" step="1" value="5">
+        <p class="hint">No step times have been published.</p>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="tr">Time per repair</label><span class="tag madeup">Made up</span></div>
+        <div class="field-head"><span class="hint">Undo a failed step before retrying</span><output id="out-tr" for="tr"></output></div>
+        <input type="range" id="tr" min="0" max="10" step="1" value="5">
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="tips">Tips working in parallel</label><span class="tag choice">Your choice</span></div>
+        <div class="field-head"><span class="hint">Each builds its own part</span><output id="out-tips" for="tips"></output></div>
+        <input type="range" id="tips" min="0" max="8" step="1" value="0">
+        <p class="hint">Every published result uses one tip. A 2018 design study estimated about 10,000 per square centimetre; none has been built.</p>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="wear-on">Tool wear</label><span class="tag madeup">Made up</span></div>
+        <label class="check" for="wear-on"><input type="checkbox" id="wear-on"> Let tools wear out and be reconditioned</label>
+        <p class="hint">No wear or reconditioning rates have been published for these tools, so every setting here is illustrative.</p>
+        <div id="wear-wrap" hidden>
+          <div class="subfield">
+            <div class="field-head"><label for="wa">A good tool wears out</label><output id="out-wa" for="wa"></output></div>
+            <input type="range" id="wa" min="0" max="6" step="1" value="4">
+            <p class="hint">Chance per attempt.</p>
+          </div>
+          <div class="subfield">
+            <div class="field-head"><label for="wm">A worn tool succeeds</label><output id="out-wm" for="wm"></output></div>
+            <input type="range" id="wm" min="0" max="5" step="1" value="2">
+            <p class="hint">Compared with a good tool.</p>
+          </div>
+          <div class="subfield">
+            <div class="field-head"><label for="wd">Failures caught with a worn tool</label><output id="out-wd" for="wd"></output></div>
+            <input type="range" id="wd" min="0" max="4" step="1" value="3">
+            <p class="hint">Compared with a good tool. In the two-state model this setting decides whether wear is cheap or ruinous.</p>
+          </div>
+          <div class="subfield">
+            <div class="field-head"><label for="wp">Tool check and repair</label><span class="tag madeup" id="tag-wp">Made up</span></div>
+            <select id="wp"><option value="ill">Illustrative values</option><option value="krull">Published: automated microscope, bare metal tip</option></select>
+            <p class="hint" id="hint-wp"></p>
+          </div>
+          <div class="subfield" id="wq-wrap">
+            <div class="field-head"><label for="wq">Tool check spots a worn tool</label><output id="out-wq" for="wq"></output></div>
+            <input type="range" id="wq" min="0" max="5" step="1" value="2">
+          </div>
+          <div class="subfield">
+            <div class="field-head"><label for="wt">Time to recondition a tool</label><output id="out-wt" for="wt"></output></div>
+            <input type="range" id="wt" min="0" max="10" step="1" value="8">
+            <p class="hint">One reconditioning event, away from the part.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel summary" aria-labelledby="h-results">
+      <h2 id="h-results">Results</h2>
+      <div class="tiles">
+        <div class="tile lead"><span class="k">Good parts per day, all tips</span><span class="v" id="v-parts"></span><span class="r" id="r-parts"></span></div>
+        <div class="tile"><span class="k">Parts that come out perfect</span><span class="v" id="v-yield"></span><span class="r" id="r-yield"></span></div>
+        <div class="tile"><span class="k">Time to build one part, per tip</span><span class="v" id="v-time"></span><span class="r" id="r-time"></span></div>
+        <div class="tile"><span class="k">Time to make one milligram of carbon</span><span class="v" id="v-mg"></span><span class="r" id="r-mg"></span></div>
+      </div>
+      <div class="basis">
+        <p class="wear-note" id="wear-note" hidden></p>
+        <p id="basis-text"></p>
+        <ul id="basis-list"></ul>
+      </div>
+    </section>
+
+    <section class="panel chart" aria-labelledby="h-chart">
+      <h2 id="h-chart">Perfect parts fall away as parts get longer</h2>
+      <ul class="chart-legend" id="chart-legend" hidden><li><span class="sw" aria-hidden="true"></span>With tool wear</li><li><span class="sw ref" aria-hidden="true"></span>Without tool wear</li></ul>
+      <div class="chart-wrap" id="chart-wrap">
+        <svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Share of perfect parts against steps per part"></svg>
+        <div class="tip" id="tip"></div>
+      </div>
+      <p class="chart-note" id="chart-note"></p>
+      <details>
+        <summary>Show the values as a table</summary>
+        <div class="table-scroll"><table id="table"></table></div>
+      </details>
+    </section>
+
+    <section class="panel levers" aria-labelledby="h-levers">
+      <h2 id="h-levers">What a tenfold improvement buys</h2>
+      <div id="levers"></div>
+      <p class="chart-note">Each row changes one thing by a factor of ten and shows how many times more good parts per day you get.</p>
+    </section>
+  </div>
+
+  <div class="notes">
+    <section class="panel" aria-labelledby="h-out">
+      <h2 id="h-out">What this leaves out</h2>
+      <p>Most of these make real results worse than the numbers above.</p>
+      <ul>
+        <li>Every step is treated as independent, with the same rates. Real builds mix step types with different success rates.</li>
+        <li>Repairs always work and never damage anything, and the check never raises a false alarm.</li>
+        <li>Tool wear is off unless you switch it on. Its wear settings are illustrative, and its published check and repair rates come from a bare metal tip taking images, the nearest data that exists. A tool is either good or worn; real tools degrade in more ways than that.</li>
+        <li>Each measured rate starts from a prepared site, so chaining them is an approximation.</li>
+        <li>Tips never sit idle. Setup, downtime and moving to a fresh tool are not counted; in the published method each tool molecule performs one reaction.</li>
+        <li>Each step places one atom, and a part with a single wrong atom counts as a failure.</li>
+        <li>Success means different things in different counts. Some require the atom to end up in the right place; others only require the right reaction to happen somewhere.</li>
+        <li>Money: there is no cost per tip, per hour or per part.</li>
+      </ul>
+    </section>
+    <section class="panel" aria-labelledby="h-src">
+      <h2 id="h-src">Sources</h2>
+      <ul>
+        <li>Model: Potvin, <em>A Verification Budget for Atom-by-Atom Fabrication</em>, in preparation. The tool-wear option is its two-state tip model, as implemented in mechdb and checked against mechdb's reference cases.</li>
+        <li>Carbon donation counts: Cowie et al., <a href="https://arxiv.org/abs/2605.27250">arXiv:2605.27250</a>, Fig. 5, panels I to L.</li>
+        <li>Silicon abstraction counts and the earlier tool's donation count: Blue et al., <a href="https://arxiv.org/abs/2606.13876">arXiv:2606.13876</a>.</li>
+        <li>Hydrogen abstraction counts and probe preparation time: Barrera et al., <a href="https://arxiv.org/abs/2512.24431">arXiv:2512.24431</a>.</li>
+        <li>Every measured count and its 95% range is read from mechdb, a database of mechanosynthesis outcomes in preparation, where each count is tied to the sentence it was read from.</li>
+        <li>Published tool check and repair rates: Krull et al., Communications Physics 3, 54 (2020), <a href="https://doi.org/10.1038/s42005-020-0317-3">doi:10.1038/s42005-020-0317-3</a>.</li>
+        <li>Parallel-tip design estimate (10,101 tips per square centimetre): Randall et al., J. Vac. Sci. Technol. B 36, 06JL05 (2018).</li>
+      </ul>
+      <p style="margin-top:10px">Every measured step comes from one company's preprints. None has been peer reviewed or independently repeated.</p>
+    </section>
+  </div>
+
+  <footer>Version 6, November 15, 2026. Counts from mechdb at a242583. Jak Potvin. Built with AI assistance (Claude).</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // Counts: mechdb export-counts (format mechdb-counts-2) at commit a242583, with the quote fields and the rates list dropped.
+  var EXPORT = {"format": "mechdb-counts-2", "interval": "wilson", "confidence": 0.95, "commit": "a242583",
+    "entries": [
+      {"id": "barrera-h-abstraction-first-db", "label": "H abstraction at zero bias, first dangling bond (Barrera et al.)", "tip_kind": "mechanosynthesis_tool", "reaction": "H abstraction", "temperature_k": 4.4, "k": 27, "n": 28, "wilson_low": 0.8228780225664668, "wilson_high": 0.9936674801509623, "tier": "verified", "ref": "barrera-arxiv-2512.24431v1", "url": "https://arxiv.org/abs/2512.24431v1"},
+      {"id": "barrera-h-abstraction-first-db-on-target", "label": "First dangling bond on the targeted site (Barrera et al., Supplementary Section 10)", "tip_kind": "mechanosynthesis_tool", "reaction": "H abstraction", "temperature_k": 4.4, "k": 20, "n": 28, "wilson_low": 0.5294071156670429, "wilson_high": 0.847460039433309, "tier": "verified", "ref": "barrera-arxiv-2512.24431v1", "url": "https://arxiv.org/abs/2512.24431v1"},
+      {"id": "barrera-h-abstraction-second-db", "label": "H abstraction, second dangling bond (Barrera et al., Supplementary Section 10)", "tip_kind": "mechanosynthesis_tool", "reaction": "H abstraction", "temperature_k": 4.4, "k": 24, "n": 24, "wilson_low": 0.8620237953250198, "wilson_high": 1.0, "tier": "verified", "ref": "barrera-arxiv-2512.24431v1", "url": "https://arxiv.org/abs/2512.24431v1"},
+      {"id": "barrera-ir-db-pair-configuration", "label": "IR-DB pair: second dangling bond in the desired configuration (Barrera et al., Supplementary Section 10)", "tip_kind": "mechanosynthesis_tool", "reaction": "H abstraction", "temperature_k": 4.4, "k": 21, "n": 24, "wilson_low": 0.6899611872949993, "wilson_high": 0.9565566591987655, "tier": "verified", "ref": "barrera-arxiv-2512.24431v1", "url": "https://arxiv.org/abs/2512.24431v1"},
+      {"id": "blue-c2-donation-eaoge", "label": "C2 donation with EAOGe-C2I, z-only at the dimer centre (Blue et al.)", "tip_kind": "mechanosynthesis_tool", "reaction": "C2 donation", "temperature_k": null, "k": 107, "n": 197, "wilson_low": 0.47342507056445754, "wilson_high": 0.6112188077454345, "tier": "verified", "ref": "blue-arxiv-2606.13876v1", "url": "https://arxiv.org/abs/2606.13876v1"},
+      {"id": "blue-si-abstraction-maoc-4k", "label": "Si atom abstraction with MAOC-C2I at 4 K (Blue et al.)", "tip_kind": "mechanosynthesis_tool", "reaction": "Si atom abstraction", "temperature_k": 4, "k": 63, "n": 63, "wilson_low": 0.9425288004111483, "wilson_high": 1.0, "tier": "verified", "ref": "blue-arxiv-2606.13876v1", "url": "https://arxiv.org/abs/2606.13876v1"},
+      {"id": "blue-si-abstraction-maoc-77k", "label": "Si atom abstraction with MAOC-C2I at 77 K (Blue et al.)", "tip_kind": "mechanosynthesis_tool", "reaction": "Si atom abstraction", "temperature_k": 77, "k": 100, "n": 100, "wilson_low": 0.9630065017930143, "wilson_high": 1.0, "tier": "verified", "ref": "blue-arxiv-2606.13876v1", "url": "https://arxiv.org/abs/2606.13876v1"},
+      {"id": "cbn-fig5i-ir-c2", "label": "C2 donation step IR-C2 (Cowie et al., Figure 5I)", "tip_kind": "mechanosynthesis_tool", "reaction": "C2 donation", "temperature_k": 4, "k": 184, "n": 197, "wilson_low": 0.8903847647178913, "wilson_high": 0.9610330700463154, "tier": "verified", "ref": "cowie-arxiv-2605.27250v1", "url": "https://arxiv.org/abs/2605.27250v1"},
+      {"id": "cbn-fig5j-2ir-c2", "label": "C2 donation step 2IR-C2 (Cowie et al., Figure 5J)", "tip_kind": "mechanosynthesis_tool", "reaction": "C2 donation", "temperature_k": 4, "k": 71, "n": 73, "wilson_low": 0.9054985182830947, "wilson_high": 0.9924542413203924, "tier": "verified", "ref": "cowie-arxiv-2605.27250v1", "url": "https://arxiv.org/abs/2605.27250v1"},
+      {"id": "cbn-fig5k-ir-c2-c4", "label": "C2 donation step IR-C2/C4 (Cowie et al., Figure 5K)", "tip_kind": "mechanosynthesis_tool", "reaction": "C2 donation", "temperature_k": 4, "k": 45, "n": 49, "wilson_low": 0.8081087240342872, "wilson_high": 0.9677971823322364, "tier": "verified", "ref": "cowie-arxiv-2605.27250v1", "url": "https://arxiv.org/abs/2605.27250v1"},
+      {"id": "cbn-fig5l-2ir-c4", "label": "C2 donation step 2IR-C4 (Cowie et al., Figure 5L)", "tip_kind": "mechanosynthesis_tool", "reaction": "C2 donation", "temperature_k": 4, "k": 27, "n": 32, "wilson_low": 0.6824585040246961, "wilson_high": 0.931355797174943, "tier": "verified", "ref": "cowie-arxiv-2605.27250v1", "url": "https://arxiv.org/abs/2605.27250v1"},
+      {"id": "cheng-bias-pulses-launch-only", "label": "Two 5 V, 1 ms bias pulses in the claude-opus-5 launch-only run (Cheng et al.)", "tip_kind": "bare_metal_tip_imaging", "reaction": "tip conditioning: 5 V, 1 ms bias pulse", "temperature_k": 4.5, "k": 1, "n": 2, "wilson_low": 0.09453120573423074, "wilson_high": 0.9054687942657693, "tier": "verified", "ref": "cheng-arxiv-2609.27302v2", "url": "https://arxiv.org/abs/2609.27302v2"},
+      {"id": "krull-conditioning-actions", "label": "Probe conditioning actions in the 86 h DeepSPM run (Krull et al.)", "tip_kind": "bare_metal_tip_imaging", "reaction": "tip conditioning: one DeepSPM conditioning action (a dip, a voltage pulse or a stall), then one image", "temperature_k": 4.6, "k": 114, "n": 562, "wilson_low": 0.171670344463891, "wilson_high": 0.23805830868904254, "tier": "estimated", "ref": "krull-commsphys-3-54", "url": "https://doi.org/10.1038/s42005-020-0317-3"},
+      {"id": "krull-run-images", "label": "Images of the 86 h DeepSPM run, by DeepSPM's classification (Krull et al., Supplementary Table 3)", "tip_kind": "bare_metal_tip_imaging", "reaction": "autonomous STM imaging: one 10 x 10 nm2 topography image, classified by DeepSPM", "temperature_k": 4.6, "k": 13193, "n": 16002, "wilson_low": 0.8184874355043464, "wilson_high": 0.830275706796895, "tier": "verified", "ref": "krull-commsphys-3-54", "url": "https://doi.org/10.1038/s42005-020-0317-3"}
+    ],
+    "checks": [
+      {"id": "krull-classifier-test-images", "label": "DeepSPM's classifier on 1,937 hand-labelled test images (Krull et al., Supplementary Table 1)", "tip_kind": "bare_metal_tip_imaging", "temperature_k": 4.6, "unit": "image", "flag_degraded": {"k": 1419, "n": 1478, "rate": 0.9600811907983762, "wilson_low": 0.9488498075494155, "wilson_high": 0.9689271866793329, "tier": "verified"}, "flag_good": {"k": 61, "n": 459, "rate": 0.1328976034858388, "wilson_low": 0.10486858720165898, "wilson_high": 0.16702032080873042, "tier": "verified"}, "tier": "verified"},
+      {"id": "krull-conditioning-episodes-necessary", "label": "Conditioning episodes DeepSPM started in its 86 h run, judged necessary or not by hand (Krull et al.)", "tip_kind": "bare_metal_tip_imaging", "temperature_k": 4.6, "unit": "episode", "flag_degraded": null, "flag_good": null, "tier": "verified"},
+      {"id": "krull-passed-images-inspected", "label": "Images DeepSPM passed as valid in its 86 h run, 2,002 of them inspected by hand (Krull et al.)", "tip_kind": "bare_metal_tip_imaging", "temperature_k": 4.6, "unit": "image", "flag_degraded": null, "flag_good": null, "tier": "estimated"}
+    ]
+  };
+  // Plain-language names for the page. Numbers always come from EXPORT above.
+  var GROUPS = [
+    { title: "Adding carbon to a prepared site", ids: ["cbn-fig5i-ir-c2", "cbn-fig5j-2ir-c2", "cbn-fig5k-ir-c2-c4", "cbn-fig5l-2ir-c4"] },
+    { title: "Adding carbon to bare silicon", ids: ["blue-c2-donation-eaoge"] },
+    { title: "Removing hydrogen", ids: ["barrera-h-abstraction-first-db", "barrera-h-abstraction-first-db-on-target", "barrera-h-abstraction-second-db", "barrera-ir-db-pair-configuration"] },
+    { title: "Removing silicon", ids: ["blue-si-abstraction-maoc-4k", "blue-si-abstraction-maoc-77k"] }
+  ];
+  var DISPLAY = {
+    "cbn-fig5i-ir-c2": { name: "Step IR-C₂", src: "Cowie et al. 2026", note: "First carbon pair, placed on a prepared site." },
+    "cbn-fig5j-2ir-c2": { name: "Step 2IR-C₂", src: "Cowie et al. 2026", note: "Second carbon pair, next to the first." },
+    "cbn-fig5k-ir-c2-c4": { name: "Step IR-C₂/C₄", src: "Cowie et al. 2026", note: "Extending one carbon pair to four atoms." },
+    "cbn-fig5l-2ir-c4": { name: "Step 2IR-C₄", src: "Cowie et al. 2026", note: "Extending the second pair to four atoms." },
+    "blue-c2-donation-eaoge": { name: "Earlier tool, no prepared site", src: "Blue et al. 2026", note: "Bare silicon with no prepared site. The paper does not say what the other 90 interactions gave." },
+    "barrera-h-abstraction-first-db": { name: "First hydrogen, any position", src: "Barrera et al. 2025", note: "Counts one hydrogen removed from anywhere. See the next entry for how many came off the targeted atom." },
+    "barrera-h-abstraction-first-db-on-target": { name: "First hydrogen, right atom", src: "Barrera et al. 2025", note: "The same 28 attempts, counting only the 20 where the hydrogen came off the targeted atom." },
+    "barrera-h-abstraction-second-db": { name: "Second hydrogen, any position", src: "Barrera et al. 2025", note: "Counts one hydrogen removed from anywhere. See the next entry for how many landed in the right place." },
+    "barrera-ir-db-pair-configuration": { name: "Second hydrogen, right place", src: "Barrera et al. 2025", note: "The same 24 attempts, counting only those that left the intended pair." },
+    "blue-si-abstraction-maoc-4k": { name: "Redesigned tool at 4 K", src: "Blue et al. 2026", note: "Bare silicon, with a tool redesigned to remove silicon." },
+    "blue-si-abstraction-maoc-77k": { name: "Redesigned tool at 77 K", src: "Blue et al. 2026", note: "Bare silicon, with a tool redesigned to remove silicon." }
+  };
+  var BY_ID = {};
+  EXPORT.entries.forEach(function (e) { BY_ID[e.id] = e; });
+  var listed = {};
+  GROUPS.forEach(function (g) { g.ids = g.ids.filter(function (id) { listed[id] = true; return BY_ID[id]; }); });
+  var extra = EXPORT.entries.filter(function (e) { return !listed[e.id] && e.tip_kind === "mechanosynthesis_tool"; }).map(function (e) { return e.id; });
+  // Bare-metal-tip entries are never offered as build steps. They feed the tool-wear preset below.
+  var CHECK = EXPORT.checks.filter(function (c) { return c.id === "krull-classifier-test-images" && c.flag_degraded && c.flag_good; })[0] || null;
+  var ACT = BY_ID["krull-conditioning-actions"] || null;
+  var HAS_PRESET = !!(CHECK && ACT);
+  if (extra.length) GROUPS.push({ title: "Other measured counts", ids: extra });
+  function stepFor(id) {
+    if (id === "custom") return { id: "custom" };
+    var e = BY_ID[id], d = DISPLAY[id] || { name: e.label, src: e.ref, note: "" };
+    var temp = e.temperature_k == null ? (/ K\b/.test(d.note) ? "" : " Temperature not recorded for this count.") : " Measured at " + e.temperature_k + " K.";
+    return { id: id, k: e.k, n: e.n, lo: e.wilson_low, hi: e.wilson_high, name: d.name, src: d.src, note: d.note + temp };
+  }
+  var P_CUSTOM = [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.995, 0.999, 0.9999, 0.99999];
+  var C_VALS = [0, 0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.995, 0.998, 0.999, 0.9995, 0.9999, 0.99999];
+  var N_VALS = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 100000, 1000000];
+  var T_VALS = [0.01, 0.1, 1, 10, 30, 60, 120, 300, 600, 1800, 3600];
+  var TIP_VALS = [1, 10, 100, 1000, 2500, 10000, 100000, 1000000, 1000000000];
+  var WA_VALS = [0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03, 0.1];
+  var WM_VALS = [1, 0.95, 0.9, 0.8, 0.65, 0.5];
+  var WD_VALS = [1, 0.9, 0.75, 0.5, 0.25];
+  var WQ_VALS = [0.5, 0.8, 0.9, 0.95, 0.99, 0.999];
+  var W_FLAG_GOOD = 0.01, K_RECOND = 0.9;
+  var ATOMS_PER_MG = 5.014e19;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // The model: inspect-and-repair chain with perfect repairs and no false alarms.
+  function model(p, c, N, ta, tr, tips) {
+    var denom = 1 - (1 - p) * c;
+    var s = p / denom;
+    var logY = N * Math.log10(s);
+    var tStep = (ta + (1 - p) * c * tr) / denom;
+    var build = N * tStep;
+    var logParts = Math.log10(tips * 86400 / build) + logY;
+    var logAtoms = logParts + Math.log10(N);
+    return { logY: logY, build: build, logParts: logParts, logYearsMg: Math.log10(ATOMS_PER_MG) - logAtoms - Math.log10(365.25) };
+  }
+
+  // Two-state tip model: a port of mechdb.calculator.model_two_state (docs/calculator-two-state.md).
+  // Yields are carried as log10 so that very long builds do not underflow to zero.
+  function mul2(x, y) {
+    return [[x[0][0] * y[0][0] + x[0][1] * y[1][0], x[0][0] * y[0][1] + x[0][1] * y[1][1]],
+            [x[1][0] * y[0][0] + x[1][1] * y[1][0], x[1][0] * y[0][1] + x[1][1] * y[1][1]]];
+  }
+  function rows2(v, x) { return [[v[0] * x[0][0], v[0] * x[0][1]], [v[1] * x[1][0], v[1] * x[1][1]]]; }
+  function norm2(x) {
+    var m = Math.max(x[0][0], x[0][1], x[1][0], x[1][1]);
+    if (!(m > 0)) return { m: x, e: -Infinity };
+    return { m: [[x[0][0] / m, x[0][1] / m], [x[1][0] / m, x[1][1] / m]], e: Math.log10(m) };
+  }
+  // log10 of (1, 0) x^n (1, 1)^T, by repeated squaring with rescaling.
+  function logPowerRowSum(x, n) {
+    var out = { m: [[1, 0], [0, 1]], e: 0 }, base = norm2(x), t;
+    while (n > 0) {
+      if (n % 2 === 1) { t = norm2(mul2(out.m, base.m)); out = { m: t.m, e: t.e + out.e + base.e }; }
+      t = norm2(mul2(base.m, base.m)); base = { m: t.m, e: t.e + 2 * base.e };
+      n = Math.floor(n / 2);
+    }
+    var sum = out.m[0][0] + out.m[0][1];
+    return sum > 0 ? Math.min(0, Math.log10(sum) + out.e) : -Infinity;
+  }
+  function stepStarts(m, n) {
+    var u = m[0][1], v = m[1][0];
+    if (u === 0) return [n, 0];
+    var s = u + v, g = s < 1 ? -Math.expm1(n * Math.log1p(-s)) / s : (1 - Math.pow(1 - s, n)) / s;
+    return [(n * v + g * u) / s, u * (n - g) / s];
+  }
+  // i: pG, pD, dG, dD, r (repair), a (wear), q (flag a worn tip), w (flag a good tip), k (recondition success),
+  //    N, ta, tr, tk, tips.
+  function modelTwoState(i) {
+    var p = [i.pG, i.pD], d = [i.dG, i.dD];
+    var loop = 1 - i.q * (1 - i.k), kDG = i.q * i.k / loop, kDD = (1 - i.q) / loop;
+    var eG = i.w / (1 - i.w), eD = i.q * (1 + i.k * eG) / loop;
+    var T = [[1 - i.a + i.a * kDG, i.a * kDD], [kDG, kDD]];
+    var events = [(1 - i.a) * eG + i.a * eD, eD];
+    var retry = [(1 - p[0]) * d[0] * i.r, (1 - p[1]) * d[1] * i.r];
+    var R = rows2(retry, T);
+    var det = (1 - R[0][0]) * (1 - R[1][1]) - R[0][1] * R[1][0];
+    var V = [[(1 - R[1][1]) / det, R[0][1] / det], [R[1][0] / det, (1 - R[0][0]) / det]];
+    var correct = mul2(V, rows2(p, T));
+    var ends = mul2(V, rows2([1 - retry[0], 1 - retry[1]], T));
+    var logY = logPowerRowSum(correct, i.N);
+    var starts = stepStarts(ends, i.N);
+    var visits = [starts[0] * V[0][0] + starts[1] * V[1][0], starts[0] * V[0][1] + starts[1] * V[1][1]];
+    var attempts = visits[0] + visits[1];
+    var retries = visits[0] * retry[0] + visits[1] * retry[1];
+    var recond = visits[0] * events[0] + visits[1] * events[1];
+    var tStep = (i.ta * attempts + i.tr * retries + i.tk * recond) / i.N;
+    var share = visits[0] / attempts;
+    var pAvg = Math.min(Math.max(share * i.pG + (1 - share) * i.pD, i.pD), i.pG);
+    var dAvg = Math.min(Math.max(share * i.dG + (1 - share) * i.dD, i.dD), i.dG);
+    var build = i.N * tStep;
+    var logParts = Math.log10(i.tips * 86400 / build) + logY;
+    return { logY: logY, build: build, tStep: tStep, logParts: logParts,
+      logYearsMg: Math.log10(ATOMS_PER_MG) - (logParts + Math.log10(i.N)) - Math.log10(365.25),
+      attemptsPerStep: attempts / i.N, retriesPerStep: retries / i.N, recondPerStep: recond / i.N, shareGood: share, correct: correct,
+      logYAvg: i.N * Math.log10(pAvg / (1 - (1 - pAvg) * dAvg * i.r)) };
+  }
+
+  var SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻" };
+  function sup(n) { return String(n).split("").map(function (ch) { return SUP[ch]; }).join(""); }
+  function sci(L, sig) {
+    var e = Math.floor(L), m = Number(Math.pow(10, L - e).toPrecision(sig || 2));
+    if (m >= 10) { m = 1; e += 1; }
+    return (m === 1 ? "" : m + " × ") + "10" + sup(e);
+  }
+  function num(L) {
+    if (L === -Infinity) return "0";
+    if (L < -2 || L >= 9) return sci(L, 2);
+    var v = Math.pow(10, L);
+    if (L >= 6) return Number((v / 1e6).toPrecision(2)) + " million";
+    if (v >= 100) return Number(v.toPrecision(2)).toLocaleString("en-US");
+    return String(Number(v.toPrecision(2)));
+  }
+  function pct(L) {
+    if (L === -Infinity) return "0%";
+    var Y = Math.pow(10, L);
+    if (Y === 1) return "100%";
+    if (Y > 0.999) return "over 99.9%";
+    if (Y >= 0.1) return (Y * 100).toFixed(1) + "%";
+    if (Y >= 1e-4) return Number((Y * 100).toPrecision(2)) + "%";
+    if (L > -9) return "1 in " + Number((1 / Y).toPrecision(2)).toLocaleString("en-US");
+    return "1 in " + sci(-L, 1);
+  }
+  function unit(v, name) { var s = Number(v.toPrecision(2)); return s.toLocaleString("en-US") + " " + name + (s === 1 ? "" : "s"); }
+  function dur(sec) {
+    if (sec < 60) return unit(sec, "second");
+    if (sec < 3600) return unit(sec / 60, "minute");
+    if (sec < 172800) return unit(sec / 3600, "hour");
+    if (sec < 63115200) return unit(sec / 86400, "day");
+    var Ly = Math.log10(sec / 31557600);
+    return (Ly >= 6 ? sci(Ly, 2) : num(Ly)) + " years";
+  }
+  function yearsText(L) {
+    if (L === Infinity) return "never";
+    if (L < 0.3) return dur(Math.pow(10, L) * 31557600);
+    return (L >= 6 ? sci(L, 2) : num(L)) + " years";
+  }
+  function plain(v) { return String(Number((v * 100).toFixed(4))) + "%"; }
+
+  var sel = $("step");
+  GROUPS.forEach(function (g) {
+    if (!g.ids.length) return;
+    var og = document.createElement("optgroup"); og.label = g.title;
+    g.ids.forEach(function (id) { var st = stepFor(id), o = document.createElement("option"); o.value = id; o.textContent = st.name + " (" + st.k + " of " + st.n + ")"; og.appendChild(o); });
+    sel.appendChild(og);
+  });
+  (function () { var o = document.createElement("option"); o.value = "custom"; o.textContent = "Your own number"; sel.appendChild(o); })();
+  sel.value = "cbn-fig5i-ir-c2";
+
+  function read() {
+    var st = stepFor(sel.value);
+    var measured = st.id !== "custom", p, lo = null, hi = null;
+    if (measured) { p = st.k / st.n; lo = st.lo; hi = st.hi; }
+    else { p = P_CUSTOM[+$("p-custom").value]; }
+    var r = { st: st, measured: measured, p: p, lo: lo, hi: hi, c: C_VALS[+$("c").value], N: N_VALS[+$("n").value],
+      ta: T_VALS[+$("ta").value], tr: T_VALS[+$("tr").value], tips: TIP_VALS[+$("tips").value],
+      wear: $("wear-on").checked, a: WA_VALS[+$("wa").value], mult: WM_VALS[+$("wm").value], ratio: WD_VALS[+$("wd").value],
+      preset: HAS_PRESET && $("wp").value === "krull", tk: T_VALS[+$("wt").value] };
+    r.q = r.preset ? CHECK.flag_degraded.rate : WQ_VALS[+$("wq").value];
+    r.w = r.preset ? CHECK.flag_good.rate : W_FLAG_GOOD;
+    r.k = r.preset ? ACT.k / ACT.n : K_RECOND;
+    return r;
+  }
+  function whole(N) { return Math.max(1, Math.round(N)); }
+  function oneStateLogY(p, c) { return function (N) { return N * Math.log10(p / (1 - (1 - p) * c)); }; }
+  // One run of the model for inputs i at step success rate p, with or without tool wear.
+  function run(i, p) {
+    var m;
+    if (!i.wear) { m = model(p, i.c, i.N, i.ta, i.tr, i.tips); m.logYAt = oneStateLogY(p, i.c); return m; }
+    m = modelTwoState({ pG: p, pD: p * i.mult, dG: i.c, dD: i.c * i.ratio, r: 1, a: i.a, q: i.q, w: i.w, k: i.k,
+      N: i.N, ta: i.ta, tr: i.tr, tk: i.tk, tips: i.tips });
+    m.logYAt = function (N) { return logPowerRowSum(m.correct, whole(N)); };
+    return m;
+  }
+  function withI(i, o) { var c = {}, k; for (k in i) c[k] = i[k]; for (k in o) c[k] = o[k]; return c; }
+  function share(v) { return String(Number((v * 100).toPrecision(3))) + "%"; }
+  function rangeText(a, b) { return a === b ? "" : a + " to " + b + " across the measured range"; }
+
+  function render() {
+    var i = read(), mid = run(i, i.p), lo = i.measured ? run(i, i.lo) : null, hi = i.measured ? run(i, i.hi) : null;
+    var none = "No range: this rate is your assumption";
+
+    $("custom-wrap").hidden = i.measured;
+    $("tag-p").className = "tag " + (i.measured ? "measured" : "madeup");
+    $("tag-p").textContent = i.measured ? "Measured" : "Made up";
+    $("out-p").textContent = plain(i.p);
+    $("hint-p").textContent = i.measured
+      ? plain(i.p).replace(/(\.\d)\d*%/, "$1%") + " best estimate; 95% range " + (i.lo * 100).toFixed(1) + "% to " + (i.hi * 100).toFixed(1) + "%. " + i.st.note + " " + i.st.src + "."
+        + (i.st.k === i.st.n ? " No failures were seen, so the true rate is only known to be above the low end." : "")
+      : "Not tied to any measurement.";
+    $("out-c").textContent = i.c === 0 ? "0% (no checking)" : plain(i.c);
+    $("out-n").textContent = unit(i.N, "step");
+    $("out-ta").textContent = dur(i.ta);
+    $("out-tr").textContent = dur(i.tr);
+    $("out-tips").textContent = unit(i.tips, "tip");
+    $("wear-wrap").hidden = !i.wear;
+    $("out-wa").textContent = "1 in " + Math.round(1 / i.a).toLocaleString("en-US") + " attempts";
+    $("out-wm").textContent = i.mult === 1 ? "as often" : share(i.mult) + " as often";
+    $("out-wd").textContent = i.ratio === 1 ? "as often" : share(i.ratio) + " as often";
+    $("out-wq").textContent = plain(i.q) + " of the time";
+    $("wq-wrap").hidden = i.preset;
+    $("tag-wp").className = "tag " + (i.preset ? "estimated" : "madeup");
+    $("tag-wp").textContent = i.preset ? "Estimated" : "Made up";
+    $("hint-wp").textContent = i.preset
+      ? "From mechdb: the check flags a worn tip " + share(i.q) + " of the time (" + CHECK.flag_degraded.k.toLocaleString("en-US") + " of " + CHECK.flag_degraded.n.toLocaleString("en-US")
+        + ") and wrongly flags a good one " + share(i.w) + " of the time (" + CHECK.flag_good.k + " of " + CHECK.flag_good.n + "). One repair action works "
+        + share(i.k) + " of the time (" + ACT.k + " of " + ACT.n + ", an estimated count). Krull et al. 2020: a bare metal tip taking images at " + CHECK.temperature_k
+        + " K, not a tool placing atoms. One reconditioning here is one repair action, about 20 seconds in that study."
+      : "Set how often the check spots a worn tool below. Held fixed: the check wrongly flags a good tool 1 time in 100, and one reconditioning works 9 times in 10.";
+    $("out-wt").textContent = dur(i.tk);
+
+    $("v-parts").textContent = num(mid.logParts);
+    $("r-parts").textContent = i.measured ? rangeText(num(lo.logParts), num(hi.logParts)) : none;
+    $("v-yield").textContent = pct(mid.logY);
+    $("r-yield").textContent = i.measured ? rangeText(pct(lo.logY), pct(hi.logY)) : none;
+    $("v-time").textContent = dur(mid.build);
+    $("r-time").textContent = i.measured ? rangeText(dur(hi.build), dur(lo.build)) || "Same across the measured range" : none;
+    $("v-mg").textContent = yearsText(mid.logYearsMg);
+    $("r-mg").textContent = mid.logYearsMg > Math.log10(1.38e10) ? "Longer than the age of the universe" : (i.measured ? rangeText(yearsText(hi.logYearsMg), yearsText(lo.logYearsMg)) : none);
+
+    var est = i.wear && i.preset ? 3 : 0, made = (i.measured ? 3 : 4) + (i.wear ? 7 - est : 0);
+    var counts = (i.measured ? "1 measured input, " : "no measured inputs, ") + (est ? est + " inputs estimated from a related result, " : "") + made + " made-up inputs";
+    $("wear-note").hidden = !i.wear;
+    if (i.wear) {
+      $("wear-note").textContent = "With tool wear, " + pct(mid.logY) + " of parts come out perfect. A model that averages the good and worn tool over the build would say "
+        + pct(mid.logYAvg) + ". Each part needs about " + num(Math.log10(mid.recondPerStep * i.N)) + " reconditionings, and "
+        + share(mid.shareGood) + " of attempts are made with a good tool.";
+    }
+    $("basis-text").textContent = "This result rests on " + counts + " and 2 choices of yours. "
+      + (i.measured ? "The range reflects only the measured success rate. The made-up inputs have no range, so the real uncertainty is wider." : "Nothing here is tied to data, so there is no range to show.");
+    var chips = [["Success rate", i.measured ? "measured" : "madeup"], ["Caught and repaired", "madeup"], ["Time per attempt", "madeup"], ["Time per repair", "madeup"], ["Steps per part", "choice"], ["Tips", "choice"]];
+    if (i.wear && i.preset) { chips.push(["Tool check and repair, 3 settings", "estimated"]); chips.push(["Tool wear, 4 settings", "madeup"]); }
+    else if (i.wear) chips.push(["Tool wear, 7 settings", "madeup"]);
+    var names = { measured: "Measured", estimated: "Estimated", madeup: "Made up", choice: "Your choice" };
+    $("basis-list").innerHTML = chips.map(function (c) { return "<li>" + c[0] + " <span class=\"tag " + c[1] + "\">" + names[c[1]] + "</span></li>"; }).join("");
+
+    drawChart(i, mid, lo, hi); drawTable(i, mid, lo, hi); drawLevers(i, mid);
+  }
+
+  // Chart geometry
+  var W = 640, H = 300, ML = 50, MR = 18, MT = 14, MB = 44, PW = W - ML - MR, PH = H - MT - MB, LMAX = 6;
+  function X(logN) { return ML + logN / LMAX * PW; }
+  function Yp(y) { return MT + (1 - y) * PH; }
+  function yAt(fn, L) { return Math.pow(10, fn(Math.pow(10, L))); }
+  function pathFor(fn) {
+    var d = "";
+    for (var j = 0; j <= 150; j++) { var L = LMAX * j / 150; d += (j ? "L" : "M") + X(L).toFixed(1) + " " + Yp(yAt(fn, L)).toFixed(1); }
+    return d;
+  }
+  var current = null;
+  function drawChart(i, mid, lo, hi) {
+    current = { i: i, mid: mid, lo: lo, hi: hi };
+    var s = "", ticks = ["1", "10", "100", "1k", "10k", "100k", "1M"];
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (y) {
+      s += "<line class=\"gridline\" x1=\"" + ML + "\" x2=\"" + (W - MR) + "\" y1=\"" + Yp(y) + "\" y2=\"" + Yp(y) + "\"/>";
+      s += "<text class=\"axis-text\" x=\"" + (ML - 8) + "\" y=\"" + (Yp(y) + 4) + "\" text-anchor=\"end\">" + (y * 100) + "%</text>";
+    });
+    ticks.forEach(function (t, j) { s += "<text class=\"axis-text\" x=\"" + X(j) + "\" y=\"" + (H - MB + 16) + "\" text-anchor=\"middle\">" + t + "</text>"; });
+    s += "<text class=\"axis-title\" x=\"" + (ML + PW / 2) + "\" y=\"" + (H - 6) + "\" text-anchor=\"middle\">Steps to build one part</text>";
+    if (i.measured) {
+      var up = pathFor(hi.logYAt), dn = "";
+      for (var j = 150; j >= 0; j--) { var L = LMAX * j / 150; dn += "L" + X(L).toFixed(1) + " " + Yp(yAt(lo.logYAt, L)).toFixed(1); }
+      s += "<path class=\"band\" d=\"" + up + dn + "Z\"/>";
+    }
+    if (i.wear) s += "<path class=\"curve-ref\" d=\"" + pathFor(oneStateLogY(i.p, i.c)) + "\"/>";
+    s += "<path class=\"curve\" d=\"" + pathFor(mid.logYAt) + "\"/>";
+    var lx = X(Math.log10(i.N)), yv = Math.pow(10, mid.logY), ly = Yp(yv);
+    s += "<line class=\"marker-line\" x1=\"" + lx + "\" x2=\"" + lx + "\" y1=\"" + MT + "\" y2=\"" + (H - MB) + "\"/>";
+    s += "<circle class=\"marker-dot\" cx=\"" + lx + "\" cy=\"" + ly + "\" r=\"5\"/>";
+    var right = lx < W - 190, ty = Math.min(Math.max(ly - 10, MT + 12), H - MB - 8);
+    s += "<text class=\"marker-text\" x=\"" + (right ? lx + 10 : lx - 10) + "\" y=\"" + ty + "\" text-anchor=\"" + (right ? "start" : "end") + "\">" + unit(i.N, "step") + ": " + pct(mid.logY) + "</text>";
+    s += "<line class=\"cross\" id=\"cross\" y1=\"" + MT + "\" y2=\"" + (H - MB) + "\" style=\"display:none\"/>";
+    $("chart").innerHTML = s;
+    $("chart-legend").hidden = !i.wear;
+    $("chart-note").textContent = "Line: share of parts that come out perfect at the best-estimate success rate. "
+      + (i.measured ? "Shaded band: the 95% range of that measured rate. " : "No band, because the rate is your assumption. ") + "Vertical dashed line: your part size.";
+  }
+  function drawTable(i, mid, lo, hi) {
+    var rows = "<tr><th>Steps</th>" + (i.measured ? "<th>Low</th>" : "") + "<th>Best estimate</th>" + (i.measured ? "<th>High</th>" : "") + "</tr>";
+    [10, 100, 1000, 10000, 100000, 1000000].forEach(function (N) {
+      var f = function (m) { return pct(m.logYAt(N)); };
+      rows += "<tr><td>" + N.toLocaleString("en-US") + "</td>" + (i.measured ? "<td>" + f(lo) + "</td>" : "") + "<td>" + f(mid) + "</td>" + (i.measured ? "<td>" + f(hi) + "</td>" : "") + "</tr>";
+    });
+    $("table").innerHTML = rows;
+  }
+  function drawLevers(i, mid) {
+    var better = function (v) { return 1 - (1 - v) / 10; };
+    var list = [
+      ["Steps, repairs and reconditioning ten times faster", run(withI(i, { ta: i.ta / 10, tr: i.tr / 10, tk: i.tk / 10 }), i.p)],
+      ["Ten times more tips", run(withI(i, { tips: i.tips * 10 }), i.p)],
+      ["Ten times fewer failures slip past the check", run(withI(i, { c: better(i.c) }), i.p)],
+      ["Ten times fewer failed steps", run(i, better(i.p))]
+    ];
+    if (!i.wear) list[0][0] = "Steps and repairs ten times faster";
+    if (i.wear) list.push(["Tools wear out ten times more slowly", run(withI(i, { a: i.a / 10 }), i.p)]);
+    var rows = list.map(function (r) { return { name: r[0], D: r[1].logParts - mid.logParts }; });
+    var max = Math.max.apply(null, rows.map(function (r) { return r.D; }));
+    $("levers").innerHTML = rows.map(function (r) {
+      var D = isFinite(r.D) ? r.D : 0, m;
+      if (D < 3) m = "×" + Number(Math.pow(10, D).toPrecision(3));
+      else if (D < 6) m = "×" + Number(Math.pow(10, D).toPrecision(2)).toLocaleString("en-US");
+      else m = "×" + sci(D, 2);
+      var w = Math.max(0, Math.min(D / 3, 1)) * 100;
+      return "<div class=\"lever\"><span class=\"name\">" + r.name + "</span><span class=\"bar\" aria-hidden=\"true\"><span style=\"width:" + w.toFixed(1) + "%\"></span></span><span class=\"mult\">" + m
+        + (Math.abs(r.D - max) < 1e-9 ? "<span class=\"best\">biggest gain</span>" : "") + "</span></div>";
+    }).join("");
+  }
+
+  // Hover layer
+  var wrap = $("chart-wrap"), tip = $("tip");
+  wrap.addEventListener("pointermove", function (ev) {
+    if (!current) return;
+    var svg = $("chart"), box = svg.getBoundingClientRect(), x = (ev.clientX - box.left) / box.width * W;
+    var L = Math.max(0, Math.min(LMAX, (x - ML) / PW * LMAX)), N = Math.pow(10, L), i = current.i;
+    var f = function (m) { return pct(m.logYAt(N)); };
+    var cross = $("cross");
+    if (cross) { cross.setAttribute("x1", X(L)); cross.setAttribute("x2", X(L)); cross.style.display = ""; }
+    tip.textContent = Number(N.toPrecision(2)).toLocaleString("en-US") + " steps: " + f(current.mid) + (i.measured ? " (" + f(current.lo) + " to " + f(current.hi) + ")" : "");
+    var px = X(L) / W * box.width, py = Yp(Math.pow(10, current.mid.logYAt(N))) / H * box.height;
+    tip.style.left = Math.max(90, Math.min(box.width - 90, px)) + "px";
+    tip.style.top = Math.max(34, py) + "px";
+    tip.style.display = "block";
+  });
+  wrap.addEventListener("pointerleave", function () { tip.style.display = "none"; var c = $("cross"); if (c) c.style.display = "none"; });
+
+  ["step", "p-custom", "c", "n", "ta", "tr", "tips", "wear-on", "wa", "wm", "wd", "wq", "wt"].forEach(function (id) { $(id).addEventListener("input", render); });
+  if (!HAS_PRESET) $("wp").options[1].disabled = true;
+  $("wp").addEventListener("change", function () { $("wt").value = $("wp").value === "krull" ? T_VALS.indexOf(30) : T_VALS.indexOf(600); render(); });
+  render();
+})();
+</script>
+</body>
+</html>

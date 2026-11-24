@@ -1,0 +1,916 @@
+{
+  "format": "mechdb-counts-2",
+  "interval": "wilson",
+  "confidence": 0.95,
+  "entries": [
+    {
+      "id": "barrera-h-abstraction-first-db",
+      "label": "H abstraction at zero bias, first dangling bond (Barrera et al.)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "H abstraction",
+      "temperature_k": 4.4,
+      "k": 27,
+      "n": 28,
+      "wilson_low": 0.8228780225664668,
+      "wilson_high": 0.9936674801509623,
+      "source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "PDF page 8, section \"Mechanically Controlled Chemical Reaction\"",
+        "quote": "removal of a single hydrogen atom at zero volts - was observed in 27 out of 28 trials",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "PDF page 8, section \"Mechanically Controlled Chemical Reaction\"",
+        "quote": "removal of a single hydrogen atom at zero volts - was observed in 27 out of 28 trials",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "barrera-h-abstraction-first-db-on-target",
+      "label": "First dangling bond on the targeted site (Barrera et al., Supplementary Section 10)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "H abstraction",
+      "temperature_k": 4.4,
+      "k": 20,
+      "n": 28,
+      "wilson_low": 0.5294071156670429,
+      "wilson_high": 0.847460039433309,
+      "source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10, Figure S13 caption (PDF page 38)",
+        "quote": "27/28 H-abstraction attempts were successful (20 were on-target, 7 were off-target)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10, Figure S13 caption (PDF page 38)",
+        "quote": "27/28 H-abstraction attempts were successful (20 were on-target, 7 were off-target)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "barrera-h-abstraction-second-db",
+      "label": "H abstraction, second dangling bond (Barrera et al., Supplementary Section 10)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "H abstraction",
+      "temperature_k": 4.4,
+      "k": 24,
+      "n": 24,
+      "wilson_low": 0.8620237953250198,
+      "wilson_high": 1.0,
+      "source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10, Figure S13 caption (PDF page 38)",
+        "quote": "all 24 attempts resulted in a single H-abstraction",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10 (PDF page 38)",
+        "quote": "27/28 times for the first DB, and 24/24 times for the second DB",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "barrera-ir-db-pair-configuration",
+      "label": "IR-DB pair: second dangling bond in the desired configuration (Barrera et al., Supplementary Section 10)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "H abstraction",
+      "temperature_k": 4.4,
+      "k": 21,
+      "n": 24,
+      "wilson_low": 0.6899611872949993,
+      "wilson_high": 0.9565566591987655,
+      "source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10, Figure S13 caption (PDF page 38)",
+        "quote": "21/24 attempts produced the desired IR-DB configuration",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "barrera-arxiv-2512.24431v1",
+        "citation": "E. Barrera, B. Thanabalasingam et al., \"Inverted-Mode Scanning Tunneling Microscopy for Atomically Precise Fabrication\", arXiv:2512.24431v1 (30 December 2025)",
+        "url": "https://arxiv.org/abs/2512.24431v1",
+        "location": "Supplementary Section 10, Figure S13 caption (PDF page 38)",
+        "quote": "21/24 attempts produced the desired IR-DB configuration",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "blue-c2-donation-eaoge",
+      "label": "C2 donation with EAOGe-C2I, z-only at the dimer centre (Blue et al.)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "C2 donation",
+      "temperature_k": null,
+      "k": 107,
+      "n": 197,
+      "wilson_low": 0.47342507056445754,
+      "wilson_high": 0.6112188077454345,
+      "source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "donation occurred at a rate of 107/197 interactions with EAOGe-C2I",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "donation occurred at a rate of 107/197 interactions with EAOGe-C2I",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "blue-si-abstraction-maoc-4k",
+      "label": "Si atom abstraction with MAOC-C2I at 4 K (Blue et al.)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "Si atom abstraction",
+      "temperature_k": 4,
+      "k": 63,
+      "n": 63,
+      "wilson_low": 0.9425288004111483,
+      "wilson_high": 1.0,
+      "source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "abstraction was the only outcome when following z-only, on-dimer trajectories with MAOC-C2I, both at 4 K (63/63 interactions) and 77 K (100/100 interactions)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "both at 4 K (63/63 interactions) and 77 K (100/100 interactions)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "blue-si-abstraction-maoc-77k",
+      "label": "Si atom abstraction with MAOC-C2I at 77 K (Blue et al.)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "Si atom abstraction",
+      "temperature_k": 77,
+      "k": 100,
+      "n": 100,
+      "wilson_low": 0.9630065017930143,
+      "wilson_high": 1.0,
+      "source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "abstraction was the only outcome when following z-only, on-dimer trajectories with MAOC-C2I, both at 4 K (63/63 interactions) and 77 K (100/100 interactions)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "blue-arxiv-2606.13876v1",
+        "citation": "B. Blue, M. Morin et al., \"Towards Atom-by-Atom Fabrication: Mechanosynthetic donation and abstraction\", arXiv:2606.13876v1 (11 June 2026)",
+        "url": "https://arxiv.org/abs/2606.13876v1",
+        "location": "PDF page 8 (printed page 7), section \"Improved Selectivity for Si Atom Abstraction via Molecular Design\"",
+        "quote": "both at 4 K (63/63 interactions) and 77 K (100/100 interactions)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "cbn-fig5i-ir-c2",
+      "label": "C2 donation step IR-C2 (Cowie et al., Figure 5I)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "C2 donation",
+      "temperature_k": 4,
+      "k": 184,
+      "n": 197,
+      "wilson_low": 0.8903847647178913,
+      "wilson_high": 0.9610330700463154,
+      "source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "Figure 5I, bar labels (page 6)",
+        "quote": null,
+        "read_from": "figure",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "page 6",
+        "quote": "93% for IR-C2 (184/197, 95% confidence interval 89-96%)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "cbn-fig5j-2ir-c2",
+      "label": "C2 donation step 2IR-C2 (Cowie et al., Figure 5J)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "C2 donation",
+      "temperature_k": 4,
+      "k": 71,
+      "n": 73,
+      "wilson_low": 0.9054985182830947,
+      "wilson_high": 0.9924542413203924,
+      "source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "Figure 5J, bar labels (page 6)",
+        "quote": null,
+        "read_from": "figure",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "page 6",
+        "quote": "97% for 2IR-C2 (71/73, 95% confidence interval 91-99%)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "cbn-fig5k-ir-c2-c4",
+      "label": "C2 donation step IR-C2/C4 (Cowie et al., Figure 5K)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "C2 donation",
+      "temperature_k": 4,
+      "k": 45,
+      "n": 49,
+      "wilson_low": 0.8081087240342872,
+      "wilson_high": 0.9677971823322364,
+      "source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "Figure 5K, bar labels (page 6)",
+        "quote": null,
+        "read_from": "figure",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "page 6",
+        "quote": "92% for IR-C2/C4 (45/49, 95% confidence interval 81-97%)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "cbn-fig5l-2ir-c4",
+      "label": "C2 donation step 2IR-C4 (Cowie et al., Figure 5L)",
+      "tip_kind": "mechanosynthesis_tool",
+      "reaction": "C2 donation",
+      "temperature_k": 4,
+      "k": 27,
+      "n": 32,
+      "wilson_low": 0.6824585040246961,
+      "wilson_high": 0.931355797174943,
+      "source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "Figure 5L, bar labels (page 6)",
+        "quote": null,
+        "read_from": "figure",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "cowie-arxiv-2605.27250v1",
+        "citation": "M. Cowie et al., \"Atomically precise mechanosynthesis of carbon structures on hydrogenated Si(100) by inverted-mode STM\", arXiv:2605.27250v1 (26 May 2026), CBN Nano Technologies",
+        "url": "https://arxiv.org/abs/2605.27250v1",
+        "location": "page 6",
+        "quote": "84% for 2IR-C4 (27/32, 95% confidence interval 68-93%)",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "cheng-bias-pulses-launch-only",
+      "label": "Two 5 V, 1 ms bias pulses in the claude-opus-5 launch-only run (Cheng et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "reaction": "tip conditioning: 5 V, 1 ms bias pulse",
+      "temperature_k": 4.5,
+      "k": 1,
+      "n": 2,
+      "wilson_low": 0.09453120573423074,
+      "wilson_high": 0.9054687942657693,
+      "source": {
+        "ref": "cheng-arxiv-2609.27302v2",
+        "citation": "S. Cheng, M. Xu, C. Candelora, I. Zeljkovic, \"Unmodeled states and uncertain action outcomes in agentic scanning tunneling microscopy\", arXiv:2609.27302v2 (23 October 2026), Boston College",
+        "url": "https://arxiv.org/abs/2609.27302v2",
+        "location": "page 6",
+        "quote": "The first turned the tip into a clustered multi-apex state, and the second sharpened it (Fig. 4).",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "cheng-arxiv-2609.27302v2",
+        "citation": "S. Cheng, M. Xu, C. Candelora, I. Zeljkovic, \"Unmodeled states and uncertain action outcomes in agentic scanning tunneling microscopy\", arXiv:2609.27302v2 (23 October 2026), Boston College",
+        "url": "https://arxiv.org/abs/2609.27302v2",
+        "location": "page 6",
+        "quote": "The two successive bias pulse interventions from this run produced opposite outcomes.",
+        "read_from": "text",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "krull-conditioning-actions",
+      "label": "Probe conditioning actions in the 86 h DeepSPM run (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "reaction": "tip conditioning: one DeepSPM conditioning action (a dip, a voltage pulse or a stall), then one image",
+      "temperature_k": 4.6,
+      "k": 114,
+      "n": 562,
+      "wilson_low": 0.171670344463891,
+      "wilson_high": 0.23805830868904254,
+      "source": {
+        "ref": "krull-commsphys-3-54",
+        "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+        "url": "https://doi.org/10.1038/s42005-020-0317-3",
+        "location": "Supplementary Information page 7, Supplementary Table 3 (117 conditioning episodes), and Supplementary Data 1",
+        "quote": "Details of all 117 conditioning episodes are available as Supplementary data file 1.",
+        "read_from": "derived",
+        "derivation": "117 episodes (Supplementary Table 3) - 3 episodes whose files in Supplementary Data 1 show no conditioning step (27, 57, 90; scripts/krull_episodes.py) = 114 episodes, each ending in an image classified good after its last action. Check: 4.93 (the printed mean) x 114 = 562.0, the printed actions.",
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "krull-commsphys-3-54",
+        "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+        "url": "https://doi.org/10.1038/s42005-020-0317-3",
+        "location": "Supplementary Information page 7, Supplementary Table 3, column \"conditioning actions\"",
+        "quote": "16,002 13,193 1,075 1,732 2 0 117 562",
+        "read_from": "table",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "estimated"
+    },
+    {
+      "id": "krull-run-images",
+      "label": "Images of the 86 h DeepSPM run, by DeepSPM's classification (Krull et al., Supplementary Table 3)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "reaction": "autonomous STM imaging: one 10 x 10 nm2 topography image, classified by DeepSPM",
+      "temperature_k": 4.6,
+      "k": 13193,
+      "n": 16002,
+      "wilson_low": 0.8184874355043464,
+      "wilson_high": 0.830275706796895,
+      "source": {
+        "ref": "krull-commsphys-3-54",
+        "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+        "url": "https://doi.org/10.1038/s42005-020-0317-3",
+        "location": "Supplementary Information page 7, Supplementary Table 3, column \"valid\"",
+        "quote": "‘Valid images’ are those not classified by DeepSPM as being recorded in bad sample regions, with lost contact, or with a bad probe.",
+        "read_from": "table",
+        "derivation": null,
+        "data_file": null
+      },
+      "n_source": {
+        "ref": "krull-commsphys-3-54",
+        "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+        "url": "https://doi.org/10.1038/s42005-020-0317-3",
+        "location": "Supplementary Information page 7, Supplementary Table 3, column \"images recorded\"",
+        "quote": "‘Images recorded’ stands for fully recorded 10 × 10 nm2 scanning tunneling microscope topography images.",
+        "read_from": "table",
+        "derivation": null,
+        "data_file": null
+      },
+      "tier": "verified"
+    }
+  ],
+  "checks": [
+    {
+      "id": "krull-classifier-test-images",
+      "label": "DeepSPM's classifier on 1,937 hand-labelled test images (Krull et al., Supplementary Table 1)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "check": "the classifier CNN on one image: good probe if the probability it predicts lies above 0.9, bad probe (flagged) if not",
+      "truth": "manual labels of the test images (\"1,937 manually labeled scanning tunneling microscope images\")",
+      "unit": "image",
+      "counts": {
+        "flagged_degraded": {
+          "value": 1419,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 2, Supplementary Table 1, row \"classified bad probe\", column \"true bad probe\"",
+            "quote": "classified bad probe 61 1,419",
+            "read_from": "table",
+            "derivation": null,
+            "data_file": null
+          }
+        },
+        "passed_degraded": {
+          "value": 59,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 2, Supplementary Table 1, row \"classified good probe\", column \"true bad probe\"",
+            "quote": "classified good probe 398 59",
+            "read_from": "table",
+            "derivation": null,
+            "data_file": null
+          }
+        },
+        "flagged_good": {
+          "value": 61,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 2, Supplementary Table 1, row \"classified bad probe\", column \"true good probe\"",
+            "quote": "classified bad probe 61 1,419",
+            "read_from": "table",
+            "derivation": null,
+            "data_file": null
+          }
+        },
+        "passed_good": {
+          "value": 398,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 2, Supplementary Table 1, row \"classified good probe\", column \"true good probe\"",
+            "quote": "classified good probe 398 59",
+            "read_from": "table",
+            "derivation": null,
+            "data_file": null
+          }
+        }
+      },
+      "flag_degraded": {
+        "k": 1419,
+        "n": 1478,
+        "rate": 0.9600811907983762,
+        "wilson_low": 0.9488498075494155,
+        "wilson_high": 0.9689271866793329,
+        "tier": "verified"
+      },
+      "flag_good": {
+        "k": 61,
+        "n": 459,
+        "rate": 0.1328976034858388,
+        "wilson_low": 0.10486858720165898,
+        "wilson_high": 0.16702032080873042,
+        "tier": "verified"
+      },
+      "tier": "verified"
+    },
+    {
+      "id": "krull-conditioning-episodes-necessary",
+      "label": "Conditioning episodes DeepSPM started in its 86 h run, judged necessary or not by hand (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "check": "DeepSPM's trigger: a probe conditioning episode starts after 10 consecutive images are classified bad probe (Supplementary Information page 9, Supplementary Fig. 6)",
+      "truth": "the authors' manual examination of the episodes (\"we manually examined the 117 probe conditioning episodes executed by DeepSPM during the experiment\")",
+      "unit": "episode",
+      "counts": {
+        "flagged_degraded": {
+          "value": 100,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Data 1 (42005_2020_317_MOESM3_ESM.zip); the share is printed in Supplementary Information page 9",
+            "quote": "We found that 85.47 ± 3.2% (std. err.) were actually necessary.",
+            "read_from": "data_file",
+            "derivation": null,
+            "data_file": {
+              "file": "probe_conditioning_episodes/true_negatives/ (one PNG per episode)",
+              "script": "scripts/krull_episodes.py",
+              "script_sha256": "0ce388d066a8e5433928578c3a7905a0a4a1e97db0b70f62907906e629895a17"
+            }
+          }
+        },
+        "passed_degraded": {
+          "todo": "not counted: the paper does not examine how often a degraded tip went on without 10 consecutive bad-probe images (krull-passed-images-inspected counts bad-probe images among the passed ones, per image)"
+        },
+        "flagged_good": {
+          "value": 17,
+          "unit": "count",
+          "tier": "verified",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Data 1 (42005_2020_317_MOESM3_ESM.zip); the share is printed in Supplementary Information page 9",
+            "quote": "That is, in 14.53 ± 3.2% of these cases, the initial probe quality was actually sufficient, and DeepSPM performed probe conditioning unnecessarily.",
+            "read_from": "data_file",
+            "derivation": null,
+            "data_file": {
+              "file": "probe_conditioning_episodes/false_negatives/ (one PNG per episode)",
+              "script": "scripts/krull_episodes.py",
+              "script_sha256": "0ce388d066a8e5433928578c3a7905a0a4a1e97db0b70f62907906e629895a17"
+            }
+          }
+        },
+        "passed_good": {
+          "todo": "not counted: the stretches of the run with a good tip that started no episode are not counted in episodes"
+        }
+      },
+      "flag_degraded": null,
+      "flag_good": null,
+      "tier": "verified"
+    },
+    {
+      "id": "krull-passed-images-inspected",
+      "label": "Images DeepSPM passed as valid in its 86 h run, 2,002 of them inspected by hand (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "check": "DeepSPM's classification of each image of the run: valid unless classified bad sample, lost contact or bad probe",
+      "truth": "the authors' manual inspection of 2,002 of the 13,193 valid images (Supplementary Information page 9)",
+      "unit": "image",
+      "counts": {
+        "flagged_degraded": {
+          "todo": "the 1,732 images classified bad probe (krull-run-images) were not inspected for this count"
+        },
+        "passed_degraded": {
+          "value": 258,
+          "unit": "count",
+          "tier": "estimated",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 9",
+            "quote": "The remaining 12.89 % showed an insufficient probe quality.",
+            "read_from": "derived",
+            "derivation": "2,002 - 1,744 = 258 (12.89% of 2,002 = 258.1)",
+            "data_file": null
+          }
+        },
+        "flagged_good": {
+          "todo": "the 1,732 images classified bad probe (krull-run-images) were not inspected for this count"
+        },
+        "passed_good": {
+          "value": 1744,
+          "unit": "count",
+          "tier": "estimated",
+          "source": {
+            "ref": "krull-commsphys-3-54",
+            "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+            "url": "https://doi.org/10.1038/s42005-020-0317-3",
+            "location": "Supplementary Information page 9",
+            "quote": "Of the examined images, 87.11 ± 0.51% (std. err.) showed no visible defects and consisted of actually valid useable data.",
+            "read_from": "derived",
+            "derivation": "87.11% of 2,002 = 1,743.9; 1,744 is the only whole number of the 2,002 that gives 87.11% (1,744 / 2,002 = 87.113%)",
+            "data_file": null
+          }
+        }
+      },
+      "flag_degraded": null,
+      "flag_good": null,
+      "tier": "estimated"
+    }
+  ],
+  "rates": [
+    {
+      "id": "diao-iv-sweep-mismatch",
+      "label": "Share of I-V curves whose forward and backward sweeps disagree, read as tip changes (Diao et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": null,
+      "event": "forward and backward I-V sweeps disagree, which the authors read as a change of the tip; the paper also names impurities dropping onto the surface as a cause",
+      "per": "I-V curve (a sweep from 2 V to -2 V and back)",
+      "statistic": "proportion",
+      "definition": "phi(Ifw, Ibw) < 0.86, phi being the similarity of the forward and the backward I-V curve (page 10, Appendix)",
+      "value": {
+        "value": 6.3,
+        "unit": "percent",
+        "tier": "verified",
+        "source": {
+          "ref": "diao-arxiv-2404.11162v1",
+          "citation": "Z. Diao, K. Ueda, L. Hou, F. Li, H. Yamashita, M. Abe, \"AI-equipped scanning probe microscopy for autonomous site-specific atomic-level characterization at room temperature\", arXiv:2404.11162v1 (17 April 2024)",
+          "url": "https://arxiv.org/abs/2404.11162v1",
+          "location": "page 7, Conclusions",
+          "quote": "Our results indicated a 6.3% probability of changes occurring in the probe tip during the I-V measurement process.",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "numerator": {
+        "todo": "not printed. If the denominator is the 378 curves of Fig. 8, 24 is the only count that gives 6.3%; if it is the 2,832 curves of the run, 177 to 179 (177 / 2,832 is exactly 6.25%)"
+      },
+      "denominator": {
+        "todo": "not printed. Fig. 8 is a \"Statistical analysis on 378 curves on C1 corner adatom\" (page 10); the 58 h run gave 2,832 I-V curves (pages 9 to 10)"
+      },
+      "duration": null,
+      "wilson_low": null,
+      "wilson_high": null,
+      "tier": "verified"
+    },
+    {
+      "id": "krull-conditioning-episodes-per-image",
+      "label": "Conditioning episodes started per image recorded in the 86 h DeepSPM run (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "event": "conditioning episode started by DeepSPM (after 10 consecutive images classified bad probe)",
+      "per": "image recorded",
+      "statistic": "events_per_exposure",
+      "definition": "episodes started over all images recorded in the run (Supplementary Table 3); 100 of the 117 were judged necessary (krull-conditioning-episodes-necessary)",
+      "value": {
+        "value": 0.00731,
+        "unit": "episodes per image",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7, Supplementary Table 3",
+          "quote": null,
+          "read_from": "derived",
+          "derivation": "117 / 16,002 = 0.00731",
+          "data_file": null
+        }
+      },
+      "numerator": {
+        "value": 117,
+        "unit": "count",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7, Supplementary Table 3, column \"conditioning episodes\"",
+          "quote": "16,002 13,193 1,075 1,732 2 0 117 562",
+          "read_from": "table",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "denominator": {
+        "value": 16002,
+        "unit": "count",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7, Supplementary Table 3, column \"images recorded\"",
+          "quote": "16,002 13,193 1,075 1,732 2 0 117 562",
+          "read_from": "table",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "duration": {
+        "value": 86,
+        "unit": "h",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "page 3",
+          "quote": "For a period of 86 h, we let DeepSPM control the microscope.",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "wilson_low": null,
+      "wilson_high": null,
+      "tier": "verified"
+    },
+    {
+      "id": "krull-episode-length-agent-testing",
+      "label": "Mean conditioning steps per episode in testing, the probe damaged on purpose after each (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "event": "conditioning steps until the classifier passes an image, chosen by the trained agent",
+      "per": "conditioning episode",
+      "statistic": "mean_per_trial",
+      "definition": "conditioning steps per episode; during testing the probe was actively damaged after each conditioning episode (page 3)",
+      "value": {
+        "value": 7.48,
+        "unit": "steps per episode",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7",
+          "quote": "While the RL agent required on average 7.48 conditioning steps to restore the quality of a probe deemed bad by the classifier CNN during testing",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "numerator": {
+        "todo": "not printed (7.48 x 189 = 1,413.7)"
+      },
+      "denominator": {
+        "value": 189,
+        "unit": "count",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "page 5, Figure 3 caption",
+          "quote": "RL agent testing (189 conditioning episodes)",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "duration": null,
+      "wilson_low": null,
+      "wilson_high": null,
+      "tier": "verified"
+    },
+    {
+      "id": "krull-episode-length-autonomous",
+      "label": "Mean conditioning steps per episode in the 86 h DeepSPM run (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "event": "conditioning steps until the classifier passes an image",
+      "per": "conditioning episode",
+      "statistic": "mean_per_trial",
+      "definition": "conditioning steps per episode; an episode ends when the image after an action is classified good probe (page 3)",
+      "value": {
+        "value": 4.93,
+        "unit": "steps per episode",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "page 3",
+          "quote": "During autonomous operation, the RL agent achieved an average conditioning episode length of 4.93, ~34% shorter than during testing (Fig. 3d).",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "numerator": {
+        "value": 562,
+        "unit": "count",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7, Supplementary Table 3, column \"conditioning actions\"",
+          "quote": "16,002 13,193 1,075 1,732 2 0 117 562",
+          "read_from": "table",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "denominator": {
+        "value": 114,
+        "unit": "count",
+        "tier": "estimated",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "Supplementary Information page 7, Supplementary Table 3 (117 conditioning episodes), and Supplementary Data 1",
+          "quote": "Details of all 117 conditioning episodes are available as Supplementary data file 1.",
+          "read_from": "derived",
+          "derivation": "117 episodes (Supplementary Table 3) - 3 episodes whose files in Supplementary Data 1 show no conditioning step (27, 57, 90; scripts/krull_episodes.py) = 114",
+          "data_file": null
+        }
+      },
+      "duration": null,
+      "wilson_low": null,
+      "wilson_high": null,
+      "tier": "estimated"
+    },
+    {
+      "id": "krull-episode-length-random-testing",
+      "label": "Mean conditioning steps per episode in testing with random actions (Krull et al.)",
+      "tip_kind": "bare_metal_tip_imaging",
+      "temperature_k": 4.6,
+      "event": "conditioning steps until the classifier passes an image, each action chosen at random from the 12",
+      "per": "conditioning episode",
+      "statistic": "mean_per_trial",
+      "definition": "conditioning steps per episode, \"random selection of one of the 12 possible conditioning actions\" (page 5, Figure 3 caption)",
+      "value": {
+        "value": 10.48,
+        "unit": "steps per episode",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "page 5, Figure 3d, printed label",
+          "quote": null,
+          "read_from": "figure",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "numerator": {
+        "todo": "not printed (10.48 x 184 = 1,928.3)"
+      },
+      "denominator": {
+        "value": 184,
+        "unit": "count",
+        "tier": "verified",
+        "source": {
+          "ref": "krull-commsphys-3-54",
+          "citation": "A. Krull, P. Hirsch, C. Rother, A. Schiffrin, C. Krull, \"Artificial-intelligence-driven scanning probe microscopy\", Communications Physics 3, 54 (2020), doi:10.1038/s42005-020-0317-3",
+          "url": "https://doi.org/10.1038/s42005-020-0317-3",
+          "location": "page 5, Figure 3 caption",
+          "quote": "random testing (random selection of one of the 12 possible conditioning actions; 184 conditioning episodes)",
+          "read_from": "text",
+          "derivation": null,
+          "data_file": null
+        }
+      },
+      "duration": null,
+      "wilson_low": null,
+      "wilson_high": null,
+      "tier": "verified"
+    }
+  ]
+}
