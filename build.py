@@ -3,8 +3,6 @@ import html, json, sys, pathlib
 
 COUNTS, CALC = sys.argv[1], sys.argv[2]
 OUT = pathlib.Path(__file__).parent / "site"
-FONTS = ("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Libre+Caslon+Display"
-         "&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap")
 DRAFT = ("Preview, not public yet. Still to add before launch: the contact address, the first essays, "
          "and links to mechdb and the bottleneck map.")
 ALBUM_JS = """<script>{
@@ -48,9 +46,11 @@ def page(title, root, current, body, script=""):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<meta name="description" content="Jak Potvin: open data and tools for atom-by-atom manufacturing, and essays on philosophy, psychology, sociology, politics, economics, war, physics, biology, medicine, technology and the future.">
-<link rel="stylesheet" href="{FONTS}">
+<meta name="description" content="Jak Potvin: open data and tools for atom-by-atom manufacturing, and essays on philosophy, religion, psychology, sociology, politics, economics, war, physics, biology, medicine, technology and the future.">
+<link rel="stylesheet" href="{root}assets/fonts/fonts.css">
 <link rel="stylesheet" href="{root}assets/site.css">
+<link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{root}favicon.ico" sizes="32x32">
 </head>
 <body>
 <div class="draft"><div class="wrap">{DRAFT}</div></div>
@@ -105,10 +105,11 @@ LATTICE_CAPTION = 'The top layer of a silicon crystal, drawn for this site: rows
 
 # ---------------------------------------------------------------- home: the album wall
 OUT_IMG = pathlib.Path(__file__).parent / "site" / "assets" / "img"
-PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subject, anchor, credit, column, grow, pos) — column and grow are set below
- ("I", "death-of-socrates.jpg", "Socrates, seated on his prison bed, reaches for the cup of hemlock with one hand and points upward with the other while his followers grieve.", "399 BC", "Socrates is condemned and drinks the hemlock", "Philosophy", "#s-philosophy", "Jacques-Louis David, The Death of Socrates, 1787. The Metropolitan Museum of Art, New York.", 0, 0, "55% 45%"),
- ("II", "school-of-athens.jpg", "Plato pointing upward and Aristotle gesturing toward the ground, among other philosophers in a painted hall.", "c. 360 BC", "Plato and Aristotle at the Academy", "Philosophy", "#s-philosophy", "Raphael, The School of Athens (detail), fresco, 1509 to 1511. Apostolic Palace, Vatican.", 0, 0, "50% 40%"),
+PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subject, anchor, credit, column, grow, pos): column and grow are set below
+ ("I", "death-of-socrates.jpg", "Socrates, seated on his prison bed, reaches for the cup of hemlock with one hand and points upward with the other while his followers grieve.", "399 BC", "Socrates is condemned and drinks the hemlock", "Philosophy and religion", "#s-philosophy", "Jacques-Louis David, The Death of Socrates, 1787. The Metropolitan Museum of Art, New York.", 0, 0, "55% 45%"),
+ ("II", "school-of-athens.jpg", "Plato pointing upward and Aristotle gesturing toward the ground, among other philosophers in a painted hall.", "c. 360 BC", "Plato and Aristotle at the Academy", "Philosophy and religion", "#s-philosophy", "Raphael, The School of Athens (detail), fresco, 1509 to 1511. Apostolic Palace, Vatican.", 0, 0, "50% 40%"),
  ("III", "caesar-coustou.jpg", "Marble statue of Julius Caesar in a laurel wreath and armour, holding a baton and looking sharply to one side.", "49 BC", "Caesar crosses the Rubicon", "Political science", "#s-politics", "Nicolas Coustou, Julius Caesar, marble, commissioned 1696. Louvre, Paris. Photograph by Marie-Lan Nguyen.", 0, 0, "50% 20%"),
+ ("", "botticelli-augustine.jpg", "Saint Augustine at his desk, one hand on his chest, looking up from his books toward a light, with a clock and an armillary sphere on the shelf behind him.", "c. 400", "Augustine writes the Confessions", "Philosophy and religion", "#s-philosophy", "Sandro Botticelli, Saint Augustine in His Study, fresco, 1480. Church of Ognissanti, Florence.", 0, 0, "50% 30%"),
  ("IV", "coronation-charlemagne.jpg", "Charlemagne kneels as the pope lowers a crown onto his head, courtiers and clergy crowded around.", "800", "Charlemagne crowned emperor in Rome", "Political science", "#s-politics", "Friedrich Kaulbach, The Coronation of Charlemagne, 1861. Maximilianeum, Munich.", 0, 0, "62% 50%"),
  ("", "magna-carta.jpg", "The Magna Carta of 1215: a sheet of parchment densely written in medieval Latin.", "1215", "King John seals Magna Carta at Runnymede", "Political science", "#s-politics", "Magna Carta, 1215. Cotton MS Augustus II.106, British Library, London.", 0, 0, "50% 40%"),
  ("V", "vitruvian-man.jpg", "Leonardo da Vinci's drawing of a man in two overlapping poses inside a circle and a square.", "c. 1490", "Leonardo measures the human body", "Biology and medicine", "#s-biology", "Leonardo da Vinci, Vitruvian Man, pen and ink. Gallerie dell&rsquo;Accademia, Venice.", 0, 0, "50% 45%"),
@@ -147,7 +148,7 @@ NO = {p[1]: p[0] for p in PLATES}
 LATTICE_NO = roman(len(PLATES) + 1)
 SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "school-of-athens.jpg": "Raphael, The School of Athens",
     "caesar-coustou.jpg": "Coustou, Julius Caesar", "coronation-charlemagne.jpg": "Kaulbach, The Coronation of Charlemagne",
-    "magna-carta.jpg": "Magna Carta, 1215", "vitruvian-man.jpg": "Leonardo, Vitruvian Man",
+    "magna-carta.jpg": "Magna Carta, 1215", "botticelli-augustine.jpg": "Botticelli, Saint Augustine in His Study", "vitruvian-man.jpg": "Leonardo, Vitruvian Man",
     "newton-romney.jpg": "Meadows after Romney, Newton with the Prism", "alchemist-phosphorus.jpg": "Wright of Derby, The Alchemist",
     "adam-smith-statue.jpg": "Stoddart, Adam Smith", "washington-crossing.jpg": "Leutze, Washington Crossing the Delaware",
     "jenner-hillemacher.jpg": "Hillemacher, Jenner Vaccinating a Boy", "napoleon-alps.jpg": "David, Napoleon Crossing the Alps",
@@ -166,7 +167,7 @@ def tile(i, p):
 cols = ["".join(tile(i, p) for i, p in enumerate(PLATES) if p[8] == c) for c in range(4)]
 wall = "".join(f'<div class="col">{c}</div>' for c in cols)
 first = PLATES[0]
-SUBJECTS = [("s-philosophy", "Philosophy"), ("s-psychology", "Psychology"), ("s-sociology", "Sociology"),
+SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psychology"), ("s-sociology", "Sociology"),
             ("s-politics", "Political science"), ("s-economics", "Economics"), ("s-warfare", "War and defense"),
             ("s-physics", "Physics and chemistry"), ("s-biology", "Biology and medicine"), ("s-tech", "Technology and AI"), ("s-future", "The future")]
 
@@ -251,13 +252,14 @@ if(wrap && rs.length && 'IntersectionObserver' in window){
   rs.forEach(r=>io.observe(r));
 }}</script>"""
 
+BIO = "I&rsquo;m based in Rhode Island. I design software and direct its build with AI coding tools: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models."
 home = page("Jak Potvin", "", "home", f"""
 <section class="album" aria-label="Introduction" style="--n:{len(PLATES)}">
 <div class="stage">
 <div class="intro">
 <h1>Jak Potvin</h1>
-<p class="lede">I write about ideas, the mind, society, power, money, war, matter, life, machines, and what comes next.</p>
-<p class="note">I&rsquo;m based in Rhode Island. I design software and direct its build with AI coding tools: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models.</p>
+<p class="lede">I write about ideas, faith, the mind, society, power, money, war, matter, life, machines, and what comes next.</p>
+<p class="note">{BIO}</p>
 <p class="cue">Scroll, and the plates fill in, oldest first.</p>
 </div>
 <div class="wall">{wall}</div>
@@ -269,6 +271,8 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
+
+<section class="about-m" aria-label="About"><p>{BIO}</p></section>
 
 <section id="writing" aria-labelledby="writing-h">
 <div class="split">
@@ -439,16 +443,16 @@ plates_page = page("List of plates | Jak Potvin", "", "", f"""
 </section>
 """)
 OUT.mkdir(exist_ok=True)
-(OUT / "index.html").write_text(home, encoding="utf-8")
-(OUT / "plates.html").write_text(plates_page, encoding="utf-8")
+(OUT / "index.html").write_text(home, encoding="utf-8", newline="\n")
+(OUT / "plates.html").write_text(plates_page, encoding="utf-8", newline="\n")
 (OUT / "atoms").mkdir(exist_ok=True)
-(OUT / "atoms" / "index.html").write_text(atoms_page, encoding="utf-8")
+(OUT / "atoms" / "index.html").write_text(atoms_page, encoding="utf-8", newline="\n")
 calc = open(CALC, encoding="utf-8").read()
 back = ('<p style="max-width:1180px;margin:0 auto;padding:14px 20px 0;font:14px/1.5 \'IBM Plex Sans\',system-ui,sans-serif">'
         '<a href="../index.html">Atom by atom</a> &middot; <a href="../../index.html#projects">Jak Potvin, projects</a></p>')
 assert calc.count("<body>") == 1
 (OUT / "atoms" / "calculator").mkdir(exist_ok=True)
-(OUT / "atoms" / "calculator" / "index.html").write_text(calc.replace("<body>", "<body>\n" + back, 1), encoding="utf-8")
-(OUT / "CNAME").write_text("jakpotvin.com\n")
+(OUT / "atoms" / "calculator" / "index.html").write_text(calc.replace("<body>", "<body>\n" + back, 1), encoding="utf-8", newline="\n")
+(OUT / "CNAME").write_text("jakpotvin.com\n", newline="\n")
 (OUT / ".nojekyll").write_text("")
 print("built", sorted(str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file()))

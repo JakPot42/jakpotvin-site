@@ -15,7 +15,10 @@ site/               the published site
   atoms/calculator/ the calculator
   assets/site.css   all styles
   assets/img/       the plates (these are source files; build.py reads their sizes)
+  assets/fonts/     the fonts, served from the site itself (woff2, Latin subsets from Google Fonts),
+                    fonts.css with their @font-face rules, each family's OFL licence, SOURCES.txt
   CNAME             jakpotvin.com
+  favicon.svg, favicon.ico
   .nojekyll
 ```
 
@@ -50,10 +53,11 @@ A plate whose image file is missing is skipped, not an error.
 - Links for the bottleneck map and mechdb, both currently "Published 15 December".
 - Remove the preview banner: the `DRAFT` constant in `build.py`.
 - Image sources to confirm. Paintings and drawings are faithful reproductions of public-domain works; photographs are credited on `plates.html`. These files came from copies Jak saved, so confirm the source and whether a photographer credit is wanted: Vitruvian Man (possibly Luc Viatour's photograph on Wikimedia Commons), School of Athens, Coronation of Charlemagne, Washington Crossing the Delaware, Napoleon Crossing the Alps (a small copy; a larger one would be better).
+- On launch day, recheck the facts about other people's work against their sources: on the atoms page, that the three preprints are from CBN Nano Technologies, that none is peer reviewed, and that none has been repeated by a second lab.
 - Optional: a larger ENIAC scan (the current file is 630 pixels wide).
+- Waiting on one image: Botticelli, Saint Augustine in His Study (save as `site/assets/img/botticelli-augustine.jpg`, about 1,800 pixels tall). Its plate is already in `PLATES`; it appears once the file is there.
 
 ## Rules for this site
 
-- Nothing on the site mentions Jak's startup, its name, its customers or its private repositories.
 - Run the private-name scan over the whole folder and its history before any push.
 - Every picture is public domain or credited under its licence. No stock-agency copies.

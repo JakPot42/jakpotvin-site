@@ -202,3 +202,5 @@ ol.plates-list { list-style: none; margin: 28px 0 0; padding: 0; border-top: 1px
 .room-plates.rows { flex-direction: column; gap: 18px; }
 .room-row { display: flex; gap: 16px; align-items: flex-start; width: 100%; }
 @media (max-width: 760px) { .room-row { flex-direction: column; gap: 18px; } .room-row .rp { flex: none !important; width: 100%; } }
+.about-m { display: none; }
+@media (max-width: 760px) { .album.live + .about-m { display: block; padding: 28px 0; border-bottom: 1px solid var(--rule); } .about-m p { font-size: 17px; } }
