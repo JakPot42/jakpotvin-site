@@ -1,18 +1,50 @@
-Self-hosted fonts: where each file came from (fetched 2026-11-25).
+Self-hosted fonts: where each file came from.
 
-Google Fonts stylesheets read:
+IBM Plex Sans and IBM Plex Mono (fetched 2026-11-25), from IBM's own npm packages:
+  @ibm/plex-sans 2.0.0  https://registry.npmjs.org/@ibm/plex-sans/-/plex-sans-2.0.0.tgz
+    registry integrity sha512-iGvuyYd1nBw5ojlspC+uMKvQNd1rlbPR4LX9bzn6KsnXULPemANYmHyZPlrDGDBWaJb84crU/A4rNoH5dl3/Wg== (checked)
+  @ibm/plex-mono 2.5.0  https://registry.npmjs.org/@ibm/plex-mono/-/plex-mono-2.5.0.tgz
+    registry integrity sha512-STBJIPxPomOYPmBMO7z5TKPJUotAF9u3gAUumTqVgwgrAO+K4FRNh0MlhsoJjKhJKsMbBJR10/bk4inkj/wc1w== (checked)
+Rules from each weight's CSS in package/fonts/split/woff2/ (for example IBMPlexSans-Regular.css), only
+the subsets that cover characters used on the site, without local(), with font-display: swap.
+
+Font files (name, bytes, SHA-256, path in the package):
+  IBMPlexMono-Medium-Latin1.woff2  17868  41201b658a328b9d00368215c2f1102770f80b15952ab82631e4006255e6365d
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-Medium-Latin1.woff2
+  IBMPlexMono-Medium-Pi.woff2  13968  92bd18415e8c43a2569f615e4e84a94b1b1c4e0377ba9d8f4d894bbf6ffcc39d
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-Medium-Pi.woff2
+  IBMPlexMono-Regular-Latin1.woff2  17544  e8993d946649b9d01abb1ed06d574b19d8ea3e66b5c3948602db335c44c18e56
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-Regular-Latin1.woff2
+  IBMPlexMono-Regular-Pi.woff2  13780  b8002770aa636f544ba43e124da6a227301769754f295eae26e16475b469c767
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-Regular-Pi.woff2
+  IBMPlexMono-SemiBold-Latin1.woff2  17872  b7acd05041ab65f3b7039e218ddd893065e11a07e85ea85019473152a51b6b7d
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-SemiBold-Latin1.woff2
+  IBMPlexMono-SemiBold-Pi.woff2  13872  1637166246d386507b1351d59ddda93b732f781d06c0a6574e486104a00897b1
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/IBMPlexMono-SemiBold-Pi.woff2
+  IBMPlexSans-Medium-Latin1.woff2  22304  668a0d9eabbfac0925f431988f56222b8b989ad66a0a78e91bc5889f73fe274a
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-Medium-Latin1.woff2
+  IBMPlexSans-Medium-Pi.woff2  9600  61c22214682a80c430458cda6a1b7f8c32fd46bb2bc03b405fb50fa6fdd58a2c
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-Medium-Pi.woff2
+  IBMPlexSans-Regular-Latin1.woff2  21300  bdb53f2af84b15e0a742428f5e199dacc3e6fd60776f0aebd9f700e2c97c960f
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-Regular-Latin1.woff2
+  IBMPlexSans-Regular-Pi.woff2  9324  3b52c2fd8715cb8526823a8d425ebc369b716c8232f5092cf38dce305b73676a
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-Regular-Pi.woff2
+  IBMPlexSans-SemiBold-Latin1.woff2  22736  8251b7fc61b580c2f52550fa69b3c49fb94fc333815ad301ca6b1f6d15420f85
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-SemiBold-Latin1.woff2
+  IBMPlexSans-SemiBold-Pi.woff2  9664  1beaaee0bfa91cf0d77e4f0b43f9bf12a1364f7cc3af05fa14f857297f2552e6
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/IBMPlexSans-SemiBold-Pi.woff2
+
+Licence files (SIL Open Font License 1.1), IBM's copy shipped beside the split woff2 files:
+  OFL-ibm-plex-sans.txt  91c25c350d3cac39da2736d74f7ba37ef648f5237a4e330a240615bc8d8c4360
+    @ibm/plex-sans 2.0.0: package/fonts/split/woff2/license.txt
+  OFL-ibm-plex-mono.txt  91c25c350d3cac39da2736d74f7ba37ef648f5237a4e330a240615bc8d8c4360
+    @ibm/plex-mono 2.5.0: package/fonts/split/woff2/license.txt
+
+Libre Caslon Display and Source Serif 4 (fetched 2026-11-25), from Google Fonts.
+Google Fonts stylesheet read (it also listed IBM Plex Sans, which now comes from IBM instead):
   https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap
-  https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap
 
 Font files (name, bytes, SHA-256, source):
-  ibm-plex-mono-normal-400-latin.woff2  14648  7ced53420784c93cecccb7c27237594f0e41e5a7990581565f0aef8eda9e9d2f
-    https://fonts.gstatic.com/s/ibmplexmono/v23/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2
-  ibm-plex-mono-normal-500-latin.woff2  14904  6e618344335cc436ffd25deba4f4cb5a60ca6c3a4832e67f236ca43922f74eea
-    https://fonts.gstatic.com/s/ibmplexmono/v23/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgg.woff2
-  ibm-plex-mono-normal-600-latin.woff2  15588  cecb8f0bc58b996a828bc0a23e2814e4acec33f0f531adf565c0248e242061e1
-    https://fonts.gstatic.com/s/ibmplexmono/v23/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgg.woff2
-  ibm-plex-sans-normal-400-500-600-latin.woff2  45712  e2291e842cf5af167122a22881a740c7f2dda7716f1e8cd76680264f4a859470
-    https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYY.woff2
   libre-caslon-display-normal-400-latin.woff2  24236  84267e937417f10dff37df818c5ef7f1e9f2e6a703e03c2dd286d3320af53269
     https://fonts.gstatic.com/s/librecaslondisplay/v18/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lWfxk.woff2
   source-serif-4-italic-400-latin.woff2  50544  e940d556347366d68322f128c89b05a1840da4622c9872b5c2352e3a3410fe25
@@ -25,7 +57,3 @@ Licence files (SIL Open Font License 1.1), from the google/fonts repository:
     https://raw.githubusercontent.com/google/fonts/main/ofl/librecaslondisplay/OFL.txt
   OFL-source-serif-4.txt  5f94c3fd3a23131a417ab5a0c8452de57e70c3cfb9f604d88241f7065ebf9fd9
     https://raw.githubusercontent.com/google/fonts/main/ofl/sourceserif4/OFL.txt
-  OFL-ibm-plex-sans.txt  7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
-    https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsans/OFL.txt
-  OFL-ibm-plex-mono.txt  7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
-    https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/OFL.txt

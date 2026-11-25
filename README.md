@@ -15,8 +15,9 @@ site/               the published site
   atoms/calculator/ the calculator
   assets/site.css   all styles
   assets/img/       the plates (these are source files; build.py reads their sizes)
-  assets/fonts/     the fonts, served from the site itself (woff2, Latin subsets from Google Fonts),
-                    fonts.css with their @font-face rules, each family's OFL licence, SOURCES.txt
+  assets/fonts/     the fonts, served from the site itself (woff2: IBM Plex from IBM's own release,
+                    the others Latin subsets from Google Fonts), fonts.css with their @font-face rules,
+                    each family's OFL licence, SOURCES.txt
   CNAME             jakpotvin.com
   favicon.svg, favicon.ico
   .nojekyll
