@@ -1,0 +1,114 @@
+# The words on jakpotvin.com. Edit them in Notepad, save, and ask Claude to push.
+# A line starting with # is a note for you; it never appears on the site.
+# Keep each [section name] exactly as it is. A blank line starts a new paragraph.
+# A line starting with "- " is one item in a list: title | description
+# A link is written [the words people see](the address).
+# Don't use long dashes; use a comma, a colon or brackets instead.
+
+# Your name, the big heading at the top of the home page.
+[name]
+Jak Potvin
+
+# The short description search engines like Google show under the page title. Used on every page.
+[page description]
+Jak Potvin: open data and tools for atom-by-atom manufacturing, and essays on philosophy, religion, psychology, sociology, politics, economics, war, physics, biology, medicine, technology and the future.
+
+# The line under your name.
+[tagline]
+I write about ideas, faith, the mind, society, power, money, war, matter, life, machines, and what comes next.
+
+# The paragraph about you, under the tagline.
+[bio]
+I’m based in Rhode Island. I design software: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models.
+
+# The small hint that tells visitors to scroll.
+[scroll cue]
+Scroll, and the plates fill in, oldest first.
+
+# The Writing section: the big sentence, then the small note under it.
+[writing intro]
+Ten subjects, each with its own room. Scroll through them, or tap a plate above to go straight in.
+
+[writing note]
+The first essays go up from 15 December.
+
+# The note under each room's title, one per room.
+[room note: Philosophy and religion]
+First essay from 15 December
+
+[room note: Psychology]
+First essay from 15 December
+
+[room note: Sociology]
+First essay from 15 December
+
+[room note: Political science]
+First essay from 15 December
+
+[room note: Economics]
+First essay from 15 December
+
+[room note: War and defense]
+First essay from 15 December
+
+[room note: Physics and chemistry]
+First essay from 15 December
+
+[room note: Biology and medicine]
+First essay from 15 December
+
+[room note: Technology and AI]
+First essay from 15 December
+
+[room note: The future]
+First essay from 15 December
+
+# Projects, the atoms part. The plate note gets "Plate X: " put in front of it automatically.
+[atoms heading]
+Atom by atom
+
+[atoms plate note]
+in 1669 Hennig Brand boiled down urine and found a substance that glowed in the dark. It was phosphorus, the first element whose discoverer we know by name.
+
+[atoms lede]
+AI is making design nearly free. Making things is becoming the bottleneck.
+
+[atoms text]
+Atomically precise manufacturing is how the physical world catches up, and it starts with knowing how reliable each atomic step is. I build the open data and tools that measure that.
+
+# One line per item: title | description. A title written as a link becomes a link.
+[atoms links]
+- [What has been measured so far](atoms/index.html) | Every published atomic step with a count
+- [Atom Factory Calculator](atoms/calculator/index.html) | How many good parts a machine could make in a day, from measured rates
+- The bottleneck map | Published 15 December
+- mechdb, the open dataset | On GitHub, 15 December
+
+# Projects, the other software part.
+[other software heading]
+Other software
+
+[other software text]
+More than eighty projects, in Python, Rust, C++ and TypeScript. Each runs on public or synthetic data; none is in production use.
+
+[other software link]
+[All of it on GitHub](https://github.com/JakPot42?tab=repositories)
+
+# The list of subject areas beside it. One line per area: title | description.
+[areas]
+- Defense and security | Influence-operation analysis, supply-chain and foreign-investment screening, vulnerability triage, post-quantum migration, cleared-facility compliance
+- Space and energy | Satellite tracking and orbit propagation in Rust, a beamed-propulsion mission calculator, power-grid and water-stress monitors
+- Law and government | Federal rulemaking comments, Supreme Court argument patterns, legal-citation checking, contracts and leases checked with a theorem prover
+- Biology and medicine | A gene-drive ecosystem simulator, a single-cell RNA explorer, patient-record linking, outbreak monitoring, medical-bill auditing
+- Materials | Matching metal-organic frameworks to carbon capture and harvesting water from desert air
+- AI and computing | A red-teaming framework, multi-agent strategy simulation, fault-tolerant distributed inference, differential privacy, signal processing in C++
+
+# The Contact section.
+[contact text]
+If you have a correction, an argument, data, or a harder question, I would like to hear from you.
+
+[contact line]
+Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [github.com/JakPot42](https://github.com/JakPot42)
+
+# The line at the very bottom of every page.
+[footer]
+© 2026 Jak Potvin. Built with AI coding tools (Claude). Picture credits: [list of plates](plates.html).

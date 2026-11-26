@@ -1,8 +1,41 @@
 """Build jakpotvin.com. Run from this folder: python build.py data/counts.json data/calculator.html (needs Pillow)."""
 import html, json, sys, pathlib
 
+import sitetext
+
 COUNTS, CALC = sys.argv[1], sys.argv[2]
 OUT = pathlib.Path(__file__).parent / "site"
+SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psychology"), ("s-sociology", "Sociology"),
+            ("s-politics", "Political science"), ("s-economics", "Economics"), ("s-warfare", "War and defense"),
+            ("s-physics", "Physics and chemistry"), ("s-biology", "Biology and medicine"), ("s-tech", "Technology and AI"), ("s-future", "The future")]
+
+# ---------------------------------------------------------------- the words, from site-text.txt (Jak edits that file)
+SECTIONS = (["name", "page description", "tagline", "bio", "scroll cue", "writing intro", "writing note"]
+            + [f"room note: {t}" for _, t in SUBJECTS]
+            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "other software heading",
+               "other software text", "other software link", "areas", "contact text", "contact line", "footer"])
+TEXT_FILE = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else pathlib.Path(__file__).parent / "site-text.txt"
+try:
+    TEXT = sitetext.load(TEXT_FILE, SECTIONS)
+    ATOMS_LINKS = [sitetext.split_item(p) for p in TEXT[sitetext.key("atoms links")]]
+    AREAS = [sitetext.split_item(p) for p in TEXT[sitetext.key("areas")]]
+except sitetext.SiteTextError as e:
+    print(e, file=sys.stderr)
+    sys.exit(2)
+
+
+def one(name, root=""):
+    """A section's text as one line of HTML."""
+    return sitetext.inline(" ".join(TEXT[sitetext.key(name)]), root)
+
+
+def link_item(title, desc, plain_cls):
+    """<li> for a list item; a title written as [words](address) becomes the link."""
+    m = sitetext.LINK.fullmatch(title)
+    if m:
+        return (f'<li><a class="t" href="{html.escape(m.group(2))}">{html.escape(m.group(1), quote=False)}</a>'
+                f'<span class="d">{sitetext.inline(desc)}</span></li>')
+    return f'<li><span class="t">{sitetext.inline(title)}</span><span class="{plain_cls}">{sitetext.inline(desc)}</span></li>'
 DRAFT = ""  # preview banner text; when empty, no banner is written
 ALBUM_JS = """<script>{
 const sec=document.querySelector('.album'), tiles=[...document.querySelectorAll('.tile')].sort((a,b)=>a.dataset.i-b.dataset.i);
@@ -46,7 +79,7 @@ def page(title, root, current, body, script=""):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<meta name="description" content="Jak Potvin: open data and tools for atom-by-atom manufacturing, and essays on philosophy, religion, psychology, sociology, politics, economics, war, physics, biology, medicine, technology and the future.">
+<meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">
 <link rel="stylesheet" href="{root}assets/fonts/fonts.css">
 <link rel="stylesheet" href="{root}assets/site.css">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
@@ -56,7 +89,7 @@ def page(title, root, current, body, script=""):
 {banner}<div class="wrap">
 <header class="top"><a class="name" href="{root}index.html">Jak Potvin</a><nav aria-label="Site">{links}</nav></header>
 {body}
-<footer>&copy; 2026 Jak Potvin. Built with AI coding tools (Claude). Picture credits: <a href="{root}plates.html">list of plates</a>.</footer>
+<footer>{one("footer", root)}</footer>
 </div>
 {MOTION}
 {script}
@@ -166,9 +199,6 @@ def tile(i, p):
 cols = ["".join(tile(i, p) for i, p in enumerate(PLATES) if p[8] == c) for c in range(4)]
 wall = "".join(f'<div class="col">{c}</div>' for c in cols)
 first = PLATES[0]
-SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psychology"), ("s-sociology", "Sociology"),
-            ("s-politics", "Political science"), ("s-economics", "Economics"), ("s-warfare", "War and defense"),
-            ("s-physics", "Physics and chemistry"), ("s-biology", "Biology and medicine"), ("s-tech", "Technology and AI"), ("s-future", "The future")]
 
 def row(anchor, title):
     nos = [p[0] for p in PLATES if p[6] == "#" + anchor]
@@ -240,7 +270,7 @@ def room(anchor, title):
     bg = ROOM_BG.get(anchor, bg)
     return (f'<section class="room" id="{anchor}" data-bg="{bg}" style="--bg:{bg}" aria-labelledby="{anchor}-h"><div class="room-in">'
             f'<div class="room-text"><p class="room-pl">{label}</p><h2 id="{anchor}-h">{title}</h2>'
-            f'<p class="room-soon">First essay from 15 December</p></div>{plates}</div></section>')
+            f'<p class="room-soon">{one("room note: " + title)}</p></div>{plates}</div></section>')
 OUT.mkdir(exist_ok=True)
 ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
 ROOMS_JS = """<script>{
@@ -251,15 +281,15 @@ if(wrap && rs.length && 'IntersectionObserver' in window){
   rs.forEach(r=>io.observe(r));
 }}</script>"""
 
-BIO = "I&rsquo;m based in Rhode Island. I design software: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models."
+BIO = one("bio")
 home = page("Jak Potvin", "", "home", f"""
 <section class="album" aria-label="Introduction" style="--n:{len(PLATES)}">
 <div class="stage">
 <div class="intro">
-<h1>Jak Potvin</h1>
-<p class="lede">I write about ideas, faith, the mind, society, power, money, war, matter, life, machines, and what comes next.</p>
+<h1>{one("name")}</h1>
+<p class="lede">{one("tagline")}</p>
 <p class="note">{BIO}</p>
-<p class="cue">Scroll, and the plates fill in, oldest first.</p>
+<p class="cue">{one("scroll cue")}</p>
 </div>
 <div class="wall">{wall}</div>
 <div class="readout in">
@@ -277,8 +307,8 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="split">
 <h2 id="writing-h">Writing</h2>
 <div class="stack">
-<p class="lede">Ten subjects, each with its own room. Scroll through them, or tap a plate above to go straight in.</p>
-<p class="small">The first essays go up from 15 December.</p>
+<p class="lede">{one("writing intro")}</p>
+<p class="small">{one("writing note")}</p>
 </div>
 </div>
 </section>
@@ -288,33 +318,25 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="split">
 <div class="stack">
 <h2 id="projects-h">Projects</h2>
-<h3 style="margin-top:18px">Atom by atom</h3>
-<p class="small">Plate {NO["alchemist-phosphorus.jpg"]}: in 1669 Hennig Brand boiled down urine and found a substance that glowed in the dark. It was phosphorus, the first element whose discoverer we know by name.</p>
+<h3 style="margin-top:18px">{one("atoms heading")}</h3>
+<p class="small">Plate {NO["alchemist-phosphorus.jpg"]}: {one("atoms plate note")}</p>
 </div>
 <div class="stack">
-<p class="lede">AI is making design nearly free. Making things is becoming the bottleneck.</p>
-<p>Atomically precise manufacturing is how the physical world catches up, and it starts with knowing how reliable each atomic step is. I build the open data and tools that measure that.</p>
+<p class="lede">{one("atoms lede")}</p>
+<p>{one("atoms text")}</p>
 <ul class="links narrow">
-<li><a class="t" href="atoms/index.html">What has been measured so far</a><span class="d">Every published atomic step with a count</span></li>
-<li><a class="t" href="atoms/calculator/index.html">Atom Factory Calculator</a><span class="d">How many good parts a machine could make in a day, from measured rates</span></li>
-<li><span class="t">The bottleneck map</span><span class="soon">Published 15 December</span></li>
-<li><span class="t">mechdb, the open dataset</span><span class="soon">On GitHub, 15 December</span></li>
+{chr(10).join(link_item(t, d, "soon") for t, d in ATOMS_LINKS)}
 </ul>
 </div>
 </div>
 <div class="split" style="margin-top:clamp(32px,4vw,56px)">
 <div class="stack">
-<h3>Other software</h3>
-<p class="small">More than eighty projects, in Python, Rust, C++ and TypeScript. Each runs on public or synthetic data; none is in production use.</p>
-<p class="small"><a href="https://github.com/JakPot42?tab=repositories">All of it on GitHub</a></p>
+<h3>{one("other software heading")}</h3>
+<p class="small">{one("other software text")}</p>
+<p class="small">{one("other software link")}</p>
 </div>
 <ul class="links areas">
-<li><span class="t">Defense and security</span><span class="d">Influence-operation analysis, supply-chain and foreign-investment screening, vulnerability triage, post-quantum migration, cleared-facility compliance</span></li>
-<li><span class="t">Space and energy</span><span class="d">Satellite tracking and orbit propagation in Rust, a beamed-propulsion mission calculator, power-grid and water-stress monitors</span></li>
-<li><span class="t">Law and government</span><span class="d">Federal rulemaking comments, Supreme Court argument patterns, legal-citation checking, contracts and leases checked with a theorem prover</span></li>
-<li><span class="t">Biology and medicine</span><span class="d">A gene-drive ecosystem simulator, a single-cell RNA explorer, patient-record linking, outbreak monitoring, medical-bill auditing</span></li>
-<li><span class="t">Materials</span><span class="d">Matching metal-organic frameworks to carbon capture and harvesting water from desert air</span></li>
-<li><span class="t">AI and computing</span><span class="d">A red-teaming framework, multi-agent strategy simulation, fault-tolerant distributed inference, differential privacy, signal processing in C++</span></li>
+{chr(10).join(link_item(t, d, "d") for t, d in AREAS)}
 </ul>
 </div>
 </section>
@@ -323,8 +345,8 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="split">
 <h2 id="contact-h">Contact</h2>
 <div class="stack">
-<p>If you have a correction, an argument, data, or a harder question, I would like to hear from you.</p>
-<p class="small">Email: <a href="mailto:jak@jakpotvin.com">jak@jakpotvin.com</a>. Code: <a href="https://github.com/JakPot42">github.com/JakPot42</a></p>
+<p>{one("contact text")}</p>
+<p class="small">{one("contact line")}</p>
 </div>
 </div>
 </section>

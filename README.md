@@ -5,7 +5,9 @@ Jak Potvin's personal site. Static HTML, no framework, served from the `site/` f
 ## Layout
 
 ```
-build.py            writes the HTML pages in site/ from the lists inside it
+build.py            writes the HTML pages in site/ from the lists inside it and the words in site-text.txt
+site-text.txt       the words on the home page, the page description and the footer: edit these in Notepad
+sitetext.py         reads and checks site-text.txt for build.py
 data/counts.json    mechdb export (format mechdb-counts-2) used for the chart on the atoms page
 data/calculator.html  the Atom Factory Calculator, copied to site/atoms/calculator/ with a back link
 .github/workflows/pages.yml  publishes site/ to GitHub Pages on every push to main (it does not run build.py)
@@ -34,6 +36,16 @@ python build.py data/counts.json data/calculator.html
 Tests: `pip install pytest`, then `python -m pytest` (the browser tests need Microsoft Edge).
 
 The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html` and `site/atoms/calculator/index.html`. A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
+
+## Editing the words
+
+The words on the home page, the description search engines show, and the footer are in `site-text.txt`.
+
+1. Open `site-text.txt` in Notepad.
+2. Change the words under the `[section]` lines. Keep the `[section]` lines as they are. Lines starting with `#` are notes and never appear on the site.
+3. Save, then ask Claude to push. Claude rebuilds the pages, runs the tests and the private-name scan, and pushes.
+
+If something in the file is wrong (a section renamed, a long dash), the build stops with one sentence saying which line to fix.
 
 ## How the home page works
 

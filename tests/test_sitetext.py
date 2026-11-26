@@ -1,0 +1,134 @@
+import pytest
+
+from sitetext import SiteTextError, inline, load, parse, split_item
+
+SAMPLE = """# A note for Jak
+[Name]
+Jak Potvin
+
+[bio]
+First line of a paragraph
+continues here.
+
+Second paragraph.
+
+[areas]
+- Space | Satellites
+- Law | Courts
+"""
+
+
+def write(tmp_path, text, name="site-text.txt", encoding="utf-8"):
+    p = tmp_path / name
+    p.write_bytes(text.encode(encoding))
+    return p
+
+
+def test_parse_sections_and_paragraphs():
+    got = parse(SAMPLE)
+    assert got["name"] == ["Jak Potvin"]
+    assert got["bio"] == ["First line of a paragraph continues here.", "Second paragraph."]
+
+
+def test_comment_lines_ignored():
+    got = parse("[bio]\n# not shown\nShown\n")
+    assert got == {"bio": ["Shown"]}
+
+
+def test_list_items_are_paragraphs():
+    assert parse(SAMPLE)["areas"] == ["Space | Satellites", "Law | Courts"]
+
+
+def test_section_names_normalised():
+    assert list(parse("[  Room   Note:  The future ]\nx\n")) == ["room note: the future"]
+
+
+def test_bom_and_crlf(tmp_path):
+    lf = load(write(tmp_path, SAMPLE), ["name", "bio", "areas"])
+    crlf = load(write(tmp_path, chr(0xFEFF) + SAMPLE.replace("\n", "\r\n") + "   \r\n\r\n", "b.txt"), ["name", "bio", "areas"])
+    assert crlf == lf
+
+
+def test_missing_section_message(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, "[name]\nJak\n"), ["name", "bio"])
+    assert str(e.value) == "site-text.txt: section [bio] is missing."
+
+
+def test_unknown_section_names_line(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, "[name]\nJak\n\n[bioo]\nText\n"), ["name", "bio"])
+    assert str(e.value).startswith("site-text.txt line 4: unknown section [bioo]")
+    assert "bio" in str(e.value).split("[bioo]", 1)[1]
+
+
+def test_empty_section_names_line(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, "[name]\nJak\n[bio]\n# only a note\n"), ["name", "bio"])
+    assert str(e.value) == "site-text.txt line 3: section [bio] is empty."
+
+
+@pytest.mark.parametrize("dash", [chr(0x2013), chr(0x2014)])
+def test_long_dash_rejected(tmp_path, dash):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, f"[name]\nJak\n\n[bio]\nOne {dash} two\n"), ["name", "bio"])
+    msg = str(e.value)
+    assert msg.startswith("site-text.txt line 5:")
+    assert "[bio]" in msg and "comma" in msg
+
+
+def test_text_outside_a_section_names_line(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, "Stray words\n[name]\nJak\n"), ["name"])
+    assert str(e.value).startswith("site-text.txt line 1:")
+
+
+def test_duplicate_section_names_both_lines(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(write(tmp_path, "[name]\nJak\n[name]\nJak again\n"), ["name"])
+    assert str(e.value).startswith("site-text.txt line 3:") and "line 1" in str(e.value)
+
+
+def test_typographic_quotes_allowed(tmp_path):
+    text = "I" + chr(0x2019) + "m " + chr(0x201C) + "quoted" + chr(0x201D) + " " + chr(0xA9) + " 2026"
+    got = load(write(tmp_path, f"[bio]\n{text}\n"), ["bio"])
+    assert got["bio"] == [text]
+    assert inline(text) == text
+
+
+def test_inline_escapes_html():
+    assert inline("a < b & c") == "a &lt; b &amp; c"
+    assert inline("<b>x</b>") == "&lt;b&gt;x&lt;/b&gt;"
+
+
+def test_inline_link_relative_gets_root():
+    assert inline("[list](plates.html)", "../") == '<a href="../plates.html">list</a>'
+
+
+def test_inline_absolute_and_mailto_untouched():
+    assert inline("[GitHub](https://github.com/JakPot42)", "../") == '<a href="https://github.com/JakPot42">GitHub</a>'
+    assert inline("[me](mailto:jak@jakpotvin.com)", "../") == '<a href="mailto:jak@jakpotvin.com">me</a>'
+    assert inline("[top](#projects)", "../") == '<a href="#projects">top</a>'
+
+
+def test_inline_link_inside_sentence():
+    assert inline("Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [x](https://a.b/?q=1&r=2)") == (
+        'Email: <a href="mailto:jak@jakpotvin.com">jak@jakpotvin.com</a>. Code: <a href="https://a.b/?q=1&amp;r=2">x</a>')
+
+
+def test_inline_quote_in_address_escaped():
+    assert inline('[x](a"b.html)') == '<a href="a&quot;b.html">x</a>'
+
+
+def test_inline_malformed_link_left_as_text():
+    assert inline("[words](address") == "[words](address"
+    assert inline("[words] (address)") == "[words] (address)"
+
+
+def test_split_item():
+    assert split_item("[Atom Factory Calculator](atoms/calculator/index.html) | How many good parts") == (
+        "[Atom Factory Calculator](atoms/calculator/index.html)", "How many good parts")
+    assert split_item("A | b | c") == ("A", "b | c")
+    with pytest.raises(SiteTextError) as e:
+        split_item("No separator in this list item at all, sorry")
+    assert "No separator in this list item at all," in str(e.value)
