@@ -1,9 +1,20 @@
-/* jakpotvin.com home page: the first-screen slideshow and the rooms' wall colour.
-   With prefers-reduced-motion nothing moves: the first plate stays, still. */
+/* jakpotvin.com home page: the first-screen slideshow, the shrink into the album, the album caption,
+   and the rooms' wall colour. With prefers-reduced-motion nothing moves: the first plate stays, still. */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const desktop = matchMedia('(min-width: 761px)');
   root.dataset.motion = reduced ? 'reduced' : 'full';
+
+  // Year, event, subject link and credit of a plate (data-* of a slide or a tile) into a caption element.
+  function fillCaption(cap, d) {
+    cap.querySelector('.yr').textContent = d.yr;
+    cap.querySelector('.what').textContent = d.what;
+    const subj = cap.querySelector('.subj');
+    subj.textContent = d.subj; subj.setAttribute('href', d.href);
+    const b = document.createElement('b'); b.textContent = `Plate ${d.no}.`;
+    cap.querySelector('.credit').replaceChildren(b, ' ' + d.credit);
+  }
 
   // One plate at a time: 5 s each, 1 s crossfade; only the current and the next image are loaded.
   function initSlideshow(intro) {
@@ -11,17 +22,10 @@
     const slides = [...box.querySelectorAll('.slide')];
     const cap = intro.querySelector('.caption');
     const btn = intro.querySelector('.pause');
-    const f = {yr: cap.querySelector('.yr'), what: cap.querySelector('.what'), subj: cap.querySelector('.subj'), credit: cap.querySelector('.credit')};
     let cur = 0, timer = null, paused = false, stopped = false;
 
     const art = i => slides[(i + slides.length) % slides.length].querySelector('.art');
     const load = i => { const img = art(i); if (img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); } };
-    const caption = d => {
-      f.yr.textContent = d.yr; f.what.textContent = d.what;
-      f.subj.textContent = d.subj; f.subj.setAttribute('href', d.href);
-      const b = document.createElement('b'); b.textContent = `Plate ${d.no}.`;
-      f.credit.replaceChildren(b, ' ' + d.credit);
-    };
     const show = i => {
       const prev = slides[cur];
       cur = (i + slides.length) % slides.length;
@@ -31,7 +35,8 @@
       setTimeout(() => prev.classList.remove('leaving'), 1100);
       next.classList.add('on');
       box.dataset.current = String(cur);
-      caption(next.dataset);
+      fillCaption(cap, next.dataset);
+      box.dispatchEvent(new Event('slidechange'));
     };
     const tick = () => {
       if (document.hidden || paused || stopped) return;
@@ -61,6 +66,91 @@
     };
   }
 
+  // Scrolling off the first screen: the slideshow stops and the zoom eases out; on desktop with scroll-driven
+  // animation support (html.sda) CSS then shrinks the current painting into its tile, using the box measured here.
+  function initIntroScroll(intro, show) {
+    const stage = intro.querySelector('.intro-stage');
+    const box = intro.querySelector('.slides');
+    const supported = CSS.supports('animation-timeline: scroll()');
+    const offset = (el) => { let x = 0, y = 0; for (let n = el; n && n !== stage; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; } return [x, y]; };
+    const reset = a => { for (const k of ['top', 'left', 'width', 'height', 'right', 'bottom', 'margin']) a.style[k] = ''; };
+
+    const measure = () => {
+      const on = supported && !reduced && desktop.matches;
+      root.classList.toggle('sda', on);
+      intro.querySelectorAll('.tile.current').forEach(t => t.classList.remove('current'));
+      intro.querySelectorAll('.slide .art').forEach(reset);
+      if (!on) return;
+      const slide = box.querySelector('.slide.on');
+      const tile = intro.querySelector(`.tile[data-i="${box.dataset.current}"]`);
+      if (!slide || !tile) return;
+      tile.classList.add('current');
+      const [tx, ty] = offset(tile);
+      stage.style.setProperty('--tx', tx + 'px');
+      stage.style.setProperty('--ty', ty + 'px');
+      stage.style.setProperty('--tw', tile.offsetWidth + 'px');
+      stage.style.setProperty('--th', tile.offsetHeight + 'px');
+      const a = slide.querySelector('.art');
+      a.style.animation = 'none';  // measure the box the shrink starts from, without the animation applied
+      const [ax, ay] = offset(a);
+      const start = {top: ay + 'px', left: ax + 'px', width: a.offsetWidth + 'px', height: a.offsetHeight + 'px', right: 'auto', bottom: 'auto', margin: '0'};
+      a.style.animation = '';
+      Object.assign(a.style, start);
+    };
+
+    let still = false;
+    const freeze = () => {
+      const s = box.querySelector('.slide.on');
+      if (!s) return;
+      const a = s.querySelector('.art');
+      a.style.transform = getComputedStyle(a).transform;
+      s.classList.add('still');
+      requestAnimationFrame(() => { a.style.transition = 'transform .3s ease'; a.style.transform = 'none'; });
+    };
+    const thaw = () => box.querySelectorAll('.slide').forEach(s => {
+      s.classList.remove('still');
+      const a = s.querySelector('.art'); a.style.transform = ''; a.style.transition = '';
+    });
+    const onScroll = () => {
+      if (scrollY > 0 && !still) { still = true; show && show.stop(); freeze(); }
+      else if (scrollY <= 0 && still) { still = false; thaw(); show && show.resume(); }
+    };
+
+    let queued = false;
+    const later = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; measure(); }); } };
+    box.addEventListener('slidechange', () => { thaw(); measure(); if (still) freeze(); });
+    addEventListener('resize', later);
+    desktop.addEventListener('change', later);
+    addEventListener('scroll', onScroll, {passive: true});
+    measure();
+    onScroll();
+  }
+
+  // The caption under the album names the tile pointed at, focused, or (on touch) first tapped; a second tap follows the link.
+  function initAlbumCaption(wall, cap) {
+    let armed = null, touch = false;
+    const pick = e => e.target.closest && e.target.closest('.tile');
+    wall.addEventListener('pointerdown', e => { touch = e.pointerType === 'touch'; });
+    wall.addEventListener('mouseover', e => { const t = pick(e); if (t) fillCaption(cap, t.dataset); });
+    wall.addEventListener('focusin', e => { const t = pick(e); if (t) fillCaption(cap, t.dataset); });
+    wall.addEventListener('click', e => {
+      const t = pick(e);
+      if (!t || !touch) return;
+      if (armed !== t) { e.preventDefault(); armed = t; fillCaption(cap, t.dataset); }
+    });
+  }
+
+  // Without the shrink, tiles fade in once as they come into view (full motion only).
+  function initTileReveal(wall) {
+    if (reduced || !('IntersectionObserver' in window)) return;
+    const tiles = [...wall.querySelectorAll('.tile')];
+    const io = new IntersectionObserver(es => {
+      for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }, {threshold: 0.1});
+    tiles.forEach(t => io.observe(t));
+    wall.classList.add('reveal-tiles');
+  }
+
   // Each room's wall colour, taken from its painting, fills the page as the room comes into view.
   function initRooms(wrap) {
     const rooms = [...wrap.querySelectorAll('.room')];
@@ -74,7 +164,13 @@
   }
 
   const intro = document.querySelector('.intro');
-  if (intro && !reduced) window.slideshow = initSlideshow(intro);
+  if (intro) {
+    const show = reduced ? null : initSlideshow(intro);
+    window.slideshow = show;
+    initIntroScroll(intro, show);
+    const wall = intro.querySelector('.wall'), cap = intro.querySelector('.album-caption');
+    if (wall && cap) { initAlbumCaption(wall, cap); initTileReveal(wall); }
+  }
   const rooms = document.querySelector('.rooms');
   if (rooms) initRooms(rooms);
 })();

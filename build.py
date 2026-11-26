@@ -186,7 +186,8 @@ def tile(i, p):
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     img = f'<img src="assets/img/small/{f}" alt="{html.escape(alt)}" style="object-position:{pos}" loading=lazy>'
     inner = f'<a href="{href}">{img}</a>' if href else img
-    return f'<figure class="tile" data-i="{i}" {plate_data(p)} style="flex-grow:{grow}">{inner}</figure>'
+    return (f'<figure class="tile" data-i="{i}" {plate_data(p)} style="flex-grow:{grow};order:{i}">{inner}'
+            f'<figcaption class="no">Plate {no}</figcaption></figure>')
 def slide(i, p):
     """One plate of the first-screen slideshow; only the first has its image address set, home.js loads the rest."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
@@ -279,6 +280,7 @@ BIO = one("bio")
 home = page("Jak Potvin", "", "home", f"""
 <section class="intro" aria-label="Introduction">
 <div class="intro-stage">
+<div class="hero">
 <div class="slides" data-current="0">
 {chr(10).join(slide(i, p) for i, p in enumerate(PLATES))}
 </div>
@@ -298,13 +300,12 @@ home = page("Jak Potvin", "", "home", f"""
 <button class="pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
 <p class="cue">{one("scroll cue")}</p>
 </div>
-</section>
-
-<section class="album" aria-label="The plates">
+<div class="album">
 <div class="wall">{wall}</div>
+<p class="album-caption"><span class="yr">{first[3]}</span> <span class="what">{first[4]}</span> <a class="subj" href="{first[6]}">{first[5]}</a> <span class="credit"><b>Plate {first[0]}.</b> {SHORT[first[0]]}</span></p>
+</div>
+</div>
 </section>
-
-<section class="about-m" aria-label="About"><p>{BIO}</p></section>
 
 <section id="writing" aria-labelledby="writing-h">
 <div class="split">

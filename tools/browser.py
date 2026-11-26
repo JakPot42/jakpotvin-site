@@ -173,6 +173,11 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
+class _Server(http.server.ThreadingHTTPServer):
+    daemon_threads = True
+    request_queue_size = 128  # the default (5) refuses connections when a page asks for many files at once
+
+
 class Site:
     """Serves a folder (default: site/) on 127.0.0.1 at a free port, from a background thread."""
 
@@ -181,8 +186,7 @@ class Site:
 
     def __enter__(self):
         handler = functools.partial(_QuietHandler, directory=str(self.root))
-        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
-        self.server.daemon_threads = True
+        self.server = _Server(("127.0.0.1", 0), handler)
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -197,8 +201,15 @@ class Site:
         self.thread.join(5)
 
 
+NO_SCROLL_TIMELINE = """(() => { const real = CSS.supports.bind(CSS);
+  CSS.supports = (...a) => /animation-timeline|view-timeline|scroll-timeline|animation-range/.test(a.join(' ')) ? false : real(...a); })();"""
+
+
 class Browser:
-    """Headless Edge with a fresh profile. no_scroll_timeline=True turns CSS scroll-driven animations off."""
+    """Headless Edge with a fresh profile.
+
+    no_scroll_timeline=True makes pages see no CSS scroll-driven animation support (CSS.supports answers false),
+    the way an older browser does; Edge's own switch for the feature no longer turns it off."""
 
     def __init__(self, no_scroll_timeline=False):
         self.no_scroll_timeline = no_scroll_timeline
@@ -211,8 +222,6 @@ class Browser:
                 "--disable-background-networking", "--disable-component-update", "--disable-default-apps",
                 "--hide-scrollbars", "--mute-audio",
                 "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1"]
-        if self.no_scroll_timeline:
-            args.append("--disable-blink-features=ScrollTimeline")
         args.append("about:blank")
         self.proc = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         portfile = Path(self.profile) / "DevToolsActivePort"
@@ -236,6 +245,8 @@ class Browser:
         for domain in ("Page.enable", "Runtime.enable", "Log.enable", "Network.enable"):
             cdp.call(domain, {}, s)
         cdp.call("Network.setCacheDisabled", {"cacheDisabled": True}, s)
+        if self.no_scroll_timeline:
+            cdp.call("Page.addScriptToEvaluateOnNewDocument", {"source": NO_SCROLL_TIMELINE}, s)
         page = Page(cdp, tid, s, mobile)
         page.resize(width, height, settle=0)
         cdp.call("Emulation.setTouchEmulationEnabled", {"enabled": mobile}, s)
