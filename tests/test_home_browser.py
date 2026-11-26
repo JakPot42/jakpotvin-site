@@ -137,36 +137,7 @@ def test_header_over_slide_on_home_only(browser, site):
     assert other.eval("getComputedStyle(document.querySelector('.top .name')).display") != "none"
 
 
-# ---------------------------------------------------------------- Task 5: the shrink into the album, the caption, the phone row
-
-TILE_OF_CURRENT = "document.querySelector('.tile[data-i=\"' + document.querySelector('.slides').dataset.current + '\"]')"
-BOX = ("(el => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; })")
-
-
-def shrink_landed(page):
-    art = page.eval(BOX + "(document.querySelector('.slide.on .art'))")
-    tile = page.eval(BOX + "(" + TILE_OF_CURRENT + ")")
-    close = all(abs(a - b) <= 4 for a, b in zip(art, tile))
-    handed_over = page.eval("(() => { const t = " + TILE_OF_CURRENT + ", s = document.querySelector('.slide.on');"
-                            " return getComputedStyle(t).opacity === '1' && (getComputedStyle(s).opacity === '0' || getComputedStyle(s).visibility === 'hidden'); })()")
-    return close or handed_over, art, tile
-
-
-def test_shrink_lands_on_tile(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(0.5)
-    page.scroll_to(page.eval("innerHeight"))
-    page.wait(0.5)
-    ok, art, tile = shrink_landed(page)
-    assert ok, (art, tile)
-
-
-def test_tiles_finished_after_shrink(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.scroll_to(page.eval("innerHeight"))
-    page.wait(0.5)
-    assert page.eval("[...document.querySelectorAll('.tile')].every(t => getComputedStyle(t).opacity === '1')")
-
+# ---------------------------------------------------------------- Task 5 (album removed 26 Nov): scrolling, deep links, widths
 
 def test_scroll_back_restores_first_screen(browser, site):
     page = open_home(browser, site, DESKTOP)
@@ -177,57 +148,6 @@ def test_scroll_back_restores_first_screen(browser, site):
     r = rect(page, ".slide.on .art")
     assert r["left"] <= 0 and r["top"] <= 0 and r["right"] >= 1439 and r["bottom"] >= 899
     assert page.eval("getComputedStyle(document.querySelector('.intro-text')).opacity") == "1"
-
-
-def test_shrink_lands_on_tile_after_resize(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.resize(1200, 800, settle=0.6)
-    page.scroll_to(page.eval("innerHeight"))
-    page.wait(0.5)
-    ok, art, tile = shrink_landed(page)
-    assert ok, (art, tile)
-
-
-def test_album_caption_follows_hover_and_focus(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.scroll_to(page.eval("innerHeight"))
-    page.wait(0.5)
-    page.hover('.tile[data-i="5"]')
-    assert page.eval("document.querySelector('.album-caption .yr').textContent") == \
-        page.eval("document.querySelector('.tile[data-i=\"5\"]').dataset.yr")
-    page.eval("document.querySelector('.tile[data-i=\"9\"] a').focus(); 1")
-    page.wait(0.1)
-    assert page.eval("document.querySelector('.album-caption .yr').textContent") == \
-        page.eval("document.querySelector('.tile[data-i=\"9\"]').dataset.yr")
-
-
-def test_phone_album_is_swipe_row(browser, site):
-    page = open_home(browser, site, PHONE)
-    page.wait(0.5)
-    assert page.eval("getComputedStyle(document.querySelector('.wall')).scrollSnapType").startswith("x")
-    assert page.eval("(w => w.scrollWidth > w.clientWidth)(document.querySelector('.wall'))")
-    widths = page.eval("[...document.querySelectorAll('.tile')].map(t => t.getBoundingClientRect().width)")
-    assert all(abs(w - 0.4 * 412) <= 2 for w in widths), widths
-    order = page.eval("[...document.querySelectorAll('.tile')].sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left).map(t => +t.dataset.i)")
-    assert order == sorted(order)
-    assert page.eval("document.querySelector('#writing').getBoundingClientRect().top + scrollY") < 2 * 915
-    assert page.eval("document.querySelector('.tile[data-i=\"0\"] figcaption').textContent.trim()") == "Plate I"
-
-
-def test_fallback_without_scroll_timeline(browser_nosda, site):
-    page = open_home(browser_nosda, site, DESKTOP)
-    assert page.eval("CSS.supports('animation-timeline: scroll()')") is False, "the Edge flag no longer turns the feature off"
-    assert abs(rect(page, ".hero")["height"] - page.eval("innerHeight")) <= 1
-    page.eval("document.querySelector('.wall').scrollIntoView(); 1")
-    page.wait(1.2)
-    assert page.eval("[...document.querySelectorAll('.tile')].every(t => getComputedStyle(t).opacity === '1')")
-    assert page.console_problems() == []
-
-
-def test_reduced_motion_album_in_place(browser, site):
-    page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
-    assert page.eval("getComputedStyle(document.querySelector('.intro-stage')).position") != "sticky"
-    assert page.eval("[...document.querySelectorAll('.tile')].every(t => getComputedStyle(t).opacity === '1')")
 
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
@@ -356,18 +276,6 @@ def test_rooms_repin_after_resize(browser, site):
 
 # ---------------------------------------------------------------- final review fixes
 
-def test_album_not_clickable_at_top_and_focus_finishes_it(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(0.5)
-    assert not page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(900, 450))")
-    assert not page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(300, 700))")
-    page.eval("document.querySelector('.tile[data-i=\"4\"] a').focus(); 1")
-    page.wait(0.6)
-    assert abs(page.eval("scrollY") - page.eval("innerHeight")) <= 2
-    assert page.eval("getComputedStyle(document.querySelector('.tile[data-i=\"4\"]')).opacity") == "1"
-    assert page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(900, 450))")
-
-
 def test_slides_hidden_from_screen_readers(browser, site):
     page = open_home(browser, site, DESKTOP)
     page.wait(1.2)
@@ -377,41 +285,12 @@ def test_slides_hidden_from_screen_readers(browser, site):
     assert page.eval("document.querySelector('.intro .caption .what').textContent.length") > 0
 
 
-def test_whole_plate_shrink_ends_as_its_tile(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(0.5)
-    i = page.eval("[...document.querySelectorAll('.slide')].findIndex(s => s.classList.contains('whole'))")
-    page.eval("window.slideshow.pause(); window.slideshow.goto(%d); 1" % i)
-    page.wait(1.4)
-    w, h = page.eval("(a => [+a.style.getPropertyValue('--w'), +a.style.getPropertyValue('--h')])(document.querySelector('.slide.on .art'))")
-    box = rect(page, ".slide.on .art")
-    assert abs(box["width"] / box["height"] - w / h) < 0.02, (box, w, h)
-    page.scroll_to(page.eval("innerHeight"))
-    page.wait(0.5)
-    assert page.eval("getComputedStyle(document.querySelector('.slide.on .art')).objectFit") == "cover"
-    art = page.eval(BOX + "(document.querySelector('.slide.on .art'))")
-    tile = page.eval(BOX + "(" + TILE_OF_CURRENT + ")")
-    assert all(abs(a - b) <= 2 for a, b in zip(art, tile)), (art, tile)
-
-
 @pytest.mark.parametrize("w, h, mobile", [(915, 412, True), (1280, 600, False), (800, 600, False)])
 def test_text_clears_caption_on_short_screens(browser, site, w, h, mobile):
     page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
     page.wait(0.8)
     assert rect(page, ".intro-text")["bottom"] <= rect(page, ".hero .caption")["top"]
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
-    assert not page.eval("document.documentElement.classList.contains('sda')")
-
-
-def test_album_does_not_jump_on_hover(browser, site):
-    page = open_home(browser, site, dict(width=880, height=1000, mobile=False))
-    page.scroll_to(1000)
-    page.wait(0.6)
-    tops = []
-    for k in range(page.eval("document.querySelectorAll('.tile').length")):
-        page.hover('.tile[data-i="%d"]' % k)
-        tops.append(round(rect(page, ".wall")["top"]))
-    assert max(tops) - min(tops) <= 1, tops
 
 
 ZOOM = r"(m => m ? Math.hypot(+m[1], +m[2]) : 1)(getComputedStyle(document.querySelector('.slide.on .art')).transform.match(/matrix\(([^,]+), ([^,]+)/))"
@@ -434,14 +313,15 @@ def test_pause_button_keeps_its_name(browser, site):
     assert page.eval("document.querySelector('.pause').getAttribute('aria-pressed')") == "true"
 
 
-@pytest.mark.parametrize("size", [(1440, 900), (1200, 800)])
-def test_shrink_boxes_match_exactly(browser, site, size):
-    page = open_home(browser, site, DESKTOP)
+# ---------------------------------------------------------------- 26 Nov: Jak dropped the album from the home page
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_writing_follows_the_first_screen(browser, site, cfg):
+    page = open_home(browser, site, cfg)
     page.wait(0.5)
-    if size != (1440, 900):
-        page.resize(*size, settle=0.6)
+    assert page.eval("document.querySelectorAll('.album, .tile, .wall').length") == 0
+    top = page.eval("document.querySelector('#writing').getBoundingClientRect().top + scrollY")
+    assert abs(top - page.eval("document.querySelector('.hero').getBoundingClientRect().bottom + scrollY")) <= 2
     page.scroll_to(page.eval("innerHeight"))
     page.wait(0.5)
-    art = page.eval(BOX + "(document.querySelector('.slide.on .art'))")
-    tile = page.eval(BOX + "(" + TILE_OF_CURRENT + ")")
-    assert all(abs(a - b) <= 2 for a, b in zip(art, tile)), (art, tile)
+    assert page.eval("document.querySelector('#writing').getBoundingClientRect().top") <= 2

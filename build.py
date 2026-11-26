@@ -114,7 +114,7 @@ lattice = f"""<svg viewBox="0 0 {W} {H}" role="img" aria-label="Drawing of rows 
 
 LATTICE_CAPTION = 'The top layer of a silicon crystal, drawn for this site: rows of paired silicon atoms, with two carbon pairs (teal) placed between the rows.'
 
-# ---------------------------------------------------------------- home: the album wall
+# ---------------------------------------------------------------- home: the plates
 OUT_IMG = pathlib.Path(__file__).parent / "site" / "assets" / "img"
 PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subject, anchor, credit, column, grow, pos): column and grow are set below
  ("I", "death-of-socrates.jpg", "Socrates, seated on his prison bed, reaches for the cup of hemlock with one hand and points upward with the other while his followers grieve.", "399 BC", "Socrates is condemned and drinks the hemlock", "Philosophy and religion", "#s-philosophy", "Jacques-Louis David, The Death of Socrates, 1787. The Metropolitan Museum of Art, New York.", 0, 0, "55% 45%"),
@@ -140,7 +140,7 @@ PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subjec
  ("XVII", "kennedy-von-braun.jpg", "Wernher von Braun and President Kennedy, both looking and pointing upward, beside a model Saturn rocket.", "1963", "Von Braun shows Kennedy the Saturn rocket", "The future", "#s-future", "NASA photograph, Cape Canaveral, 16 November 1963.", 0, 0, "50% 38%"),
  ("XVIII", "earthrise.jpg", "The Earth, half lit, rising above the grey horizon of the Moon against black space.", "1968", "Apollo 8 sees the Earth rise over the Moon", "The future", "#s-future", "Earthrise. Photograph by William Anders, Apollo 8, 24 December 1968. NASA.", 0, 0, "56% 55%"),
 ]
-# lay the album out automatically: four columns, each plate goes to the shortest column so far (keeps rough date order)
+# each plate's column and height share (from the old album wall; kept so the plate tuples keep their shape)
 from PIL import Image as _Img
 _cols, _h, _ps = 4, [0.0] * 4, []
 PLATES = [_p for _p in PLATES if (OUT_IMG / _p[1]).exists()]
@@ -149,18 +149,19 @@ for _p in PLATES:
     _c = min(range(_cols), key=lambda i: _h[i]); _h[_c] += _g
     _ps.append(_p[:8] + (_c, round(_g, 3), _p[10]))
 PLATES = _ps
-# copies of each plate (images.py): small/ for the album, blur/ for the backdrop of plates shown whole
+# blurred copy of each plate (images.py), the backdrop of plates shown whole on the first screen
 import images
 SIZE = {}
 for _p in PLATES:
-    images.write_copies(OUT_IMG / _p[1], OUT_IMG / "small", OUT_IMG / "blur")
+    images.write_copies(OUT_IMG / _p[1], None, OUT_IMG / "blur")
     with _Img.open(OUT_IMG / _p[1]) as _im:
         SIZE[_p[1]] = _im.size
 WHOLE = {f: images.show_whole(*wh) for f, wh in SIZE.items()}
-for _d in ("small", "blur"):  # a plate removed from PLATES, or whose file is gone, leaves no copies behind
-    for _stale in (OUT_IMG / _d).glob("*.jpg"):
-        if _stale.name not in SIZE:
-            _stale.unlink()
+for _stale in (OUT_IMG / "blur").glob("*.jpg"):  # a plate removed from PLATES, or whose file is gone, leaves no copy behind
+    if _stale.name not in SIZE:
+        _stale.unlink()
+import shutil
+shutil.rmtree(OUT_IMG / "small", ignore_errors=True)  # the album's small copies; the home page no longer has an album
 def roman(n):
     out = ""
     for v, s in ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")):
@@ -181,16 +182,10 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "schoo
     "kennedy-von-braun.jpg": "NASA, Kennedy and von Braun", "eniac.jpg": "U.S. Army, ENIAC", "earthrise.jpg": "Anders, Earthrise"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
-    """The data-* attributes the slideshow and the album caption read for a plate."""
+    """The data-* attributes the slideshow reads for a plate."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     return " ".join(f'data-{k}="{html.escape(v, quote=True)}"' for k, v in
                     (("yr", yr), ("what", what), ("subj", subj), ("href", href), ("credit", SHORT[no]), ("no", no)))
-def tile(i, p):
-    no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
-    img = f'<img src="assets/img/small/{f}" alt="{html.escape(alt)}" style="object-position:{pos}" loading=lazy>'
-    inner = f'<a href="{href}">{img}</a>' if href else img
-    return (f'<figure class="tile" data-i="{i}" {plate_data(p)} style="flex-grow:{grow};order:{i}">{inner}'
-            f'<figcaption class="no">Plate {no}</figcaption></figure>')
 def slide(i, p):
     """One plate of the first-screen slideshow; only the first has its image address set, home.js loads the rest."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
@@ -201,8 +196,6 @@ def slide(i, p):
     cls = "slide" + (" whole" if whole else "") + (" on" if i == 0 else "")
     return (f'<figure class="{cls}" data-i="{i}" {plate_data(p)}>{bg}'
             f'<img class="art" {src} alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"></figure>')
-cols = ["".join(tile(i, p) for i, p in enumerate(PLATES) if p[8] == c) for c in range(4)]
-wall = "".join(f'<div class="col">{c}</div>' for c in cols)
 first = PLATES[0]
 
 def row(anchor, title):
@@ -239,7 +232,7 @@ ROOM_BG = {  # wall colours picked from each room's painting; auto-sampling made
  "s-biology": "#3a2e18",     # Leonardo's sepia
  "s-tech": "#2e2c28",        # the dunes at Kill Devil Hills, in shadow
  "s-future": "#102f3d",      # the Florida sky
-}  # rooms show the whole painting where the album shows a detail
+}  # rooms show the whole painting
 def room_colour(path):
     im = Image.open(path).convert("RGB"); im.thumbnail((96, 96))
     q = im.quantize(colors=8, method=Image.Quantize.MEDIANCUT); pal = q.getpalette(); best = None
@@ -303,10 +296,6 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 <button class="pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
 <p class="cue">{one("scroll cue")}</p>
-</div>
-<div class="album">
-<div class="wall">{wall}</div>
-<p class="album-caption"><span class="yr">{first[3]}</span> <span class="what">{first[4]}</span> <a class="subj" href="{first[6]}">{first[5]}</a> <span class="credit"><b>Plate {first[0]}.</b> {SHORT[first[0]]}</span></p>
 </div>
 </div>
 </section>

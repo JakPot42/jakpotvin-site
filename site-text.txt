@@ -32,7 +32,7 @@ Scroll
 
 # The Writing section: the big sentence, then the small note under it.
 [writing intro]
-Ten subjects, each with its own room. Scroll through them, or tap a plate above to go straight in.
+Ten subjects, each with its own room. Scroll through them.
 
 [writing note]
 The first essays go up from 15 December.

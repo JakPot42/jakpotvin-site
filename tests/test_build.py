@@ -42,22 +42,21 @@ def test_outputs_lf_and_no_long_dashes():
             assert chr(0x2013).encode() not in b and chr(0x2014).encode() not in b, p
 
 
-TILE_IMG = re.compile(r'<figure class="tile"[^>]*>.*?<img src="assets/img/(?:small/)?([^"/]+)"', re.S)
+SLIDE_IMG = re.compile(r'<img class="art" (?:src|data-src)="assets/img/([^"/]+)"')
 
 
-def album_files():
-    return TILE_IMG.findall((SITE / "index.html").read_text(encoding="utf-8"))
+def slide_files():
+    return SLIDE_IMG.findall((SITE / "index.html").read_text(encoding="utf-8"))
 
 
-def test_every_plate_has_copies():
+def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
-    files = album_files()
+    files = slide_files()
     assert len(files) >= 20
     for f in files:
-        assert (SITE / "assets/img/small" / f).is_file(), f
         assert (SITE / "assets/img/blur" / f).is_file(), f
-    assert sorted(p.name for p in (SITE / "assets/img/small").glob("*.jpg")) == sorted(files)
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == sorted(files)
+    assert not (SITE / "assets/img/small").exists()
 
 
 def test_missing_plate_file_is_skipped(tmp_path):

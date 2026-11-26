@@ -1,13 +1,12 @@
-/* jakpotvin.com home page: the first-screen slideshow, the shrink into the album, the album caption,
-   and the rooms' wall colour. With prefers-reduced-motion nothing moves: the first plate stays, still. */
+/* jakpotvin.com home page: the first-screen slideshow, the projects reveal and count,
+   and the rooms (wall colour, pinned plates). With prefers-reduced-motion nothing moves: the first plate stays, still. */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const desktop = matchMedia('(min-width: 761px)');
-  const tall = matchMedia('(min-width: 761px) and (min-height: 701px)');  // room for the shrink: not a phone, not a short window
   root.dataset.motion = reduced ? 'reduced' : 'full';
 
-  // Year, event, subject link and credit of a plate (data-* of a slide or a tile) into a caption element.
+  // Year, event, subject link and credit of a plate (data-* of a slide) into a caption element.
   function fillCaption(cap, d) {
     cap.querySelector('.yr').textContent = d.yr;
     cap.querySelector('.what').textContent = d.what;
@@ -68,41 +67,9 @@
     };
   }
 
-  // Scrolling off the first screen: the slideshow stops and the zoom eases out; on desktop with scroll-driven
-  // animation support (html.sda) CSS then shrinks the current painting into its tile, using the box measured here.
+  // Scrolling off the first screen: the slideshow stops and the zoom eases out; back at the top it plays again (unless paused).
   function initIntroScroll(intro, show) {
-    const stage = intro.querySelector('.intro-stage');
     const box = intro.querySelector('.slides');
-    const supported = CSS.supports('animation-timeline: scroll()');
-    const offset = (el) => { let x = 0, y = 0; for (let n = el; n && n !== stage; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; } return [x, y]; };
-    const reset = a => { for (const k of ['top', 'left', 'width', 'height', 'right', 'bottom', 'margin']) a.style[k] = ''; };
-
-    const measure = () => {
-      const on = supported && !reduced && tall.matches;
-      root.classList.toggle('sda', on);
-      intro.querySelectorAll('.tile.current').forEach(t => t.classList.remove('current'));
-      intro.querySelectorAll('.slide .art').forEach(reset);
-      if (!on) return;
-      const slide = box.querySelector('.slide.on');
-      const tile = intro.querySelector(`.tile[data-i="${box.dataset.current}"]`);
-      if (!slide || !tile) return;
-      tile.classList.add('current');
-      const [tx, ty] = offset(tile);
-      stage.style.setProperty('--tx', tx + 'px');
-      stage.style.setProperty('--ty', ty + 'px');
-      stage.style.setProperty('--tw', tile.offsetWidth + 'px');
-      stage.style.setProperty('--th', tile.offsetHeight + 'px');
-      const a = slide.querySelector('.art');
-      a.style.animation = 'none';  // measure the box the shrink starts from, without the animation applied
-      let [ax, ay] = offset(a), aw = a.offsetWidth, ah = a.offsetHeight;
-      if (slide.classList.contains('whole')) {  // start from the painting as drawn (contained, right-aligned), so CSS can use cover
-        const w = +a.style.getPropertyValue('--w'), h = +a.style.getPropertyValue('--h'), k = Math.min(aw / w, ah / h);
-        ax += aw - w * k; ay += (ah - h * k) / 2; aw = w * k; ah = h * k;
-      }
-      a.style.animation = '';
-      Object.assign(a.style, {top: ay + 'px', left: ax + 'px', width: aw + 'px', height: ah + 'px', right: 'auto', bottom: 'auto', margin: '0'});
-    };
-
     let still = false;
     const freeze = () => {
       const s = box.querySelector('.slide.on');
@@ -117,48 +84,12 @@
       const a = s.querySelector('.art'); a.style.transform = ''; a.style.transition = '';
     });
     const onScroll = () => {
-      root.classList.toggle('album-ready', scrollY >= innerHeight - 2);  // the album takes clicks only once the shrink is done
       if (scrollY > 0 && !still) { still = true; show && show.stop(); freeze(); }
       else if (scrollY <= 0 && still) { still = false; thaw(); show && show.resume(); }
     };
-    // Tabbing into the album before the shrink is done: finish it, so the focused tile is visible.
-    intro.querySelector('.album').addEventListener('focusin', () => {
-      if (root.classList.contains('sda') && scrollY < innerHeight - 2) scrollTo({top: innerHeight, behavior: 'instant'});
-    });
-
-    let queued = false;
-    const later = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; measure(); }); } };
-    box.addEventListener('slidechange', () => { thaw(); measure(); if (still) freeze(); });
-    addEventListener('resize', later);
-    tall.addEventListener('change', later);
+    box.addEventListener('slidechange', () => { thaw(); if (still) freeze(); });
     addEventListener('scroll', onScroll, {passive: true});
-    measure();
     onScroll();
-  }
-
-  // The caption under the album names the tile pointed at, focused, or (on touch) first tapped; a second tap follows the link.
-  function initAlbumCaption(wall, cap) {
-    let armed = null, touch = false;
-    const pick = e => e.target.closest && e.target.closest('.tile');
-    wall.addEventListener('pointerdown', e => { touch = e.pointerType === 'touch'; });
-    wall.addEventListener('mouseover', e => { const t = pick(e); if (t) fillCaption(cap, t.dataset); });
-    wall.addEventListener('focusin', e => { const t = pick(e); if (t) fillCaption(cap, t.dataset); });
-    wall.addEventListener('click', e => {
-      const t = pick(e);
-      if (!t || !touch) return;
-      if (armed !== t) { e.preventDefault(); armed = t; fillCaption(cap, t.dataset); }
-    });
-  }
-
-  // Without the shrink, tiles fade in once as they come into view (full motion only).
-  function initTileReveal(wall) {
-    if (reduced || !('IntersectionObserver' in window)) return;
-    const tiles = [...wall.querySelectorAll('.tile')];
-    const io = new IntersectionObserver(es => {
-      for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    }, {threshold: 0.1});
-    tiles.forEach(t => io.observe(t));
-    wall.classList.add('reveal-tiles');
   }
 
   // Projects: each item rises into place once, the first time it is 15% visible, 90 ms after the one before it.
@@ -233,8 +164,6 @@
     const show = reduced ? null : initSlideshow(intro);
     window.slideshow = show;
     initIntroScroll(intro, show);
-    const wall = intro.querySelector('.wall'), cap = intro.querySelector('.album-caption');
-    if (wall && cap) { initAlbumCaption(wall, cap); initTileReveal(wall); }
   }
   const projects = document.querySelectorAll('#projects li, #projects h3, #projects .count');
   if (projects.length) initReveal(projects);

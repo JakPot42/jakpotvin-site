@@ -130,3 +130,7 @@ Detected with `@supports (animation-timeline: scroll())`. Without it: the first 
 - The album grid layout after the shrink (today's four-column, shortest-column layout is fine to keep), and how to measure the target frame for the shrink.
 - How the first-screen markup and the album share the plate data in `build.py`.
 - Updating the headless browser checks: the old "album oldest-first at every step" check no longer applies; new checks should cover the first screen, the pause button, the shrink, the reveals, the rooms and reduced motion, at desktop and phone widths, in a browser with and without scroll-driven animation support.
+
+## Change after the build (26 November 2026)
+
+Jak tried the built version and dropped the album from the home page: "i dont like how when you scroll you still see all the photos together like that at the top". Offered (A) remove the album or (B) move it lower, he took Claude's pick, A. So effect 1 (the painting shrinking into the album), the album caption and the phone swipe row are gone; scrolling off the first screen goes straight into Writing. The plates still appear one at a time on the first screen, by subject in the rooms, and with full credits on the list of plates. The album's small copies (`assets/img/small/`) are no longer written.

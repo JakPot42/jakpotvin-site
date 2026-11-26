@@ -1,5 +1,5 @@
-"""Copies of each plate for the site: a small one for the album, a tiny blurred one for the backdrop of plates
-shown whole on the first screen. The source files in site/assets/img/ are used as they are for the slideshow."""
+"""Copies of each plate for the site: a tiny blurred one for the backdrop of plates shown whole on the first screen
+(and, when asked for, a small one). The source files in site/assets/img/ are used as they are for the slideshow."""
 from pathlib import Path
 
 from PIL import Image, ImageFilter
@@ -23,11 +23,12 @@ def _fit(im, long_side):
 
 
 def write_copies(src, small_dir, blur_dir):
-    """Write src's small copy into small_dir and its blurred copy into blur_dir, under the same file name."""
-    src, small_dir, blur_dir = Path(src), Path(small_dir), Path(blur_dir)
-    small_dir.mkdir(parents=True, exist_ok=True)
+    """Write src's blurred copy into blur_dir and, when small_dir is given, its small copy there, under the same file name."""
+    src, blur_dir = Path(src), Path(blur_dir)
     blur_dir.mkdir(parents=True, exist_ok=True)
     with Image.open(src) as im:
         im = im.convert("RGB")
-        _fit(im, SMALL_LONG_SIDE).save(small_dir / src.name, "JPEG", quality=82, progressive=True, optimize=True)
+        if small_dir is not None:
+            Path(small_dir).mkdir(parents=True, exist_ok=True)
+            _fit(im, SMALL_LONG_SIDE).save(Path(small_dir) / src.name, "JPEG", quality=82, progressive=True, optimize=True)
         _fit(im, BLUR_LONG_SIDE).filter(ImageFilter.GaussianBlur(BLUR_RADIUS)).save(blur_dir / src.name, "JPEG", quality=70)

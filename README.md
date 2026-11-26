@@ -11,18 +11,18 @@ sitetext.py         reads and checks site-text.txt for build.py
 data/counts.json    mechdb export (format mechdb-counts-2) used for the chart on the atoms page
 data/calculator.html  the Atom Factory Calculator, copied to site/atoms/calculator/ with a back link
 .github/workflows/pages.yml  publishes site/ to GitHub Pages on every push to main (it does not run build.py)
-images.py           writes the small and blurred copies of each plate for build.py
+images.py           writes the blurred copy of each plate for build.py
 tools/browser.py    drives headless Microsoft Edge for the browser tests
 tests/              the tests (python -m pytest)
 site/               the published site
-  index.html        home: the first screen, the album, the ten subject rooms, projects, contact
+  index.html        home: the first screen, the ten subject rooms, projects, contact
   plates.html       list of plates: full picture credits
   atoms/index.html  the atoms project page
   atoms/calculator/ the calculator
   assets/site.css   all styles
-  assets/home.js    the home page's slideshow, shrink, album caption, project reveal and rooms
+  assets/home.js    the home page's slideshow, project reveal and rooms
   assets/img/       the plates (these are source files; build.py reads their sizes)
-  assets/img/small/ and assets/img/blur/  copies of each plate written by the build (images.py); do not edit
+  assets/img/blur/  a blurred copy of each plate, written by the build (images.py); do not edit
   assets/fonts/     the fonts, served from the site itself (woff2: IBM Plex from IBM's own release,
                     the others Latin subsets from Google Fonts), fonts.css with their @font-face rules,
                     each family's OFL licence, SOURCES.txt
@@ -55,10 +55,10 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 ## How the home page works
 
 - **First screen.** One plate at a time fills the screen behind the name, tagline and bio, oldest first, about 5 seconds each with a slow zoom and a crossfade, with the plate's year, event and credit in the corner. A pause button stops it; it also stops while the tab is hidden and once the visitor scrolls. Plates that are tall, square or too small to fill the screen sharply (`images.show_whole`) are shown whole on the right, over a blurred copy of themselves. Only the current and the next image are loaded. The behaviour is in `site/assets/home.js`.
-- **Album.** `PLATES` in `build.py` lists every picture in date order of what it shows. Plate numbers (I, II, III...) follow that order and are assigned by the build, so adding or removing a plate renumbers everything, including captions, room labels and the list of plates. The build lays the plates out in four columns, each plate going to the shortest column, using the small copies in `assets/img/small/`. On desktop, in browsers with scroll-driven animations, scrolling off the first screen shrinks the painting into its own frame in the album while the other plates settle in around it. Elsewhere the album simply follows the first screen. The caption line under the album names the plate pointed at, focused, or (on a phone) first tapped. On phones the album is one row you swipe sideways.
+- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. Plate numbers (I, II, III...) follow that order and are assigned by the build, so adding or removing a plate renumbers everything, including captions, room labels and the list of plates. The first screen shows them one at a time; each also hangs in its subject's room. Scrolling off the first screen goes straight into Writing.
 - **Rooms.** `SUBJECTS` lists the ten writing subjects in order. Each plate's anchor (for example `#s-politics`) puts it in that subject's room. `ROOM_BG` sets each room's wall colour, picked from its painting. The page background fades between room colours on scroll. On desktop the room's plates stay pinned on the right while the room names scroll past on the left.
 - **Projects.** The items rise into place once as they come into view, and the project count (`[projects count]` in `site-text.txt`) counts up from zero.
-- **Reduced motion.** A visitor whose device asks for less motion sees the first plate held still, the album finished, and everything else in place.
+- **Reduced motion.** A visitor whose device asks for less motion sees the first plate held still and everything else in place.
 - **Short captions** come from `SHORT_BY_FILE`; full credits from the plate's credit field, plus `NOTE_BY_FILE`, appear on `plates.html`.
 
 ### Adding a plate
@@ -66,7 +66,7 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 1. Put the image in `site/assets/img/` (JPEG, about 1,200 to 2,000 pixels on the long side).
 2. Add a tuple to `PLATES` at its place in date order. Leave the number empty (`""`); the build fills it in.
 3. Add its short caption to `SHORT_BY_FILE`, and a note to `NOTE_BY_FILE` if the licence asks for one.
-4. Rebuild and look at the album, the room and `plates.html`.
+4. Rebuild and look at the first screen, the room and `plates.html`.
 
 A plate whose image file is missing is skipped, not an error.
 

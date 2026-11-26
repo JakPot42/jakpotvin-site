@@ -120,9 +120,7 @@ footer { padding: 34px 0 48px; font: 13.5px/1.6 var(--sans); color: var(--muted)
   .plate.settle img { transform: none; }
 }
 
-/* First screen: one plate at a time fills the screen behind the name (home.js runs the slideshow);
-   below it the album of all the plates. On desktop, with scroll-driven animation support and full motion,
-   home.js adds html.sda: the first screen holds for one screen of scrolling while the painting shrinks into its tile. */
+/* First screen: one plate at a time fills the screen behind the name (home.js runs the slideshow) */
 :root { --edge: max(calc((100vw - 1180px) / 2 + max(4vw, 18px)), max(4vw, 18px)); }
 body.home .top { position: absolute; top: 0; left: 0; right: 0; z-index: 4; max-width: 1180px; margin: 0 auto; padding: 22px max(4vw, 18px) 18px; justify-content: flex-end; border-bottom-color: rgba(244, 241, 234, .28); }
 body.home .top .name { display: none; }
@@ -164,44 +162,6 @@ html[data-motion=full] .pause { display: grid; }
 .pause:focus-visible { outline: 2px solid #9fd3da; outline-offset: 3px; }
 .hero .cue { position: absolute; left: 50%; bottom: max(20px, 3svh); transform: translateX(-50%); margin: 0; font: 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 241, 234, .7); }
 
-/* The album: all the plates, oldest first, each linking to its room; the caption line names the one pointed at */
-.album { padding: clamp(40px, 6vw, 84px) var(--edge); color: var(--ink); background: var(--paper); border-bottom: 1px solid var(--rule); }
-.wall { display: flex; gap: 8px; height: min(84svh, 760px); }
-.col { flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-.tile { position: relative; margin: 0; flex-basis: 0; min-height: 0; }
-.tile a, .tile img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-.tile img { object-fit: cover; background: var(--band); }
-.tile a:focus-visible { outline-offset: 2px; }
-.tile .no { display: none; }
-.album-caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; max-width: none; margin-top: 16px; font: 14px/1.5 var(--sans); color: var(--muted); }
-.album-caption .yr { font: 400 24px/1 var(--display); color: var(--ink); font-variant-numeric: lining-nums; }
-.album-caption .what { font: 17px/1.4 var(--text); color: var(--ink); }
-.album-caption .subj { font-weight: 600; }
-.album-caption .credit b { color: var(--ink); font-weight: 600; }
-html:not(.sda) .wall.reveal-tiles .tile { transition: opacity .6s ease, transform .6s ease; }
-html:not(.sda) .wall.reveal-tiles .tile:not(.in) { opacity: 0; transform: translateY(16px); }
-
-/* Shrink mode (html.sda): progress is the page's scroll from 0 to one screen */
-html.sda .intro { height: 200svh; }
-html.sda .intro-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-html.sda .hero { position: absolute; inset: 0; z-index: 2; height: auto; min-height: 0; background: none; }
-html.sda .hero::before { content: ""; position: absolute; inset: 0; background: #0e0d0c; animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 50svh; }
-html.sda .album { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 12svh var(--edge) 4svh; border: 0; pointer-events: none; }
-html.sda.album-ready .album { pointer-events: auto; }
-html.sda .wall { height: min(72svh, 720px); }
-html.sda :is(.intro-text, .caption, .pause, .cue, .shade) { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 30svh; }
-html.sda .slide.whole .bg { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 40svh; }
-html.sda .slide.on { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 94svh 100svh; }
-html.sda .slide.on .art { animation: into-tile linear both; animation-timeline: scroll(root); animation-range: 0 100svh; }
-html.sda .slide.whole .art { object-fit: cover; object-position: var(--pos) !important; }
-html.sda .tile { animation: tile-in linear both; animation-timeline: scroll(root); animation-range: 40svh 80svh; }
-html.sda .tile.current { animation-name: tile-handoff; animation-range: 92svh 100svh; }
-html.sda .album-caption { animation: sda-show linear both; animation-timeline: scroll(root); animation-range: 70svh 95svh; }
-@keyframes sda-fade { to { opacity: 0; visibility: hidden; } }
-@keyframes sda-show { from { opacity: 0; } to { opacity: 1; } }
-@keyframes into-tile { to { top: var(--ty); left: var(--tx); width: var(--tw); height: var(--th); } }
-@keyframes tile-in { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes tile-handoff { from { opacity: 0; } to { opacity: 1; } }
 
 @media (max-width: 760px) {
   body.home .top { justify-content: flex-start; padding-top: 14px; padding-bottom: 12px; }
@@ -218,19 +178,9 @@ html.sda .album-caption { animation: sda-show linear both; animation-timeline: s
   .pause { right: 18px; bottom: 20px; }
   .hero .cue { display: none; }
   .slide.whole .art { inset: 0; margin: 0; width: 100%; height: 100%; object-position: center !important; }
-  .album { padding: 28px 0 32px; }
-  .wall { height: auto; gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; padding: 0 18px; scroll-padding: 0 18px; scrollbar-width: none; }
-  .col { display: contents; }
-  .tile { flex: 0 0 40vw; scroll-snap-align: start; }
-  .tile a, .tile img { position: static; height: auto; }
-  .tile img { width: 100%; height: auto; aspect-ratio: 3 / 4; }
-  .tile .no { display: block; margin-top: 6px; font: 12px/1.3 var(--sans); color: var(--muted); }
-  .album-caption { margin: 14px 18px 0; gap: 2px 8px; }
-  .album-caption .yr { font: 600 14px/1.4 var(--sans); }
-  .album-caption .what { font-size: 15px; }
 }
 /* Short screens (a phone turned sideways, a short laptop window): the first screen's text and caption flow down the
-   screen instead of being placed, so they never overlap; the screen grows taller if it has to. home.js keeps the shrink off. */
+   screen instead of being placed, so they never overlap; the screen grows taller if it has to. */
 @media (max-height: 700px) {
   .hero { height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 92px var(--edge) 28px; }
   .intro-text, .hero .caption { position: relative; inset: auto; width: min(560px, 100%); }
