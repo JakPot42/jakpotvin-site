@@ -151,3 +151,53 @@ def test_picture_credits_page_keeps_every_credit():
     for needed in ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "Photograph by Marie-Lan Nguyen",
                    "Jacques-Louis David, The Death of Socrates, 1787", "The top layer of a silicon crystal, drawn for this site."):
         assert needed in credits, needed
+
+
+# ---------------------------------------------------------------- link previews and search engines
+
+PAGES = {"index.html": "https://jakpotvin.com/", "atoms/index.html": "https://jakpotvin.com/atoms/",
+         "atoms/calculator/index.html": "https://jakpotvin.com/atoms/calculator/", "plates.html": "https://jakpotvin.com/plates.html"}
+
+
+def meta(html_text, attr, name):
+    m = re.search(r'<meta %s="%s" content="([^"]*)">' % (attr, re.escape(name)), html_text)
+    return m and m.group(1)
+
+
+def test_every_page_has_a_link_preview_card():
+    assert run_build().returncode == 0
+    for page, url in PAGES.items():
+        t = (SITE / page).read_text(encoding="utf-8")
+        assert '<link rel="canonical" href="%s">' % url in t, page
+        assert meta(t, "property", "og:url") == url, page
+        assert meta(t, "property", "og:title") and meta(t, "property", "og:description"), page
+        assert meta(t, "property", "og:image") == "https://jakpotvin.com/assets/card.jpg", page
+        assert meta(t, "property", "og:type") == "website", page
+        assert meta(t, "name", "twitter:card") == "summary_large_image", page
+    from PIL import Image
+    with Image.open(SITE / "assets/card.jpg") as im:
+        assert im.size == (1200, 630)
+
+
+def test_sitemap_robots_and_404():
+    assert run_build().returncode == 0
+    sm = (SITE / "sitemap.xml").read_text(encoding="utf-8")
+    assert re.findall(r"<loc>([^<]+)</loc>", sm) == list(PAGES.values())
+    robots = (SITE / "robots.txt").read_text(encoding="utf-8")
+    assert "User-agent: *" in robots and "Sitemap: https://jakpotvin.com/sitemap.xml" in robots
+    nf = (SITE / "404.html").read_text(encoding="utf-8")
+    assert 'href="/index.html"' in nf and "/assets/site.css" in nf and '<meta name="robots" content="noindex">' in nf
+
+
+def test_home_says_who_the_site_belongs_to():
+    import json as _json
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    found = [_json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', t, re.S)]
+    person = next(d for d in found if d["@type"] == "Person")
+    assert person["name"] == "Jak Potvin" and person["url"] == "https://jakpotvin.com/"
+    assert person["sameAs"] == ["https://github.com/JakPot42"]  # the https links in [contact line]; never the email
+    site = next(d for d in found if d["@type"] == "WebSite")
+    assert site["name"] == "Jak Potvin" and site["url"] == "https://jakpotvin.com/"
+    for page in ("plates.html", "atoms/index.html", "404.html"):
+        assert "application/ld+json" not in (SITE / page).read_text(encoding="utf-8"), page

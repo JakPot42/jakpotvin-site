@@ -122,3 +122,7 @@ Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [github.com/JakPot42
 # The line at the very bottom of every page.
 [footer]
 © 2026 Jak Potvin. Built with AI coding tools (Claude). [Picture credits](plates.html).
+
+# The page people see when they follow a broken or mistyped link to the site.
+[page not found]
+There is nothing at this address. The link may have a typo, or the page may have moved.

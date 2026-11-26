@@ -17,10 +17,13 @@ tests/              the tests (python -m pytest)
 site/               the published site
   index.html        home: the first screen, the ten subject rooms, projects, contact
   plates.html       picture credits: the full credit for every picture
+  404.html          the page GitHub Pages shows for an address that does not exist (every link in it starts with /)
+  robots.txt, sitemap.xml  tell search engines the site's pages (the list is ADDRESSES in build.py)
   atoms/index.html  the atoms project page
   atoms/calculator/ the calculator
   assets/site.css   all styles
   assets/home.js    the home page's slideshow, project reveal and rooms
+  assets/card.jpg   the link preview picture (1200 by 630), written by the build; do not edit
   assets/img/       the plates (these are source files; build.py reads their sizes)
   assets/img/blur/  a blurred copy of each plate, written by the build (images.py); do not edit
   assets/fonts/     the fonts, served from the site itself (woff2: IBM Plex from IBM's own release,
@@ -60,6 +63,13 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 - **Projects.** The items rise into place once as they come into view, and the project count (`[projects count]` in `site-text.txt`) counts up from zero.
 - **Reduced motion.** A visitor whose device asks for less motion sees the first plate held still and everything else in place.
 - **Short captions** come from `SHORT_BY_FILE`; full credits from the plate's credit field, plus `NOTE_BY_FILE`, appear on `plates.html`.
+
+## Link previews and search engines
+
+- **Link previews.** Every page carries its address (`canonical`) and the tags that texts, LinkedIn, Slack and the like read to show a card: the page's title, `[page description]` from `site-text.txt`, and `assets/card.jpg`. The build draws the card from the first plate, darkened at the left, with `[name]` and the site address. `SITE_URL` in `build.py` holds the address.
+- **Who the site belongs to.** The home page tells search engines, in a form they read, the name, the address and the https links in `[contact line]` (the GitHub link today; never the email).
+- **Sitemap.** `sitemap.xml` lists the four pages; `robots.txt` points to it. A new page needs its address added to `ADDRESSES` in `build.py`.
+- **Google Search Console** (Jak's step, after the push that publishes these files): sign in at search.google.com/search-console, add jakpotvin.com as a Domain property, and copy the TXT record Google shows. Adding it in Cloudflare is the one DNS change this needs; Claude enters it only when Jak asks for that record. Once Google says verified, submit `https://jakpotvin.com/sitemap.xml` under Sitemaps.
 
 ### Adding a plate
 

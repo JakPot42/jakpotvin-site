@@ -13,7 +13,7 @@ SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psych
 SECTIONS = (["name", "page description", "tagline", "bio", "first screen links", "scroll cue", "writing intro", "writing note"]
             + [f"room note: {t}" for _, t in SUBJECTS]
             + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "projects count", "other software heading",
-               "other software text", "other software link", "areas", "contact text", "contact line", "footer"])
+               "other software text", "other software link", "areas", "contact text", "contact line", "footer", "page not found"])
 TEXT_FILE = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else pathlib.Path(__file__).parent / "site-text.txt"
 try:
     TEXT = sitetext.load(TEXT_FILE, SECTIONS)
@@ -25,6 +25,27 @@ try:
 except sitetext.SiteTextError as e:
     print(e, file=sys.stderr)
     sys.exit(2)
+
+
+SITE_URL = "https://jakpotvin.com/"  # the live address; canonical links, the sitemap and link previews use it
+CARD = "assets/card.jpg"  # the picture link previews show (texts, LinkedIn, Slack); written by make_card() below
+NAME = " ".join(TEXT["name"])
+
+
+def social(title, url):
+    """Head tags that give a page its address and its link preview card."""
+    t, d = html.escape(title), html.escape(" ".join(TEXT["page description"]))
+    return (f'<link rel="canonical" href="{url}">\n'
+            f'<meta property="og:type" content="website">\n'
+            f'<meta property="og:site_name" content="{html.escape(NAME)}">\n'
+            f'<meta property="og:title" content="{t}">\n'
+            f'<meta property="og:description" content="{d}">\n'
+            f'<meta property="og:url" content="{url}">\n'
+            f'<meta property="og:image" content="{SITE_URL}{CARD}">\n'
+            f'<meta property="og:image:width" content="1200">\n'
+            f'<meta property="og:image:height" content="630">\n'
+            f'<meta property="og:image:alt" content="{{CARD_ALT}}">\n'
+            f'<meta name="twitter:card" content="summary_large_image">\n')
 
 
 def one(name, root=""):
@@ -47,7 +68,7 @@ const io=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){e
 ps.forEach(p=>{p.classList.add('settle');io.observe(p)})}}</script>"""
 
 
-def page(title, root, current, body, script="", home=False):
+def page(title, root, current, body, script="", home=False, url=None, head="", noindex=False):
     nav = [("Writing", f"{root}index.html#writing", "writing"), ("Projects", f"{root}index.html#projects", "projects"),
            ("Contact", f"{root}index.html#contact", "contact")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, h, k in nav)
@@ -59,7 +80,7 @@ def page(title, root, current, body, script="", home=False):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">
-<link rel="stylesheet" href="{root}assets/fonts/fonts.css">
+{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}<link rel="stylesheet" href="{root}assets/fonts/fonts.css">
 <link rel="stylesheet" href="{root}assets/site.css">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
@@ -274,6 +295,42 @@ ROOMS = ('<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS)
          + f'<div class="rooms-stage" style="grid-row:1 / span {len(SUBJECTS)}"></div></div>')  # home.js pins the plates here on desktop
 
 BIO = one("bio")
+def make_card():
+    """The 1200x630 link preview picture: the first screen's first painting, darkened at the left, with the name."""
+    from PIL import Image, ImageDraw, ImageFont
+    w, h = 1200, 630
+    with Image.open(OUT_IMG / PLATES[0][1]) as im:
+        im = im.convert("RGB")
+        im = im.crop((round(im.width * .01), round(im.height * .01), round(im.width * .99), round(im.height * .99)))  # drop the photo's dark edge
+        scale = max(w / im.width, h / im.height)
+        im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
+        left, top = (im.width - w) // 2, (im.height - h) // 2
+        im = im.crop((left, top, left + w, top + h))
+    shade = Image.new("L", (w, 1))
+    shade.putdata([round(225 * max(0.0, 1 - x / (w * 0.7))) for x in range(w)])
+    im = Image.composite(Image.new("RGB", (w, h), (10, 9, 8)), im, shade.resize((w, h)))
+    d = ImageDraw.Draw(im)
+    fonts = OUT / "assets" / "fonts"
+    d.text((72, h - 132), NAME, font=ImageFont.truetype(str(fonts / "libre-caslon-display-normal-400-latin.woff2"), 100),
+           fill=(245, 241, 234), anchor="ls")
+    d.text((76, h - 76), SITE_URL.split("//")[1].rstrip("/"), font=ImageFont.truetype(str(fonts / "IBMPlexSans-Regular-Latin1.woff2"), 30),
+           fill=(220, 213, 202), anchor="ls")
+    im.save(OUT / CARD, "JPEG", quality=85, optimize=True, progressive=True)
+
+
+make_card()
+CARD_ALT = html.escape(f"{NAME}, over a detail of {SHORT[PLATES[0][0]]}")
+# who the site belongs to, for search engines: the name, the address, and the https links in [contact line]
+_same = [a for _, a in sitetext.LINK.findall(" ".join(TEXT[sitetext.key("contact line")])) if a.startswith("https://")]
+
+
+def ld(data):
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
+
+
+PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": _same})
+             + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
+
 home = page("Jak Potvin", "", "home", f"""
 <section class="intro" aria-label="Introduction">
 <div class="intro-stage">
@@ -348,7 +405,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", home=True)
+""", home=True, url=SITE_URL, head=PERSON_LD)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))
@@ -439,7 +496,7 @@ atoms_page = page("Atom by atom | Jak Potvin", "../", "projects", f"""
 <li>Raw outcome data released, so others can check the counts.</li>
 </ol>
 </section>
-""")
+""", url=SITE_URL + "atoms/")
 
 
 # ---------------------------------------------------------------- list of plates (full credits)
@@ -462,7 +519,7 @@ plates_page = page("Picture credits | Jak Potvin", "", "", f"""
 {items}
 </ol>
 </section>
-""")
+""", url=SITE_URL + "plates.html")
 OUT.mkdir(exist_ok=True)
 (OUT / "index.html").write_text(home, encoding="utf-8", newline="\n")
 (OUT / "plates.html").write_text(plates_page, encoding="utf-8", newline="\n")
@@ -473,7 +530,25 @@ back = ('<p style="max-width:1180px;margin:0 auto;padding:14px 20px 0;font:14px/
         '<a href="../index.html">Atom by atom</a> &middot; <a href="../../index.html#projects">Jak Potvin, projects</a></p>')
 assert calc.count("<body>") == 1
 (OUT / "atoms" / "calculator").mkdir(exist_ok=True)
-(OUT / "atoms" / "calculator" / "index.html").write_text(calc.replace("<body>", "<body>\n" + back, 1), encoding="utf-8", newline="\n")
+assert calc.count("</head>") == 1 and "<title>" in calc
+calc_title = html.unescape(re.search(r"<title>(.*?)</title>", calc).group(1))
+calc_head = (f'<meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">\n'
+             + social(calc_title, SITE_URL + "atoms/calculator/").replace("{CARD_ALT}", CARD_ALT))
+calc = calc.replace("</head>", calc_head + "</head>", 1).replace("<body>", "<body>\n" + back, 1)
+(OUT / "atoms" / "calculator" / "index.html").write_text(calc, encoding="utf-8", newline="\n")
+# a broken link anywhere on the site lands here; GitHub Pages serves 404.html at any depth, so every address starts with /
+not_found = page("Page not found | Jak Potvin", "/", "", f"""
+<section aria-labelledby="nf-h">
+<h1 id="nf-h" style="font-size:clamp(36px,5vw,56px)">Page not found</h1>
+<p style="margin-top:12px">{one("page not found", "/")}</p>
+<p><a href="/index.html">Go to the home page</a></p>
+</section>
+""", noindex=True)
+(OUT / "404.html").write_text(not_found, encoding="utf-8", newline="\n")
+(OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n", encoding="utf-8", newline="\n")
+ADDRESSES = [SITE_URL, SITE_URL + "atoms/", SITE_URL + "atoms/calculator/", SITE_URL + "plates.html"]
+(OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                                 + "".join(f"<url><loc>{a}</loc></url>\n" for a in ADDRESSES) + "</urlset>\n", encoding="utf-8", newline="\n")
 (OUT / "CNAME").write_text("jakpotvin.com\n", newline="\n")
 (OUT / ".nojekyll").write_text("")
 print("built", sorted(str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file()))
