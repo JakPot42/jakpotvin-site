@@ -242,3 +242,19 @@ def test_featured_item_without_bar_is_a_plain_error(tmp_path):
         assert r.returncode == 2 and 'needs " | "' in r.stderr and "Traceback" not in r.stderr, r.stderr
     finally:
         assert run_build().returncode == 0
+
+
+# ---------------------------------------------------------------- 26 Nov: Jak's phone showed the new page with an old site.css it had kept
+
+def test_style_and_script_addresses_change_with_their_files():
+    assert run_build().returncode == 0
+    def v(rel):
+        return hashlib.sha256((SITE / rel).read_bytes()).hexdigest()[:10]
+    css, fonts, js = v("assets/site.css"), v("assets/fonts/fonts.css"), v("assets/home.js")
+    for page, root in (("index.html", ""), ("plates.html", ""), ("atoms/index.html", "../"), ("404.html", "/")):
+        t = (SITE / page).read_text(encoding="utf-8")
+        assert f'href="{root}assets/site.css?v={css}"' in t, page
+        assert f'href="{root}assets/fonts/fonts.css?v={fonts}"' in t, page
+        assert not re.search(r'assets/(site|fonts/fonts)\.css"', t), page
+    assert f'src="assets/home.js?v={js}"' in (SITE / "index.html").read_text(encoding="utf-8")
+    assert f'href="../../assets/fonts/fonts.css?v={fonts}"' in (SITE / "atoms/calculator/index.html").read_text(encoding="utf-8")

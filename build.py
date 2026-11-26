@@ -1,10 +1,18 @@
 """Build jakpotvin.com. Run from this folder: python build.py data/counts.json data/calculator.html (needs Pillow)."""
-import html, json, re, sys, pathlib
+import hashlib, html, json, re, sys, pathlib
 
 import sitetext
 
 COUNTS, CALC = sys.argv[1], sys.argv[2]
 OUT = pathlib.Path(__file__).parent / "site"
+
+
+def asset_v(rel):
+    """A site file's address suffix: ?v= and the first 10 hex digits of its SHA-256. The address changes whenever the
+    file does, so a page never runs with an older copy a browser kept (GitHub Pages lets browsers keep files 10 minutes)."""
+    return "?v=" + hashlib.sha256((OUT / rel).read_bytes()).hexdigest()[:10]
+
+
 SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psychology"), ("s-sociology", "Sociology"),
             ("s-politics", "Political science"), ("s-economics", "Economics"), ("s-warfare", "War and defense"),
             ("s-physics", "Physics and chemistry"), ("s-biology", "Biology and medicine"), ("s-tech", "Technology and AI"), ("s-future", "The future")]
@@ -82,8 +90,8 @@ def page(title, root, current, body, script="", home=False, url=None, head="", n
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">
-{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}<link rel="stylesheet" href="{root}assets/fonts/fonts.css">
-<link rel="stylesheet" href="{root}assets/site.css">
+{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}<link rel="stylesheet" href="{root}assets/fonts/fonts.css{asset_v("assets/fonts/fonts.css")}">
+<link rel="stylesheet" href="{root}assets/site.css{asset_v("assets/site.css")}">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
 </head>
@@ -94,7 +102,7 @@ def page(title, root, current, body, script="", home=False, url=None, head="", n
 <footer>{one("footer", root)}</footer>
 </div>
 {MOTION}
-{script}{'<script src="assets/home.js" defer></script>' if home else ""}
+{script}{'<script src="assets/home.js' + asset_v("assets/home.js") + '" defer></script>' if home else ""}
 </body>
 </html>
 """
@@ -546,6 +554,8 @@ assert calc.count("</head>") == 1 and "<title>" in calc
 calc_title = html.unescape(re.search(r"<title>(.*?)</title>", calc).group(1))
 calc_head = (f'<meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">\n'
              + social(calc_title, SITE_URL + "atoms/calculator/").replace("{CARD_ALT}", CARD_ALT))
+assert calc.count('href="../../assets/fonts/fonts.css"') == 1
+calc = calc.replace('href="../../assets/fonts/fonts.css"', 'href="../../assets/fonts/fonts.css' + asset_v("assets/fonts/fonts.css") + '"', 1)
 calc = calc.replace("</head>", calc_head + "</head>", 1).replace("<body>", "<body>\n" + back, 1)
 (OUT / "atoms" / "calculator" / "index.html").write_text(calc, encoding="utf-8", newline="\n")
 # a broken link anywhere on the site lands here; GitHub Pages serves 404.html at any depth, so every address starts with /
