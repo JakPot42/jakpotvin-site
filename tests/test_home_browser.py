@@ -20,10 +20,6 @@ def rect(page, selector):
                      % json.dumps(selector))
 
 
-def current(page):
-    return page.eval("document.querySelector('.slides').dataset.current")
-
-
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE, {**DESKTOP, "reduced_motion": True}, {**PHONE, "reduced_motion": True}],
                          ids=["desktop", "phone", "desktop-rm", "phone-rm"])
 @pytest.mark.parametrize("path", ["index.html", "plates.html", "atoms/index.html", "atoms/calculator/index.html"])
@@ -37,6 +33,34 @@ def test_pages_load_cleanly(browser, site, cfg, path):
 
 
 # ---------------------------------------------------------------- Task 4: the first screen
+
+BANNER = "washington-crossing.jpg"
+STILL = ("none", "matrix(1, 0, 0, 1, 0, 0)")
+
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE, {**DESKTOP, "reduced_motion": True}], ids=["desktop", "phone", "desktop-rm"])
+def test_banner_is_one_still_painting(browser, site, cfg):
+    page = open_home(browser, site, cfg)
+    assert page.eval("document.querySelectorAll('.intro .slide').length") == 1
+    assert page.eval("document.querySelector('.intro .slide.on .art').getAttribute('src')") == "assets/img/" + BANNER
+    assert page.eval("document.querySelector('.pause')") is None
+    caption = "document.querySelector('.hero .caption').textContent"
+    zoom = "getComputedStyle(document.querySelector('.intro .slide .art')).transform"
+    before = page.eval(caption)
+    assert page.eval(zoom) in STILL
+    page.wait(6.5)
+    assert page.eval(caption) == before and page.eval(zoom) in STILL
+
+
+def test_banner_caption_names_the_painting_and_links_its_room(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    q = "document.querySelector('.hero .caption %s').%s"
+    assert page.eval(q % (".yr", "textContent")) == "1776"
+    assert page.eval(q % (".what", "textContent")) == "Washington crosses the Delaware"
+    assert page.eval(q % (".subj", "getAttribute('href')")) == "#s-warfare"
+    assert page.eval(q % (".subj", "textContent")) == "War and defense"
+    assert page.eval(q % (".credit", "textContent")) == "Leutze, Washington Crossing the Delaware"
+
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
 def test_first_screen_without_scrolling(browser, site, cfg):
@@ -52,65 +76,6 @@ def test_first_screen_without_scrolling(browser, site, cfg):
     for sel in (".intro h1", ".intro .lede"):
         r = rect(page, sel)
         assert r["top"] >= 0 and r["bottom"] <= vh, sel
-
-
-def test_slideshow_advances(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    assert current(page) == "0"
-    page.wait(6.2)
-    assert current(page) == "1"
-    assert page.eval("document.querySelector('.intro .caption .yr').textContent") == \
-        page.eval("document.querySelector('.slide[data-i=\"1\"]').dataset.yr")
-
-
-def test_pause_stops_slideshow(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.click(".pause")
-    assert page.eval("document.querySelector('.pause').getAttribute('aria-pressed')") == "true"
-    before = current(page)
-    page.wait(7)
-    assert current(page) == before
-    page.click(".pause")
-    assert page.eval("document.querySelector('.pause').getAttribute('aria-pressed')") == "false"
-    page.wait(6.2)
-    assert current(page) != before
-
-
-def test_hidden_tab_stops_slideshow(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.eval("Object.defineProperty(document, 'hidden', {value: true, configurable: true});"
-              " document.dispatchEvent(new Event('visibilitychange')); 1")
-    before = current(page)
-    page.wait(7)
-    assert current(page) == before
-
-
-def test_reduced_motion_holds_plate_one(browser, site):
-    page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
-    assert page.eval("document.documentElement.dataset.motion") == "reduced"
-    page.wait(7)
-    assert current(page) == "0"
-    first_credit = page.eval("document.querySelector('.slide[data-i=\"0\"]').dataset.credit")
-    assert page.eval("document.querySelector('.intro .caption .credit').textContent") == first_credit
-    assert page.eval("[...document.querySelectorAll('.slide .art')].every(i => ['none', 'matrix(1, 0, 0, 1, 0, 0)']"
-                     ".includes(getComputedStyle(i).transform))")
-    assert not page.eval("!!document.querySelector('.pause') && getComputedStyle(document.querySelector('.pause')).display !== 'none'")
-
-
-def test_only_current_and_next_images_load(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(1)
-    assert page.eval("document.querySelectorAll('.slide .art[src]').length") <= 2
-    assert page.eval("document.querySelectorAll('.slide .art[data-src]').length") >= 18
-
-
-def test_whole_plates_have_backdrop(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    q = ("(() => { const img = [...document.querySelectorAll('.slide .art')].find(i => (i.getAttribute('src') || i.dataset.src).endsWith('/%s'));"
-         " const s = img.closest('.slide'); return [s.classList.contains('whole'), !!s.querySelector('.bg')]; })()")
-    for f in ("vitruvian-man.jpg", "wanderer-sea-of-fog.jpg", "freud-halberstadt.jpg"):
-        assert page.eval(q % f) == [True, True], f
-    assert page.eval(q % "death-of-caesar.jpg") == [False, False]
 
 
 def test_phone_first_screen_contents_fit(browser, site):
@@ -292,26 +257,6 @@ def test_text_clears_caption_on_short_screens(browser, site, w, h, mobile):
     page.wait(0.8)
     assert rect(page, ".intro-text")["bottom"] <= rect(page, ".hero .caption")["top"]
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
-
-
-ZOOM = r"(m => m ? Math.hypot(+m[1], +m[2]) : 1)(getComputedStyle(document.querySelector('.slide.on .art')).transform.match(/matrix\(([^,]+), ([^,]+)/))"
-
-
-def test_pause_stops_the_zoom(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(1)
-    page.click(".pause")
-    a = page.eval(ZOOM)
-    page.wait(2)
-    assert abs(page.eval(ZOOM) - a) < 0.002
-
-
-def test_pause_button_keeps_its_name(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    name = page.eval("document.querySelector('.pause').getAttribute('aria-label')")
-    page.click(".pause")
-    assert page.eval("document.querySelector('.pause').getAttribute('aria-label')") == name
-    assert page.eval("document.querySelector('.pause').getAttribute('aria-pressed')") == "true"
 
 
 # ---------------------------------------------------------------- 26 Nov: Jak dropped the album from the home page

@@ -42,20 +42,11 @@ def test_outputs_lf_and_no_long_dashes():
             assert chr(0x2013).encode() not in b and chr(0x2014).encode() not in b, p
 
 
-SLIDE_IMG = re.compile(r'<img class="art" (?:src|data-src)="assets/img/([^"/]+)"')
-
-
-def slide_files():
-    return SLIDE_IMG.findall((SITE / "index.html").read_text(encoding="utf-8"))
-
-
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
-    files = slide_files()
-    assert len(files) >= 20
-    for f in files:
-        assert (SITE / "assets/img/blur" / f).is_file(), f
-    assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == sorted(files)
+    plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
+    assert len(plates) == 31
+    assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
 
@@ -84,13 +75,6 @@ def test_build_reports_text_error_plainly(tmp_path):
     assert r.stderr.startswith("site-text.txt line")
     assert "Traceback" not in r.stderr
     assert git_status_site() == before
-
-
-def test_intro_has_one_slide_per_plate():
-    assert run_build().returncode == 0
-    index = (SITE / "index.html").read_text(encoding="utf-8")
-    plates = (SITE / "plates.html").read_text(encoding="utf-8")
-    assert index.count('<figure class="slide') == plates.count('<li><span class="pl">') - 1  # the drawing on the atoms page is credited too
 
 
 def test_projects_count_text_error(tmp_path):
@@ -256,6 +240,16 @@ def test_every_page_has_a_link_preview_card():
     from PIL import Image
     with Image.open(SITE / "assets/card.jpg") as im:
         assert im.size == (1200, 630)
+
+
+def test_card_is_drawn_from_the_banner_with_the_name_on_a_dark_band():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    assert "Leutze, Washington Crossing the Delaware" in meta(t, "property", "og:image:alt")
+    from PIL import Image, ImageStat
+    with Image.open(SITE / "assets/card.jpg") as im:
+        band = im.convert("L").crop((60, 630 - 215, 700, 630 - 40))
+        assert ImageStat.Stat(band).median[0] <= 80  # the band behind the name
 
 
 def test_sitemap_robots_and_404():

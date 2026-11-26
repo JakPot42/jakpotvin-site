@@ -208,6 +208,8 @@ def roman(n):
         while n >= v: out += s; n -= v
     return out
 PLATES = [(roman(i + 1),) + p[1:] for i, p in enumerate(PLATES)]
+BANNER_FILE = "washington-crossing.jpg"  # the first screen's painting: credited, captioned with its room's link, shown in no room
+BANNER = next(p for p in PLATES if p[1] == BANNER_FILE)
 NO = {p[1]: p[0] for p in PLATES}
 LATTICE_NO = roman(len(PLATES) + 1)
 SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexander-mosaic.jpg": "The Alexander Mosaic, Pompeii",
@@ -226,21 +228,23 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexa
     "sars-cov-2.jpg": "NIAID, SARS-CoV-2", "webb-cosmic-cliffs.jpg": "NASA, Webb's Cosmic Cliffs"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
-    """The data-* attributes the slideshow reads for a plate."""
+    """The data-* attributes home.js reads for a painting's caption."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     return " ".join(f'data-{k}="{html.escape(v, quote=True)}"' for k, v in
                     (("yr", yr), ("what", what), ("subj", subj), ("href", href), ("credit", SHORT[no]), ("no", no)))
-def slide(i, p):
-    """One plate of the first-screen slideshow; only the first has its image address set, home.js loads the rest."""
+def slide(p, on=False, eager=False):
+    """One painting filling the screen: the banner, or one of a room's paintings. An eager one has its image address
+    set; the others keep it in data-src until home.js loads them. A tall or small painting (images.show_whole) also
+    gets its blurred copy behind it (about 4 KB, always loaded)."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     w, h = SIZE[f]
     whole = WHOLE[f]
-    src = f'src="assets/img/{f}" fetchpriority="high"' if i == 0 else f'data-src="assets/img/{f}"'
+    src = f'src="assets/img/{f}" fetchpriority="high"' if eager else f'data-src="assets/img/{f}"'
     bg = f'<img class="bg" src="assets/img/blur/{f}" alt="">' if whole else ""
-    cls = "slide" + (" whole" if whole else "") + (" on" if i == 0 else "")
-    return (f'<figure class="{cls}" data-i="{i}" {plate_data(p)}>{bg}'
+    cls = "slide" + (" whole" if whole else "") + (" on" if on else "")
+    return (f'<figure class="{cls}" {plate_data(p)}>{bg}'
             f'<img class="art" {src} alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"></figure>')
-first = PLATES[0]
+first = BANNER
 
 def row(anchor, title):
     nos = [p[0] for p in PLATES if p[6] == "#" + anchor]
@@ -288,7 +292,6 @@ def room_colour(path):
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(bl * 255))
 def aspect(f):
     w, h = Image.open(OUT / "assets" / "img" / f).size; return w / h
-BANNER_FILE = "washington-crossing.jpg"  # the first screen's painting: credited, captioned with its room's link, shown in no room
 def room(anchor, title):
     ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
     if ps:
@@ -319,19 +322,22 @@ ROOMS = ('<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS)
 
 BIO = one("bio")
 def make_card():
-    """The 1200x630 link preview picture: the first screen's first painting, darkened at the left, with the name."""
-    from PIL import Image, ImageDraw, ImageFont
+    """The 1200x630 link preview picture: the banner painting, darkened at the left and at the bottom, with the name."""
+    from PIL import Image, ImageChops, ImageDraw, ImageFont
     w, h = 1200, 630
-    with Image.open(OUT_IMG / PLATES[0][1]) as im:
+    with Image.open(OUT_IMG / BANNER[1]) as im:
         im = im.convert("RGB")
         im = im.crop((round(im.width * .01), round(im.height * .01), round(im.width * .99), round(im.height * .99)))  # drop the photo's dark edge
         scale = max(w / im.width, h / im.height)
         im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
         left, top = (im.width - w) // 2, (im.height - h) // 2
         im = im.crop((left, top, left + w, top + h))
-    shade = Image.new("L", (w, 1))
-    shade.putdata([round(225 * max(0.0, 1 - x / (w * 0.7))) for x in range(w)])
-    im = Image.composite(Image.new("RGB", (w, h), (10, 9, 8)), im, shade.resize((w, h)))
+    left = Image.new("L", (w, 1))
+    left.putdata([round(200 * max(0.0, 1 - x / (w * 0.55))) for x in range(w)])
+    bottom = Image.new("L", (1, h))
+    bottom.putdata([round(235 * min(1.0, max(0.0, (y - 0.4 * h) / (0.35 * h)))) for y in range(h)])
+    shade = ImageChops.lighter(left.resize((w, h)), bottom.resize((w, h)))  # the darker of the two shades at each point
+    im = Image.composite(Image.new("RGB", (w, h), (10, 9, 8)), im, shade)
     d = ImageDraw.Draw(im)
     fonts = OUT / "assets" / "fonts"
     d.text((72, h - 132), NAME, font=ImageFont.truetype(str(fonts / "libre-caslon-display-normal-400-latin.woff2"), 100),
@@ -342,7 +348,7 @@ def make_card():
 
 
 make_card()
-CARD_ALT = html.escape(f"{NAME}, over a detail of {SHORT[PLATES[0][0]]}")
+CARD_ALT = html.escape(f"{NAME}, over a detail of {SHORT[BANNER[0]]}")
 # who the site belongs to, for search engines: the name, the address, and the https links in [contact line]
 _same = [a for _, a in sitetext.LINK.findall(" ".join(TEXT[sitetext.key("contact line")])) if a.startswith("https://")]
 
@@ -368,8 +374,8 @@ home = page("Jak Potvin", "", "home", f"""
 <section class="intro" aria-label="Introduction">
 <div class="intro-stage">
 <div class="hero">
-<div class="slides" data-current="0" aria-hidden="true">
-{chr(10).join(slide(i, p) for i, p in enumerate(PLATES))}
+<div class="slides" aria-hidden="true">
+{slide(BANNER, on=True, eager=True)}
 </div>
 <div class="shade" aria-hidden="true"></div>
 <div class="intro-text">
@@ -384,7 +390,6 @@ home = page("Jak Potvin", "", "home", f"""
 <a class="subj" href="{first[6]}">{first[5]}</a>
 <span class="credit">{SHORT[first[0]]}</span>
 </div>
-<button class="pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
 <p class="cue">{one("scroll cue")}</p>
 </div>
 </div>

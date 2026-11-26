@@ -120,7 +120,7 @@ footer { padding: 34px 0 48px; font: 13.5px/1.6 var(--sans); color: var(--muted)
   .plate.settle img { transform: none; }
 }
 
-/* First screen: one plate at a time fills the screen behind the name (home.js runs the slideshow) */
+/* First screen: one still painting fills the screen behind the name. The .slide rules are shared with the rooms. */
 :root { --edge: max(calc((100vw - 1180px) / 2 + max(4vw, 18px)), max(4vw, 18px)); }
 body.home .top { position: absolute; top: 0; left: 0; right: 0; z-index: 4; max-width: 1180px; margin: 0 auto; padding: 22px max(4vw, 18px) 18px; justify-content: flex-end; border-bottom-color: rgba(244, 241, 234, .28); }
 body.home .top .name { display: none; }
@@ -129,15 +129,11 @@ body.home .top nav a:hover { color: #9fd3da; }
 .intro { position: relative; width: 100vw; margin-left: calc(50% - 50vw); padding: 0; border: 0; }
 .intro-stage { position: relative; }
 .hero { position: relative; height: 100svh; min-height: 520px; overflow: hidden; color: #f4f1ea; background: #0e0d0c; pointer-events: none; }
-.hero :is(.intro-text, .caption, .pause) { pointer-events: auto; }
+.hero :is(.intro-text, .caption) { pointer-events: auto; }
 .slides { position: absolute; inset: 0; }
-.slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity 1s ease; }
-.slide:not(.on):not(.leaving) { visibility: hidden; }
-.slide.on { opacity: 1; }
+.slide { position: absolute; inset: 0; margin: 0; opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s linear .6s; }
+.slide.on { opacity: 1; visibility: visible; transition: opacity .6s ease; }
 .slide .art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
-html[data-motion=full] .slide:is(.on, .leaving):not(.whole):not(.still) .art { animation: intro-zoom 6s linear both; animation-play-state: var(--zoom, running); }
-.slides.paused { --zoom: paused; }
-@keyframes intro-zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
 .slide.whole .bg { position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover; filter: brightness(.42) saturate(.85); }
 .slide.whole .art { inset: 84px max(4vw, 18px) 56px auto; margin: auto 0; width: min(calc(var(--w) * 1.5px), calc(100vw - max(4vw, 18px) - var(--edge) - min(540px, 44vw) - 5vw)); height: min(calc(100svh - 140px), calc(var(--h) * 1.5px)); object-fit: contain; object-position: right center !important; }
 .hero .shade { position: absolute; inset: 0;
@@ -155,11 +151,6 @@ html[data-motion=full] .slide:is(.on, .leaving):not(.whole):not(.still) .art { a
 .caption .subj { font: 600 13.5px/1.5 var(--sans); }
 .caption .credit { font: 12.5px/1.45 var(--sans); color: rgba(244, 241, 234, .66); }
 .caption .credit b { color: #f4f1ea; font-weight: 600; }
-.pause { display: none; position: absolute; right: var(--edge); bottom: max(28px, 6svh); width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid rgba(244, 241, 234, .5); border-radius: 50%; background: rgba(10, 9, 8, .35); color: #f4f1ea; cursor: pointer; }
-html[data-motion=full] .pause { display: grid; }
-.pause span { width: 12px; height: 14px; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
-.pause[aria-pressed=true] span { width: 0; height: 0; margin-left: 4px; border: 0; border-left: 13px solid currentColor; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
-.pause:focus-visible { outline: 2px solid #9fd3da; outline-offset: 3px; }
 .hero .cue { position: absolute; left: 50%; bottom: max(20px, 3svh); transform: translateX(-50%); margin: 0; font: 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 241, 234, .7); }
 
 
@@ -171,13 +162,12 @@ html[data-motion=full] .pause { display: grid; }
   .hero .lede { font-size: 18px; line-height: 1.45; }
   .hero .note { font-size: 15px; line-height: 1.5; }
   .intro-links { display: flex; gap: 22px; font: 600 15px/1.4 var(--sans); }
-  .hero .caption { left: 18px; right: 76px; width: auto; bottom: 22px; flex-direction: row; flex-wrap: wrap; gap: 0 6px; padding-top: 8px; font: 13px/1.4 var(--sans); }
+  .hero .caption { left: 18px; right: 18px; width: auto; bottom: 22px; flex-direction: row; flex-wrap: wrap; gap: 0 6px; padding-top: 8px; font: 13px/1.4 var(--sans); }
   .caption .yr { font: 600 13px/1.4 var(--sans); }
   .caption .what { font-size: 13px; line-height: 1.4; }
   .caption .subj, .caption .credit { display: none; }
-  .pause { right: 18px; bottom: 20px; }
   .hero .cue { display: none; }
-  .slide.whole .art { inset: 0; margin: 0; width: 100%; height: 100%; object-position: center !important; }
+  .slide.whole .art { inset: 0; margin: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos) !important; }
 }
 /* Short screens (a phone turned sideways, a short laptop window): the first screen's text and caption flow down the
    screen instead of being placed, so they never overlap; the screen grows taller if it has to. */

@@ -1,94 +1,18 @@
-/* jakpotvin.com home page: the first-screen slideshow, the projects reveal and count,
-   and the rooms (wall colour, pinned plates). With prefers-reduced-motion nothing moves: the first plate stays, still. */
+/* jakpotvin.com home page: the projects reveal and count, and the rooms (wall colour, pinned plates).
+   The first screen is one still painting and needs no script. With prefers-reduced-motion nothing moves. */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const desktop = matchMedia('(min-width: 761px)');
   root.dataset.motion = reduced ? 'reduced' : 'full';
 
-  // Year, event, subject link and credit of a plate (data-* of a slide) into a caption element.
+  // Year, event, subject link (if the caption has one) and credit of a painting (data-* of a slide) into a caption.
   function fillCaption(cap, d) {
     cap.querySelector('.yr').textContent = d.yr;
     cap.querySelector('.what').textContent = d.what;
     const subj = cap.querySelector('.subj');
-    subj.textContent = d.subj; subj.setAttribute('href', d.href);
+    if (subj) { subj.textContent = d.subj; subj.setAttribute('href', d.href); }
     cap.querySelector('.credit').textContent = d.credit;
-  }
-
-  // One plate at a time: 5 s each, 1 s crossfade; only the current and the next image are loaded.
-  function initSlideshow(intro) {
-    const box = intro.querySelector('.slides');
-    const slides = [...box.querySelectorAll('.slide')];
-    const cap = intro.querySelector('.caption');
-    const btn = intro.querySelector('.pause');
-    let cur = 0, timer = null, paused = false, stopped = false;
-
-    const art = i => slides[(i + slides.length) % slides.length].querySelector('.art');
-    const load = i => { const img = art(i); if (img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); } };
-    const show = i => {
-      const prev = slides[cur];
-      cur = (i + slides.length) % slides.length;
-      const next = slides[cur];
-      load(cur); load(cur + 1);
-      prev.classList.remove('on'); prev.classList.add('leaving');
-      setTimeout(() => prev.classList.remove('leaving'), 1100);
-      next.classList.add('on');
-      box.dataset.current = String(cur);
-      fillCaption(cap, next.dataset);
-      box.dispatchEvent(new Event('slidechange'));
-    };
-    const tick = () => {
-      if (document.hidden || paused || stopped) return;
-      const img = art(cur + 1);
-      if (img.dataset.src) { load(cur + 1); return; }
-      if (!img.complete) return;  // a slow connection: try again on the next tick
-      show(cur + 1);
-    };
-    const start = () => { clearInterval(timer); timer = setInterval(tick, 5000); };
-    const setPaused = p => {
-      paused = p;
-      btn.setAttribute('aria-pressed', String(p));  // a toggle: its name stays "Pause the slideshow"
-      box.classList.toggle('paused', p);           // CSS also freezes the slow zoom
-      if (!p) start();
-    };
-
-    load(1);
-    btn.addEventListener('click', () => setPaused(!paused));
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) start(); });
-    start();
-    return {
-      current: () => cur,
-      pause: () => setPaused(true),
-      play: () => setPaused(false),
-      stop: () => { stopped = true; },
-      resume: () => { if (stopped) { stopped = false; start(); } },
-      goto: i => { if (i !== cur) show(i); },
-    };
-  }
-
-  // Scrolling off the first screen: the slideshow stops and the zoom eases out; back at the top it plays again (unless paused).
-  function initIntroScroll(intro, show) {
-    const box = intro.querySelector('.slides');
-    let still = false;
-    const freeze = () => {
-      const s = box.querySelector('.slide.on');
-      if (!s) return;
-      const a = s.querySelector('.art');
-      a.style.transform = getComputedStyle(a).transform;
-      s.classList.add('still');
-      requestAnimationFrame(() => { a.style.transition = 'transform .3s ease'; a.style.transform = 'none'; });
-    };
-    const thaw = () => box.querySelectorAll('.slide').forEach(s => {
-      s.classList.remove('still');
-      const a = s.querySelector('.art'); a.style.transform = ''; a.style.transition = '';
-    });
-    const onScroll = () => {
-      if (scrollY > 0 && !still) { still = true; show && show.stop(); freeze(); }
-      else if (scrollY <= 0 && still) { still = false; thaw(); show && show.resume(); }
-    };
-    box.addEventListener('slidechange', () => { thaw(); if (still) freeze(); });
-    addEventListener('scroll', onScroll, {passive: true});
-    onScroll();
   }
 
   // Projects: each item rises into place once, the first time it is 15% visible, 90 ms after the one before it.
@@ -158,12 +82,6 @@
     mark();
   }
 
-  const intro = document.querySelector('.intro');
-  if (intro) {
-    const show = reduced ? null : initSlideshow(intro);
-    window.slideshow = show;
-    initIntroScroll(intro, show);
-  }
   const projects = document.querySelectorAll('#projects li, #projects h3, #projects .count');
   if (projects.length) initReveal(projects);
   const rooms = document.querySelector('.rooms');

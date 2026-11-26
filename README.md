@@ -22,7 +22,7 @@ site/               the published site
   atoms/index.html  the atoms project page
   atoms/calculator/ the calculator
   assets/site.css   all styles
-  assets/home.js    the home page's slideshow, project reveal and rooms
+  assets/home.js    the home page's project reveal and rooms
   assets/card.jpg   the link preview picture (1200 by 630), written by the build; do not edit
   assets/img/       the plates (these are source files; build.py reads their sizes)
   assets/img/blur/  a blurred copy of each plate, written by the build (images.py); do not edit
@@ -59,17 +59,17 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 
 ## How the home page works
 
-- **First screen.** One plate at a time fills the screen behind the name, tagline and bio, oldest first, about 5 seconds each with a slow zoom and a crossfade, with the plate's year, event and credit in the corner. A pause button stops it; it also stops while the tab is hidden and once the visitor scrolls. Plates that are tall, square or too small to fill the screen sharply (`images.show_whole`) are shown whole on the right, over a blurred copy of themselves. Only the current and the next image are loaded. The behaviour is in `site/assets/home.js`.
-- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. The first screen shows them one at a time; each also hangs in its subject's room, except the banner painting (`BANNER_FILE`), which is credited and captioned but in no room. The site shows no plate numbers; the build still numbers the plates internally (I, II, III...) to key captions and credits. Scrolling off the first screen goes straight into Writing.
+- **First screen.** One still painting, Washington Crossing the Delaware (`BANNER_FILE` in `build.py`), fills the screen behind the name, tagline and bio, with its year, event, a link to the War and defense room and its credit in the corner. There is no slideshow; the first screen needs no script.
+- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. The banner painting (`BANNER_FILE`) is the first screen, credited and captioned but in no room; each other painting hangs in its subject's room. The site shows no plate numbers; the build still numbers the plates internally (I, II, III...) to key captions and credits. Scrolling off the first screen goes straight into Writing.
 - **Rooms.** `SUBJECTS` lists the ten writing subjects in order. Each plate's anchor (for example `#s-politics`) puts it in that subject's room. `ROOM_BG` sets each room's wall colour, picked from its painting. The page background fades between room colours on scroll. On desktop the room's plates stay pinned on the right while the room names scroll past on the left.
 - **Featured projects.** Lines under `[featured projects]` in `site-text.txt` (one per project: `- [name](address) | one line`) show as a list under the atoms part, headed by `[featured heading]`. With no lines there, nothing about it appears. Check each link before a push.
 - **Projects.** The items rise into place once as they come into view, and the project count (`[projects count]` in `site-text.txt`) counts up from zero.
-- **Reduced motion.** A visitor whose device asks for less motion sees the first plate held still and everything else in place.
+- **Reduced motion.** Nothing on the first screen moves for anyone. A visitor whose device asks for less motion sees the projects in place, and the rooms change paintings without the fade.
 - **Short captions** come from `SHORT_BY_FILE`; full credits from the plate's credit field, plus `NOTE_BY_FILE`, appear on `plates.html`.
 
 ## Link previews and search engines
 
-- **Link previews.** Every page carries its address (`canonical`) and the tags that texts, LinkedIn, Slack and the like read to show a card: the page's title, `[page description]` from `site-text.txt`, and `assets/card.jpg`. The build draws the card from the first plate, darkened at the left, with `[name]` and the site address. `SITE_URL` in `build.py` holds the address.
+- **Link previews.** Every page carries its address (`canonical`) and the tags that texts, LinkedIn, Slack and the like read to show a card: the page's title, `[page description]` from `site-text.txt`, and `assets/card.jpg`. The build draws the card from the banner painting, darkened at the left and at the bottom, with `[name]` and the site address. `SITE_URL` in `build.py` holds the address.
 - **Who the site belongs to.** The home page tells search engines, in a form they read, the name, the address and the https links in `[contact line]` (the GitHub link today; never the email).
 - **Sitemap.** `sitemap.xml` lists the four pages; `robots.txt` points to it. A new page needs its address added to `ADDRESSES` in `build.py`.
 - **Google Search Console** (Jak's step, after the push that publishes these files): sign in at search.google.com/search-console, add jakpotvin.com as a Domain property, and copy the TXT record Google shows. Adding it in Cloudflare is the one DNS change this needs; Claude enters it only when Jak asks for that record. Once Google says verified, submit `https://jakpotvin.com/sitemap.xml` under Sitemaps.
