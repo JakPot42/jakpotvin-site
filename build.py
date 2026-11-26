@@ -251,7 +251,7 @@ if(wrap && rs.length && 'IntersectionObserver' in window){
   rs.forEach(r=>io.observe(r));
 }}</script>"""
 
-BIO = "I&rsquo;m based in Rhode Island. I design software and direct its build with AI coding tools: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models."
+BIO = "I&rsquo;m based in Rhode Island. I design software: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models."
 home = page("Jak Potvin", "", "home", f"""
 <section class="album" aria-label="Introduction" style="--n:{len(PLATES)}">
 <div class="stage">
