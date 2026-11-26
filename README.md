@@ -60,7 +60,7 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 ## How the home page works
 
 - **First screen.** One plate at a time fills the screen behind the name, tagline and bio, oldest first, about 5 seconds each with a slow zoom and a crossfade, with the plate's year, event and credit in the corner. A pause button stops it; it also stops while the tab is hidden and once the visitor scrolls. Plates that are tall, square or too small to fill the screen sharply (`images.show_whole`) are shown whole on the right, over a blurred copy of themselves. Only the current and the next image are loaded. The behaviour is in `site/assets/home.js`.
-- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. The first screen shows them one at a time; each also hangs in its subject's room. The site shows no plate numbers; the build still numbers the plates internally (I, II, III...) to key captions and credits. Scrolling off the first screen goes straight into Writing.
+- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. The first screen shows them one at a time; each also hangs in its subject's room, except the banner painting (`BANNER_FILE`), which is credited and captioned but in no room. The site shows no plate numbers; the build still numbers the plates internally (I, II, III...) to key captions and credits. Scrolling off the first screen goes straight into Writing.
 - **Rooms.** `SUBJECTS` lists the ten writing subjects in order. Each plate's anchor (for example `#s-politics`) puts it in that subject's room. `ROOM_BG` sets each room's wall colour, picked from its painting. The page background fades between room colours on scroll. On desktop the room's plates stay pinned on the right while the room names scroll past on the left.
 - **Featured projects.** Lines under `[featured projects]` in `site-text.txt` (one per project: `- [name](address) | one line`) show as a list under the atoms part, headed by `[featured heading]`. With no lines there, nothing about it appears. Check each link before a push.
 - **Projects.** The items rise into place once as they come into view, and the project count (`[projects count]` in `site-text.txt`) counts up from zero.
@@ -76,7 +76,7 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 
 ### Adding a plate
 
-1. Put the image in `site/assets/img/` (JPEG, about 1,200 to 2,000 pixels on the long side).
+1. Put the image in `site/assets/img/` (JPEG, about 2,000 pixels on the long side and at least 1,600, so it can fill a screen).
 2. Add a tuple to `PLATES` at its place in date order. Leave the number empty (`""`); the build fills it in.
 3. Add its short caption to `SHORT_BY_FILE`, and a note to `NOTE_BY_FILE` if the licence asks for one.
 4. Rebuild and look at the first screen, the room and `plates.html`.
@@ -87,11 +87,9 @@ A plate whose image file is missing is skipped, not an error.
 
 - The first essays, and a page format for them.
 - Links for the bottleneck map and mechdb, both currently "Published 15 December".
-- Image sources to confirm. Paintings and drawings are faithful reproductions of public-domain works; photographs are credited on `plates.html`. These files came from copies Jak saved, so confirm the source and whether a photographer credit is wanted: Vitruvian Man (possibly Luc Viatour's photograph on Wikimedia Commons), School of Athens, Coronation of Charlemagne, Washington Crossing the Delaware. (Napoleon Crossing the Alps was replaced on 26 November 2026 with the Belvedere version from the Google Art Project scan on Wikimedia Commons, public domain.)
 - On launch day, recheck the facts about other people's work against their sources: on the atoms page, that the three preprints are from CBN Nano Technologies, that none is peer reviewed, and that none has been repeated by a second lab.
-- Optional: a larger ENIAC scan (the current file is 630 pixels wide).
 
 ## Rules for this site
 
 - Run the private-name scan over the whole folder and its history before any push.
-- Every picture is public domain or credited under its licence. No stock-agency copies.
+- Every picture is public domain or credited under its licence, with the licence linked on `plates.html`. No stock-agency copies. On 26 November 2026 the pictures that came from copies Jak saved were replaced with Wikimedia Commons files whose licences were checked, or taken out.

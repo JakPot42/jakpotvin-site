@@ -148,28 +148,37 @@ LATTICE_CAPTION = 'The top layer of a silicon crystal, drawn for this site: rows
 # ---------------------------------------------------------------- home: the plates
 OUT_IMG = pathlib.Path(__file__).parent / "site" / "assets" / "img"
 PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subject, anchor, credit, column, grow, pos): column and grow are set below
- ("I", "death-of-socrates.jpg", "Socrates, seated on his prison bed, reaches for the cup of hemlock with one hand and points upward with the other while his followers grieve.", "399 BC", "Socrates is condemned and drinks the hemlock", "Philosophy and religion", "#s-philosophy", "Jacques-Louis David, The Death of Socrates, 1787. The Metropolitan Museum of Art, New York.", 0, 0, "55% 45%"),
- ("II", "school-of-athens.jpg", "Plato pointing upward and Aristotle gesturing toward the ground, among other philosophers in a painted hall.", "c. 360 BC", "Plato and Aristotle at the Academy", "Philosophy and religion", "#s-philosophy", "Raphael, The School of Athens (detail), fresco, 1509 to 1511. Apostolic Palace, Vatican.", 0, 0, "50% 40%"),
- ("III", "caesar-coustou.jpg", "Marble statue of Julius Caesar in a laurel wreath and armour, holding a baton and looking sharply to one side.", "49 BC", "Caesar crosses the Rubicon", "Political science", "#s-politics", "Nicolas Coustou, Julius Caesar, marble, commissioned 1696. Louvre, Paris. Photograph by Marie-Lan Nguyen.", 0, 0, "50% 20%"),
+ ("", "death-of-socrates.jpg", "Socrates, seated on his prison bed, reaches for the cup of hemlock with one hand and points upward with the other while his followers grieve.", "399 BC", "Socrates is condemned and drinks the hemlock", "Philosophy and religion", "#s-philosophy", "Jacques-Louis David, The Death of Socrates, 1787. The Metropolitan Museum of Art, New York.", 0, 0, "55% 45%"),
+ ("", "alexander-mosaic.jpg", "Mosaic of Alexander the Great charging bareheaded on his horse Bucephalus, wide-eyed, a long spear in his hand and a Gorgon's face on his breastplate.", "333 BC", "Alexander defeats the Persian king Darius at Issus", "War and defense", "#s-warfare", "The Alexander Mosaic (detail), from the House of the Faun, Pompeii, c. 100 BC. National Archaeological Museum, Naples. Photograph by Gary Todd.", 0, 0, "52% 40%"),
+ ("", "antikythera.jpg", "Three corroded green bronze fragments of an ancient geared machine, mounted on clear stands in a dark museum case.", "c. 100 BC", "Greek gears model the motions of the Sun and Moon", "Technology and AI", "#s-tech", "The Antikythera mechanism, bronze, c. 100 BC. National Archaeological Museum, Athens. Photograph by Peulle, licensed CC BY-SA 4.0.", 0, 0, "50% 45%"),
+ ("", "death-of-caesar.jpg", "Senators in white togas raise daggers as Caesar, in a red cloak, sinks to the marble floor; others flee across the hall beneath a tall statue.", "44 BC", "Caesar is assassinated on the Ides of March", "Political science", "#s-politics", "Vincenzo Camuccini, The Death of Caesar, 1804 to 1805. Galleria Nazionale d&rsquo;Arte Moderna, Rome. Photograph by Daderot.", 0, 0, "40% 62%"),
  ("", "botticelli-augustine.jpg", "Saint Augustine at his desk, one hand on his chest, looking up from his books toward a light, with a clock and an armillary sphere on the shelf behind him.", "c. 400", "Augustine writes the Confessions", "Philosophy and religion", "#s-philosophy", "Sandro Botticelli, Saint Augustine in His Study, fresco, 1480. Church of Ognissanti, Florence.", 0, 0, "50% 30%"),
- ("IV", "coronation-charlemagne.jpg", "Charlemagne kneels as the pope lowers a crown onto his head, courtiers and clergy crowded around.", "800", "Charlemagne crowned emperor in Rome", "Political science", "#s-politics", "Friedrich Kaulbach, The Coronation of Charlemagne, 1861. Maximilianeum, Munich.", 0, 0, "62% 50%"),
  ("", "magna-carta.jpg", "The Magna Carta of 1215: a sheet of parchment densely written in medieval Latin.", "1215", "King John seals Magna Carta at Runnymede", "Political science", "#s-politics", "Magna Carta, 1215. Cotton MS Augustus II.106, British Library, London.", 0, 0, "50% 40%"),
- ("V", "vitruvian-man.jpg", "Leonardo da Vinci's drawing of a man in two overlapping poses inside a circle and a square.", "c. 1490", "Leonardo measures the human body", "Biology and medicine", "#s-biology", "Leonardo da Vinci, Vitruvian Man, pen and ink. Gallerie dell&rsquo;Accademia, Venice.", 0, 0, "50% 45%"),
+ ("", "vitruvian-man.jpg", "Leonardo da Vinci's drawing of a man in two overlapping poses inside a circle and a square.", "c. 1490", "Leonardo measures the human body", "Biology and medicine", "#s-biology", "Leonardo da Vinci, Vitruvian Man, pen and ink, c. 1490. Gallerie dell&rsquo;Accademia, Venice.", 0, 0, "50% 45%"),
+ ("", "bosch-cure-of-folly.jpg", "In a round landscape framed by gold lettering, a surgeon in a funnel hat cuts into the head of a seated man, watched by a monk with a jug and a nun with a book balanced on her head.", "c. 1501", "A quack cuts out the stone of madness", "Psychology", "#s-psychology", "Workshop or follower of Hieronymus Bosch, The Cure of Folly (The Extraction of the Stone of Madness), c. 1501 to 1505. Museo del Prado, Madrid.", 0, 0, "50% 50%"),
+ ("", "massys-moneylender.jpg", "A moneylender in a fur-collared coat weighs coins on a small balance while his wife, turning the pages of an illuminated book, looks over at the money; a round mirror on the table reflects a window.", "1514", "A moneylender weighs coins as his wife looks on", "Economics", "#s-economics", "Quentin Massys, The Moneylender and His Wife, 1514. Louvre, Paris.", 0, 0, "50% 60%"),
  ("", "bruegel-harvesters.jpg", "Peasants in a golden wheat field at harvest: some cut and bind the grain, others rest and eat together under a pear tree.", "1565", "Bruegel paints a village at harvest time", "Sociology", "#s-sociology", "Pieter Bruegel the Elder, The Harvesters, 1565. The Metropolitan Museum of Art, New York.", 0, 0, "55% 60%"),
- ("VI", "newton-romney.jpg", "Isaac Newton, seated, holds a prism up to a beam of sunlight while two women look on.", "1666", "Newton splits sunlight with a prism", "Physics and chemistry", "#s-physics", "Newton with the Prism. Stipple engraving by R. M. Meadows, 1809, after George Romney. Wellcome Collection.", 0, 0, "72% 50%"),
- ("VII", "alchemist-phosphorus.jpg", "An old man kneels in a dark laboratory, gazing at a glass flask that glows with white light.", "1669", "Hennig Brand discovers phosphorus", "Physics and chemistry", "#s-physics", "Joseph Wright of Derby, The Alchemist Discovering Phosphorus (detail), 1771, reworked 1795. Derby Museum and Art Gallery.", 0, 0, "50% 50%"),
- ("VIII", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 42%"),
- ("IX", "washington-crossing.jpg", "George Washington standing in a crowded rowing boat pushing through river ice, a flag behind him.", "1776", "Washington crosses the Delaware", "War and defense", "#s-warfare", "Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art, New York.", 0, 0, "33% 50%"),
- ("X", "jenner-hillemacher.jpg", "A doctor leans in to vaccinate a small child held on its mother's lap in a farmhouse, a boy and a girl watching.", "1796", "Jenner gives the first vaccination against smallpox", "Biology and medicine", "#s-biology", "Eugène-Ernest Hillemacher, Edward Jenner Vaccinating a Boy, 1884. Wellcome Collection.", 0, 0, "55% 50%"),
- ("", "goya-sleep-of-reason.jpg", "A man slumped asleep over his desk while owls and bats swarm out of the darkness behind him and a lynx watches.", "1799", "Goya: the sleep of reason produces monsters", "Psychology", "#s-psychology", "Francisco Goya, The Sleep of Reason Produces Monsters, plate 43 of Los Caprichos, etching and aquatint, 1799. The Metropolitan Museum of Art, New York.", 0, 0, "50% 50%"),
- ("XI", "napoleon-alps.jpg", "Napoleon in a billowing red cloak on a rearing white horse, pointing up toward a mountain pass; soldiers haul a cannon up the slope behind him.", "1800", "Napoleon crosses the Alps", "War and defense", "#s-warfare", "Jacques-Louis David, Napoleon Crossing the Alps, 1802 to 1803, one of five versions. Belvedere, Vienna.", 0, 0, "60% 30%"),
- ("XIII", "iron-rolling-mill.jpg", "Workers with long tongs guide a white-hot iron bar into a rolling machine in a vast factory hall.", "1875", "A rolling mill making railway track", "Economics", "#s-economics", "Adolph Menzel, The Iron Rolling Mill, 1872 to 1875. Nationalgalerie, Berlin.", 0, 0, "47% 50%"),
- ("XIV", "seurat-grande-jatte.jpg", "Parisians of every kind, in top hats, bustles and work clothes, resting and strolling on a sunny riverbank, painted in dots.", "1884", "Parisians of every class share a Sunday afternoon", "Sociology", "#s-sociology", "Georges Seurat, A Sunday on La Grande Jatte, 1884 to 1886. The Art Institute of Chicago.", 0, 0, "50% 50%"),
- ("XV", "charcot-salpetriere.jpg", "Charcot stands before a packed room of physicians and students, presenting a fainting woman held up by an assistant and a nurse.", "1887", "Charcot lectures on hysteria at the Salpêtrière", "Psychology", "#s-psychology", "André Brouillet, A Clinical Lesson at the Salpêtrière, 1887. Paris Descartes University.", 0, 0, "60% 50%"),
- ("XVI", "first-flight.jpg", "A biplane lifts a few feet off the sand at Kitty Hawk while a man watches from the right.", "1903", "The first powered flight, Kitty Hawk", "Technology and AI", "#s-tech", "Photograph by John T. Daniels, 17 December 1903: Orville Wright at the controls, Wilbur alongside. Library of Congress.", 0, 0, "56% 50%"),
- ("", "eniac.jpg", "Rows of tall panels covered in switches, dials and cables fill a room, with operators setting up the machine.", "1946", "ENIAC, the first general-purpose electronic computer, is unveiled", "Technology and AI", "#s-tech", "ENIAC at the Moore School, University of Pennsylvania, 1946. U.S. Army Photo.", 0, 0, "50% 50%"),
- ("XVII", "kennedy-von-braun.jpg", "Wernher von Braun and President Kennedy, both looking and pointing upward, beside a model Saturn rocket.", "1963", "Von Braun shows Kennedy the Saturn rocket", "The future", "#s-future", "NASA photograph, Cape Canaveral, 16 November 1963.", 0, 0, "50% 38%"),
- ("XVIII", "earthrise.jpg", "The Earth, half lit, rising above the grey horizon of the Moon against black space.", "1968", "Apollo 8 sees the Earth rise over the Moon", "The future", "#s-future", "Earthrise. Photograph by William Anders, Apollo 8, 24 December 1968. NASA.", 0, 0, "56% 55%"),
+ ("", "alchemist-full.jpg", "An old alchemist kneels in a dark, vaulted laboratory, gazing at a glass flask that glows with white light; two assistants work by candlelight in the shadows behind him.", "1669", "Hennig Brand discovers phosphorus", "Physics and chemistry", "#s-physics", "Joseph Wright of Derby, The Alchemist Discovering Phosphorus, 1771, reworked 1795. Derby Museum and Art Gallery.", 0, 0, "60% 70%"),
+ ("", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 42%"),
+ ("", "washington-crossing.jpg", "George Washington standing in a crowded rowing boat pushing through river ice, a flag behind him.", "1776", "Washington crosses the Delaware", "War and defense", "#s-warfare", "Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art, New York.", 0, 0, "35% 45%"),
+ ("", "jenner-hillemacher.jpg", "A doctor leans in to vaccinate a small child held on its mother's lap in a farmhouse, while a young man and a girl watch.", "1796", "Jenner gives the first vaccination against smallpox", "Biology and medicine", "#s-biology", "Eugène-Ernest Hillemacher, Edward Jenner Vaccinating a Boy, 1884. Wellcome Collection, licensed CC BY 4.0.", 0, 0, "55% 50%"),
+ ("", "goya-sleep-of-reason.jpg", "A man slumped asleep over his desk while owls and bats swarm out of the darkness behind him and a lynx watches.", "1799", "Goya: the sleep of reason produces monsters", "Psychology", "#s-psychology", "Francisco Goya, The Sleep of Reason Produces Monsters, plate 43 of Los Caprichos, etching and aquatint, 1799.", 0, 0, "50% 55%"),
+ ("", "napoleon-alps.jpg", "Napoleon in a billowing red cloak on a rearing white horse, pointing up toward a mountain pass; soldiers haul a cannon up the slope behind him.", "1800", "Napoleon crosses the Alps", "War and defense", "#s-warfare", "Jacques-Louis David, Napoleon Crossing the Alps, 1802 to 1803, one of five versions. Belvedere, Vienna.", 0, 0, "60% 30%"),
+ ("", "wanderer-sea-of-fog.jpg", "A man in a dark coat stands with his back to us on a rocky summit, looking out over a sea of fog with mountains rising through it.", "c. 1817", "Friedrich's wanderer looks out over a sea of fog", "Philosophy and religion", "#s-philosophy", "Caspar David Friedrich, Wanderer above the Sea of Fog, c. 1817. Hamburger Kunsthalle, Hamburg.", 0, 0, "50% 42%"),
+ ("", "faraday-lecture.jpg", "Michael Faraday stands at a demonstration table before a packed, tiered lecture theatre, with Prince Albert and two young princes in the front row.", "1855", "Faraday gives a Christmas lecture at the Royal Institution", "Physics and chemistry", "#s-physics", "After Alexander Blaikley, Professor Faraday Lecturing at the Royal Institution, 27 December 1855. Royal Institution, London.", 0, 0, "62% 55%"),
+ ("", "verne-earth-to-moon.jpg", "Engraving of a huge cone-shaped shell hung with American flags beside a tall crane, men in top hats looking on.", "1865", "Verne imagines a cannon shot to the Moon", "The future", "#s-future", "Henri de Montaut, illustration for Jules Verne, From the Earth to the Moon (1865), in an 1874 edition. National Library of Poland.", 0, 0, "50% 45%"),
+ ("", "seurat-grande-jatte.jpg", "Parisians of every kind, in top hats, bustles and work clothes, resting and strolling on a sunny riverbank, painted in dots.", "1884", "Parisians of every class share a Sunday afternoon", "Sociology", "#s-sociology", "Georges Seurat, A Sunday on La Grande Jatte, 1884 to 1886. The Art Institute of Chicago.", 0, 0, "50% 50%"),
+ ("", "ford-assembly-line.jpg", "Rows of workmen in caps bend over a long waist-high line, fitting parts onto round flywheels that slide along it.", "1913", "Ford's moving assembly line begins", "Economics", "#s-economics", "Workers on a Ford Motor Company assembly line, 1913. U.S. National Archives.", 0, 0, "45% 50%"),
+ ("", "freud-halberstadt.jpg", "Sigmund Freud, grey-bearded, in a three-piece suit with a watch chain, holds a cigar and looks straight at the camera, one hand on his hip.", "c. 1921", "Freud, the founder of psychoanalysis", "Psychology", "#s-psychology", "Max Halberstadt, photograph of Sigmund Freud, c. 1921.", 0, 0, "50% 25%"),
+ ("", "iwo-jima.jpg", "Six servicemen strain together to raise a pole flying the American flag on a rubble-strewn hilltop.", "1945", "Marines raise the flag on Iwo Jima", "War and defense", "#s-warfare", "Joe Rosenthal, Associated Press, Raising the Flag on Iwo Jima, 23 February 1945. U.S. National Archives.", 0, 0, "45% 50%"),
+ ("", "eniac.jpg", "Two women stand at ENIAC's tall panels of switches, dials and cables, one reaching up to a setting.", "1946", "ENIAC, the first general-purpose electronic computer, is unveiled", "Technology and AI", "#s-tech", "Betty Jennings (left) and Frances Bilas prepare ENIAC for its public unveiling, February 1946. U.S. Army photograph.", 0, 0, "45% 50%"),
+ ("", "kennedy-von-braun.jpg", "Wernher von Braun and President Kennedy look and point upward beside a model rocket, officials crowding around them.", "1963", "Von Braun shows Kennedy the Saturn rocket", "The future", "#s-future", "NASA photograph, Cape Canaveral, 16 November 1963.", 0, 0, "55% 35%"),
+ ("", "berlin-wall-1989.jpg", "At night, floodlights show a graffiti-covered stretch of the Berlin Wall beside the Brandenburg Gate; a crane rises over a new gap in the wall where people gather.", "1989", "The Berlin Wall is opened at the Brandenburg Gate", "Political science", "#s-politics", "East and West Germans meet at a new opening in the Berlin Wall beside the Brandenburg Gate, after a crane lifted out a section, 21 December 1989. Photograph by SSgt F. Lee Corkran, U.S. Air Force.", 0, 0, "55% 55%"),
+ ("", "atlas-detector.jpg", "The ATLAS particle detector in its underground hall: a huge cylinder of metal plates, pipes and cables, ringed by scaffolding and yellow walkways.", "2012", "ATLAS helps find the Higgs boson", "Physics and chemistry", "#s-physics", "The ATLAS detector at CERN&rsquo;s Large Hadron Collider, 2019. Photograph by SimonWaldherr, licensed CC BY-SA 4.0.", 0, 0, "60% 55%"),
+ ("", "shibuya-crossing.jpg", "Seen from above, crowds stream in every direction across a scramble crossing between tall buildings covered in signs and screens.", "2017", "Crowds cross at Shibuya, Tokyo", "Sociology", "#s-sociology", "Shibuya Crossing, Tokyo, December 2017. Photograph by Mark D, licensed CC BY-SA 2.0.", 0, 0, "55% 65%"),
+ ("", "summit-supercomputer.jpg", "A long row of black computer cabinets with blue panels and green lights, the nearest marked Summit, Oak Ridge and IBM.", "2018", "Summit becomes the world's fastest computer", "Technology and AI", "#s-tech", "The Summit supercomputer, Oak Ridge National Laboratory, 2018. Photograph by Carlos Jones, ORNL, licensed CC BY 2.0.", 0, 0, "50% 45%"),
+ ("", "sars-cov-2.jpg", "Colourized electron microscope image: countless small gold virus particles cluster on and stream from the blue surface of a cell.", "2020", "The virus behind COVID-19, under the microscope", "Biology and medicine", "#s-biology", "SARS-CoV-2 particles (gold) emerging from a cell grown in the lab; scanning electron micrograph, colourized, Rocky Mountain Laboratories. NIAID, licensed CC BY 2.0.", 0, 0, "50% 45%"),
+ ("", "webb-cosmic-cliffs.jpg", "Glowing orange clouds of gas and dust rise like a mountain range under a deep blue sky full of bright, spiked stars.", "2022", "Webb's first images show stars being born", "The future", "#s-future", "The Cosmic Cliffs in the Carina Nebula, James Webb Space Telescope, July 2022. NASA, ESA, CSA and STScI.", 0, 0, "50% 50%"),
 ]
 # each plate's column and height share (from the old album wall; kept so the plate tuples keep their shape)
 from PIL import Image as _Img
@@ -201,16 +210,20 @@ def roman(n):
 PLATES = [(roman(i + 1),) + p[1:] for i, p in enumerate(PLATES)]
 NO = {p[1]: p[0] for p in PLATES}
 LATTICE_NO = roman(len(PLATES) + 1)
-SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "school-of-athens.jpg": "Raphael, The School of Athens",
-    "caesar-coustou.jpg": "Coustou, Julius Caesar", "coronation-charlemagne.jpg": "Kaulbach, The Coronation of Charlemagne",
-    "magna-carta.jpg": "Magna Carta, 1215", "botticelli-augustine.jpg": "Botticelli, Saint Augustine in His Study", "vitruvian-man.jpg": "Leonardo, Vitruvian Man",
-    "newton-romney.jpg": "Meadows after Romney, Newton with the Prism", "alchemist-phosphorus.jpg": "Wright of Derby, The Alchemist",
+SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexander-mosaic.jpg": "The Alexander Mosaic, Pompeii",
+    "antikythera.jpg": "The Antikythera mechanism", "death-of-caesar.jpg": "Camuccini, The Death of Caesar",
+    "botticelli-augustine.jpg": "Botticelli, Saint Augustine in His Study", "magna-carta.jpg": "Magna Carta, 1215", "vitruvian-man.jpg": "Leonardo, Vitruvian Man",
+    "bosch-cure-of-folly.jpg": "Bosch workshop or follower, The Cure of Folly", "massys-moneylender.jpg": "Massys, The Moneylender and His Wife",
+    "bruegel-harvesters.jpg": "Bruegel, The Harvesters", "alchemist-full.jpg": "Wright of Derby, The Alchemist",
     "adam-smith-statue.jpg": "Stoddart, Adam Smith", "washington-crossing.jpg": "Leutze, Washington Crossing the Delaware",
-    "jenner-hillemacher.jpg": "Hillemacher, Jenner Vaccinating a Boy", "napoleon-alps.jpg": "David, Napoleon Crossing the Alps",
-    "iron-rolling-mill.jpg": "Menzel, The Iron Rolling Mill", "seurat-grande-jatte.jpg": "Seurat, A Sunday on La Grande Jatte",
-    "charcot-salpetriere.jpg": "Brouillet, A Clinical Lesson", "bruegel-harvesters.jpg": "Bruegel, The Harvesters",
-    "goya-sleep-of-reason.jpg": "Goya, The Sleep of Reason Produces Monsters", "first-flight.jpg": "Daniels, First Flight",
-    "kennedy-von-braun.jpg": "NASA, Kennedy and von Braun", "eniac.jpg": "U.S. Army, ENIAC", "earthrise.jpg": "Anders, Earthrise"}
+    "jenner-hillemacher.jpg": "Hillemacher, Jenner Vaccinating a Boy", "goya-sleep-of-reason.jpg": "Goya, The Sleep of Reason Produces Monsters",
+    "napoleon-alps.jpg": "David, Napoleon Crossing the Alps", "wanderer-sea-of-fog.jpg": "Friedrich, Wanderer above the Sea of Fog",
+    "faraday-lecture.jpg": "After Blaikley, Faraday Lecturing", "verne-earth-to-moon.jpg": "De Montaut, From the Earth to the Moon",
+    "seurat-grande-jatte.jpg": "Seurat, A Sunday on La Grande Jatte", "ford-assembly-line.jpg": "Ford assembly line, 1913",
+    "freud-halberstadt.jpg": "Halberstadt, Sigmund Freud", "iwo-jima.jpg": "Rosenthal, Raising the Flag on Iwo Jima",
+    "eniac.jpg": "U.S. Army, ENIAC", "kennedy-von-braun.jpg": "NASA, Kennedy and von Braun", "berlin-wall-1989.jpg": "U.S. Air Force, The Berlin Wall opened",
+    "atlas-detector.jpg": "The ATLAS detector, CERN", "shibuya-crossing.jpg": "Shibuya Crossing, Tokyo", "summit-supercomputer.jpg": "Summit, Oak Ridge",
+    "sars-cov-2.jpg": "NIAID, SARS-CoV-2", "webb-cosmic-cliffs.jpg": "NASA, Webb's Cosmic Cliffs"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
     """The data-* attributes the slideshow reads for a plate."""
@@ -251,7 +264,6 @@ ROOM_TEXT = {
  "s-biology": "Life, the body, and how to keep it working.",
  "s-future": "Where technology is taking us, and what to do about it.",
 }
-ROOM_FILE = {"alchemist-phosphorus.jpg": ("alchemist-full.jpg", 1100 / 1427)}
 ROOM_BG = {  # wall colours picked from each room's painting; auto-sampling made too many of them brown
  "s-philosophy": "#1f2a44",  # Aristotle's blue robe
  "s-psychology": "#3b1e16",  # the Salpêtrière's red walls
@@ -276,10 +288,11 @@ def room_colour(path):
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(bl * 255))
 def aspect(f):
     w, h = Image.open(OUT / "assets" / "img" / f).size; return w / h
+BANNER_FILE = "washington-crossing.jpg"  # the first screen's painting: credited, captioned with its room's link, shown in no room
 def room(anchor, title):
-    ps = [p for p in PLATES if p[6] == "#" + anchor]
+    ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
     if ps:
-        files = [ROOM_FILE.get(p[1], (p[1], None))[0] for p in ps]
+        files = [p[1] for p in ps]
         asp = [aspect(f) for f in files]; bg = room_colour(OUT / "assets" / "img" / files[0])
         rows, cur, s = [], [], 0.0
         for item in zip(ps, files, asp):
@@ -521,20 +534,26 @@ atoms_page = page("Atom by atom | Jak Potvin", "../", "projects", f"""
 
 # ---------------------------------------------------------------- list of plates (full credits)
 FULL = {p[0]: p[7] for p in PLATES}
-FULL[NO["alchemist-phosphorus.jpg"]] = FULL[NO["alchemist-phosphorus.jpg"]].replace(" (detail)", "")
 FULL[NO["kennedy-von-braun.jpg"]] = "Wernher von Braun explains the Saturn rocket to President John F. Kennedy, Cape Canaveral, 16 November 1963. NASA photograph."
 FULL[LATTICE_NO] = "The top layer of a silicon crystal, drawn for this site."
-NOTE_BY_FILE = {"caesar-coustou.jpg": "Wikimedia Commons.", "eniac.jpg": "Work of the U.S. government; public domain.", "adam-smith-statue.jpg": "Wikimedia Commons.", "magna-carta.jpg": "Wikimedia Commons.",
-    "kennedy-von-braun.jpg": "NASA images are generally not subject to copyright in the United States.",
-    "earthrise.jpg": "NASA images are generally not subject to copyright in the United States."}
+US_GOV = "Work of the U.S. government; public domain."
+NASA = "NASA images are generally not subject to copyright in the United States."
+NOTE_BY_FILE = {"eniac.jpg": US_GOV, "berlin-wall-1989.jpg": US_GOV, "kennedy-von-braun.jpg": NASA, "webb-cosmic-cliffs.jpg": NASA,
+    "iwo-jima.jpg": "Public domain in the United States: its copyright was not renewed.",
+    **{f: "Wikimedia Commons." for f in ("adam-smith-statue.jpg", "magna-carta.jpg", "death-of-caesar.jpg", "alexander-mosaic.jpg", "antikythera.jpg",
+                                         "atlas-detector.jpg", "shibuya-crossing.jpg", "summit-supercomputer.jpg", "sars-cov-2.jpg")}}
 NOTES = {NO[f]: t for f, t in NOTE_BY_FILE.items() if f in NO}
 YEAR = {p[0]: p[3] for p in PLATES}
 YEAR[LATTICE_NO] = "Atoms page"
-items = "\n".join(f'<li><span class="pl">{YEAR[n]}</span><span>{FULL[n]}{(" " + NOTES[n]) if n in NOTES else ""}</span></li>' for n in [p[0] for p in PLATES] + [LATTICE_NO])
+CC_LICENCE = re.compile(r"CC (BY(?:-SA)?) (\d\.\d)")
+def link_licence(credit):
+    """'CC BY-SA 2.0' in a credit becomes a link to that licence's page at creativecommons.org."""
+    return CC_LICENCE.sub(lambda m: f'<a href="https://creativecommons.org/licenses/{m.group(1).lower()}/{m.group(2)}/">{m.group(0)}</a>', credit)
+items = "\n".join(f'<li><span class="pl">{YEAR[n]}</span><span>{link_licence(FULL[n])}{(" " + NOTES[n]) if n in NOTES else ""}</span></li>' for n in [p[0] for p in PLATES] + [LATTICE_NO])
 plates_page = page("Picture credits | Jak Potvin", "", "", f"""
 <section aria-labelledby="pl-h">
 <h1 id="pl-h" style="font-size:clamp(36px,5vw,56px)">Picture credits</h1>
-<p class="small" style="margin-top:12px">Paintings, drawings and sculpture reproduced here are in the public domain; photographs are credited to their makers.</p>
+<p class="small" style="margin-top:12px">Paintings, drawings and sculpture reproduced here are in the public domain; photographs are credited to their makers. Where a picture is used under a Creative Commons licence, the licence is linked. The copies here are resized, and some are cropped.</p>
 <ol class="plates-list">
 {items}
 </ol>

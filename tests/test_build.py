@@ -148,9 +148,88 @@ def test_picture_credits_page_keeps_every_credit():
     credits = visible_text(SITE / "plates.html")
     raw = (SITE / "plates.html").read_text(encoding="utf-8")
     assert re.search(r"<h1[^>]*>Picture credits</h1>", raw) and "<title>Picture credits | Jak Potvin</title>" in raw
-    for needed in ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "Photograph by Marie-Lan Nguyen",
+    for needed in ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "Photograph by Mark D, licensed CC BY-SA 2.0",
                    "Jacques-Louis David, The Death of Socrates, 1787", "The top layer of a silicon crystal, drawn for this site."):
         assert needed in credits, needed
+
+
+# ---------------------------------------------------------------- the paintings Jak chose (26 November 2026)
+
+ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
+    "s-philosophy": ["death-of-socrates.jpg", "botticelli-augustine.jpg", "wanderer-sea-of-fog.jpg"],
+    "s-psychology": ["bosch-cure-of-folly.jpg", "goya-sleep-of-reason.jpg", "freud-halberstadt.jpg"],
+    "s-sociology": ["bruegel-harvesters.jpg", "seurat-grande-jatte.jpg", "shibuya-crossing.jpg"],
+    "s-politics": ["death-of-caesar.jpg", "magna-carta.jpg", "berlin-wall-1989.jpg"],
+    "s-economics": ["massys-moneylender.jpg", "adam-smith-statue.jpg", "ford-assembly-line.jpg"],
+    "s-warfare": ["alexander-mosaic.jpg", "napoleon-alps.jpg", "iwo-jima.jpg"],
+    "s-physics": ["alchemist-full.jpg", "faraday-lecture.jpg", "atlas-detector.jpg"],
+    "s-biology": ["vitruvian-man.jpg", "jenner-hillemacher.jpg", "sars-cov-2.jpg"],
+    "s-tech": ["antikythera.jpg", "eniac.jpg", "summit-supercomputer.jpg"],
+    "s-future": ["verne-earth-to-moon.jpg", "kennedy-von-braun.jpg", "webb-cosmic-cliffs.jpg"],
+}
+BANNER = "washington-crossing.jpg"
+TAKEN_OUT = ["school-of-athens.jpg", "charcot-salpetriere.jpg", "coronation-charlemagne.jpg", "iron-rolling-mill.jpg",
+             "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg"]
+ROOM_SECTION = re.compile(r'<section class="room" id="([^"]+)".*?</section>', re.S)
+
+
+def room_files():
+    index = (SITE / "index.html").read_text(encoding="utf-8")
+    return {m.group(1): re.findall(r'assets/img/([^"/]+\.jpg)', m.group(0)) for m in ROOM_SECTION.finditer(index)}
+
+
+def test_each_room_shows_its_three_paintings_oldest_first():
+    assert run_build().returncode == 0
+    assert room_files() == ROOM_PAINTINGS
+
+
+def test_banner_painting_is_credited_but_in_no_room():
+    assert run_build().returncode == 0
+    assert all(BANNER not in files for files in room_files().values())
+    assert "Emanuel Leutze, Washington Crossing the Delaware, 1851" in visible_text(SITE / "plates.html")
+
+
+def test_paintings_taken_out_are_gone():
+    assert run_build().returncode == 0
+    pages = [p.read_text(encoding="utf-8") for p in SITE.rglob("*.html")]
+    for f in TAKEN_OUT:
+        assert not (SITE / "assets/img" / f).exists(), f
+        assert not any(f in page for page in pages), f
+
+
+def test_room_paintings_are_big_enough_to_fill_a_screen():
+    from PIL import Image
+    for files in ROOM_PAINTINGS.values():
+        for f in files:
+            with Image.open(SITE / "assets/img" / f) as im:
+                assert max(im.size) >= 1600, (f, im.size)
+    with Image.open(SITE / "assets/img" / BANNER) as im:
+        assert im.width >= 3000, im.size
+
+
+CREATIVE_COMMONS = {  # file: (its credit names the maker and the licence, the licence's own page)
+    "shibuya-crossing.jpg": ("Photograph by Mark D, licensed CC BY-SA 2.0", "https://creativecommons.org/licenses/by-sa/2.0/"),
+    "adam-smith-statue.jpg": ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
+    "atlas-detector.jpg": ("Photograph by SimonWaldherr, licensed CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
+    "antikythera.jpg": ("Photograph by Peulle, licensed CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
+    "jenner-hillemacher.jpg": ("Wellcome Collection, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
+    "sars-cov-2.jpg": ("NIAID, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
+    "summit-supercomputer.jpg": ("Photograph by Carlos Jones, ORNL, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
+}
+
+
+def test_creative_commons_credits_name_the_maker_and_link_the_licence():
+    assert run_build().returncode == 0
+    raw = (SITE / "plates.html").read_text(encoding="utf-8")
+    text = visible_text(SITE / "plates.html")
+    for needed, _ in CREATIVE_COMMONS.values():
+        assert needed in text, needed
+    links = re.findall(r'<a href="(https://creativecommons\.org/licenses/[^"]+)">(CC [^<]+)</a>', raw)
+    assert len(links) == text.count("licensed CC") == len(CREATIVE_COMMONS)
+    for url, words in links:  # "CC BY-SA 2.0" goes to .../by-sa/2.0/
+        kind, version = words[3:].lower().split()
+        assert url == f"https://creativecommons.org/licenses/{kind}/{version}/", (url, words)
+    assert {deed for _, deed in CREATIVE_COMMONS.values()} == {url for url, _ in links}
 
 
 # ---------------------------------------------------------------- link previews and search engines

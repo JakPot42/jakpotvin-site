@@ -108,9 +108,9 @@ def test_whole_plates_have_backdrop(browser, site):
     page = open_home(browser, site, DESKTOP)
     q = ("(() => { const img = [...document.querySelectorAll('.slide .art')].find(i => (i.getAttribute('src') || i.dataset.src).endsWith('/%s'));"
          " const s = img.closest('.slide'); return [s.classList.contains('whole'), !!s.querySelector('.bg')]; })()")
-    for f in ("vitruvian-man.jpg", "eniac.jpg", "earthrise.jpg"):
+    for f in ("vitruvian-man.jpg", "wanderer-sea-of-fog.jpg", "freud-halberstadt.jpg"):
         assert page.eval(q % f) == [True, True], f
-    assert page.eval(q % "school-of-athens.jpg") == [False, False]
+    assert page.eval(q % "death-of-caesar.jpg") == [False, False]
 
 
 def test_phone_first_screen_contents_fit(browser, site):

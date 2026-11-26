@@ -74,7 +74,7 @@ Jak's picks after two rounds of options (Claude proposed; Jak swapped Martin Lut
   - middle: Seurat, A Sunday on La Grande Jatte (1884), the site's current file.
   - modern: Shibuya crossing, Tokyo (2017). New: `Shibuya Crossing, Tokyo; December 2017.jpg` (CC BY-SA 2.0).
 - **Political science**
-  - old: Coustou, Julius Caesar (49 BC). Bigger copy: `Julius Caesar Coustou Louvre MR1798 - 01a.jpg` (CC BY-SA 2.0).
+  - old: Camuccini, The Death of Caesar (44 BC). New: `The Death of Caesar by Vincenzo Camuccini, 1804-1805 - Galleria nazionale d'arte moderna - Rome, Italy - DSC05203.jpg` (Public domain; photograph by Daderot, straightened and the gold frame cut off). Jak chose it over the Coustou statue on 26 November ("death of caesar sure").
   - middle: Magna Carta (1215), the site's current file.
   - modern: Fall of the Berlin Wall, Brandenburg Gate (1989). New: `Crane removed part of Wall Brandenburg Gate.jpg` (Public domain).
 - **Economics**
@@ -104,3 +104,5 @@ Jak's picks after two rounds of options (Claude proposed; Jak swapped Martin Lut
 - **Banner**: Leutze, Washington Crossing the Delaware (1776). Bigger copy: `Washington Crossing the Delaware by Emanuel Leutze, MMA-NYC, 1851.jpg` (Public domain).
 
 Coming out: Raphael, The School of Athens; Brouillet, A Clinical Lesson; Kaulbach, The Coronation of Charlemagne; Menzel, The Iron Rolling Mill; Newton with the Prism; First Flight; Anders, Earthrise. Washington Crossing the Delaware leaves War and defense and becomes the banner (it would otherwise show twice, and it is 24 years from Napoleon); this changes goal 1 above.
+
+Added to the site on 26 November 2026. Small calls made then: Freud was trimmed from the full-size scan so the card mount went without dropping below 1,600 pixels; the Wanderer is dated c. 1817, as the Hamburger Kunsthalle and Commons date it; the ATLAS photograph (2019) is captioned with 2012, the year ATLAS helped find the Higgs boson; Washington Crossing the Delaware stays on the credits page and in the first-screen slideshow until the banner is built, but leaves the War and defense room now.
