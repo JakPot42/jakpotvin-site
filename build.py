@@ -170,6 +170,18 @@ for _p in PLATES:
     _c = min(range(_cols), key=lambda i: _h[i]); _h[_c] += _g
     _ps.append(_p[:8] + (_c, round(_g, 3), _p[10]))
 PLATES = _ps
+# copies of each plate (images.py): small/ for the album, blur/ for the backdrop of plates shown whole
+import images
+SIZE = {}
+for _p in PLATES:
+    images.write_copies(OUT_IMG / _p[1], OUT_IMG / "small", OUT_IMG / "blur")
+    with _Img.open(OUT_IMG / _p[1]) as _im:
+        SIZE[_p[1]] = _im.size
+WHOLE = {f: images.show_whole(*wh) for f, wh in SIZE.items()}
+for _d in ("small", "blur"):  # a plate removed from PLATES, or whose file is gone, leaves no copies behind
+    for _stale in (OUT_IMG / _d).glob("*.jpg"):
+        if _stale.name not in SIZE:
+            _stale.unlink()
 def roman(n):
     out = ""
     for v, s in ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")):

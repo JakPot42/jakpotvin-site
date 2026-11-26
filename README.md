@@ -18,6 +18,7 @@ site/               the published site
   atoms/calculator/ the calculator
   assets/site.css   all styles
   assets/img/       the plates (these are source files; build.py reads their sizes)
+  assets/img/small/ and assets/img/blur/  copies of each plate written by the build (images.py); do not edit
   assets/fonts/     the fonts, served from the site itself (woff2: IBM Plex from IBM's own release,
                     the others Latin subsets from Google Fonts), fonts.css with their @font-face rules,
                     each family's OFL licence, SOURCES.txt
