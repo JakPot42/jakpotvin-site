@@ -183,16 +183,39 @@
     requestAnimationFrame(step);
   }
 
-  // Each room's wall colour, taken from its painting, fills the page as the room comes into view.
+  // The rooms: each room's wall colour, taken from its painting, fills the page as the room reaches the middle of
+  // the screen. On desktop with full motion the plates move into the pinned stage and cross-fade room by room.
   function initRooms(wrap) {
     const rooms = [...wrap.querySelectorAll('.room')];
+    const stage = wrap.querySelector('.rooms-stage');
     if (!rooms.length || !('IntersectionObserver' in window)) return;
+    const plates = new Map(rooms.map(r => [r.id, r.querySelector('.room-plates')]));
+    plates.forEach((p, id) => { if (p) p.dataset.room = id; });
+    let current = rooms[0].id;
+    const mark = () => plates.forEach((p, id) => p && p.classList.toggle('on', id === current));
+    const pin = () => {
+      const want = !reduced && desktop.matches && !!stage;
+      if (want === wrap.classList.contains('pinned')) return;
+      wrap.classList.toggle('pinned', want);
+      rooms.forEach(r => {
+        const p = plates.get(r.id);
+        if (p) (want ? stage : r.querySelector('.room-in')).appendChild(p);
+      });
+      mark();
+    };
     wrap.classList.add('live');
     wrap.style.backgroundColor = rooms[0].dataset.bg;
     const io = new IntersectionObserver(es => {
-      for (const e of es) if (e.isIntersecting) wrap.style.backgroundColor = e.target.dataset.bg;
+      for (const e of es) if (e.isIntersecting) {
+        wrap.style.backgroundColor = e.target.dataset.bg;
+        current = e.target.id;
+        mark();
+      }
     }, {rootMargin: '-45% 0px -45% 0px'});
     rooms.forEach(r => io.observe(r));
+    desktop.addEventListener('change', pin);
+    pin();
+    mark();
   }
 
   const intro = document.querySelector('.intro');

@@ -284,5 +284,71 @@ def test_counter_counts_to_80(browser, site):
 
 def test_counter_text_without_motion(browser, site):
     page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
-    assert page.eval("document.querySelector('#projects .count').textContent.replace(/\s+/g, ' ').trim()") == "80+ projects"
+    assert page.eval(r"document.querySelector('#projects .count').textContent.replace(/\s+/g, ' ').trim()") == "80+ projects"
     assert page.eval("[...document.querySelectorAll('#projects *')].every(el => getComputedStyle(el).opacity === '1')")
+
+
+# ---------------------------------------------------------------- Task 7: the rooms
+
+ROOM_IDS = "[...document.querySelectorAll('.rooms .room')].map(r => r.id)"
+ON_ROOMS = "[...document.querySelectorAll('.room-plates.on')].map(p => p.dataset.room)"
+HEX_TO_RGB = "(h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).join(', ') + ')')"
+
+
+def center_room(page, rid):
+    page.eval("document.getElementById(%s).scrollIntoView({block: 'center'}); 1" % json.dumps(rid))
+    page.wait(1)
+
+
+def test_rooms_pin_and_swap(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
+    ids = page.eval(ROOM_IDS)
+    for k in (0, 3, 9):
+        center_room(page, ids[k])
+        assert page.eval(ON_ROOMS) == [ids[k]], k
+    center_room(page, ids[3])
+    first = rect(page, ".rooms-stage")["top"]
+    page.scroll_to(page.eval("scrollY") + 200)
+    page.wait(0.3)
+    second = rect(page, ".rooms-stage")["top"]
+    assert abs(first) <= 2 and abs(second) <= 2, (first, second)
+
+
+def test_room_wall_colours(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    for rid in page.eval(ROOM_IDS):
+        center_room(page, rid)
+        want = page.eval(HEX_TO_RGB + "(document.getElementById(%s).dataset.bg)" % json.dumps(rid))
+        assert page.eval("getComputedStyle(document.querySelector('.rooms')).backgroundColor") == want, rid
+
+
+def test_room_deep_link_shows_its_plates(browser, site):
+    page = open_home(browser, site, DESKTOP, hash="#s-economics")
+    page.wait(1)
+    h = rect(page, "#s-economics-h")
+    assert 0 <= h["top"] and h["bottom"] <= page.eval("innerHeight")
+    assert page.eval(ON_ROOMS) == ["s-economics"]
+
+
+@pytest.mark.parametrize("cfg", [PHONE, {**DESKTOP, "reduced_motion": True}], ids=["phone", "desktop-rm"])
+def test_rooms_unpinned_on_phone_and_reduced_motion(browser, site, cfg):
+    page = open_home(browser, site, cfg)
+    page.wait(0.5)
+    assert not page.eval("document.querySelector('.rooms').classList.contains('pinned')")
+    assert page.eval("[...document.querySelectorAll('.rooms .room')].every(r => { const p = r.querySelector('.room-plates'), t = r.querySelector('.room-text');"
+                     " return p && p.getBoundingClientRect().top >= t.getBoundingClientRect().top - 1 || r.querySelector('.room-plates') && getComputedStyle(r.querySelector('.room-in')).display === 'grid'; })")
+    assert page.eval("document.querySelectorAll('.rooms .room .room-plates').length") == page.eval("document.querySelectorAll('.rooms .room').length")
+
+
+def test_rooms_repin_after_resize(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
+    page.resize(700, 900, settle=0.6)
+    assert not page.eval("document.querySelector('.rooms').classList.contains('pinned')")
+    assert page.eval("document.querySelectorAll('.rooms .room .room-plates').length") == 10
+    page.resize(1440, 900, settle=0.6)
+    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
+    assert page.eval("document.querySelectorAll('.rooms-stage .room-plates').length") == 10

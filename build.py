@@ -277,7 +277,8 @@ def room(anchor, title):
             f'<div class="room-text"><p class="room-pl">{label}</p><h2 id="{anchor}-h">{title}</h2>'
             f'<p class="room-soon">{one("room note: " + title)}</p></div>{plates}</div></section>')
 OUT.mkdir(exist_ok=True)
-ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
+ROOMS = ('<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS)
+         + f'<div class="rooms-stage" style="grid-row:1 / span {len(SUBJECTS)}"></div></div>')  # home.js pins the plates here on desktop
 
 BIO = one("bio")
 home = page("Jak Potvin", "", "home", f"""
