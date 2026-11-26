@@ -1,5 +1,5 @@
 """Build jakpotvin.com. Run from this folder: python build.py data/counts.json data/calculator.html (needs Pillow)."""
-import html, json, sys, pathlib
+import html, json, re, sys, pathlib
 
 import sitetext
 
@@ -12,13 +12,16 @@ SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psych
 # ---------------------------------------------------------------- the words, from site-text.txt (Jak edits that file)
 SECTIONS = (["name", "page description", "tagline", "bio", "first screen links", "scroll cue", "writing intro", "writing note"]
             + [f"room note: {t}" for _, t in SUBJECTS]
-            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "other software heading",
+            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "projects count", "other software heading",
                "other software text", "other software link", "areas", "contact text", "contact line", "footer"])
 TEXT_FILE = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else pathlib.Path(__file__).parent / "site-text.txt"
 try:
     TEXT = sitetext.load(TEXT_FILE, SECTIONS)
     ATOMS_LINKS = [sitetext.split_item(p) for p in TEXT[sitetext.key("atoms links")]]
     AREAS = [sitetext.split_item(p) for p in TEXT[sitetext.key("areas")]]
+    COUNT = re.match(r"^(\d+)(\+?)\s+(.+)$", " ".join(TEXT["projects count"]))
+    if not COUNT:
+        raise sitetext.SiteTextError("site-text.txt: [projects count] must start with a number, for example: 80+ projects")
 except sitetext.SiteTextError as e:
     print(e, file=sys.stderr)
     sys.exit(2)
@@ -335,6 +338,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 <div class="split" style="margin-top:clamp(32px,4vw,56px)">
 <div class="stack">
+<p class="count"><span class="n" data-to="{COUNT.group(1)}">{COUNT.group(1)}</span><span class="plus">{COUNT.group(2)}</span> <span class="lab">{sitetext.inline(COUNT.group(3))}</span></p>
 <h3>{one("other software heading")}</h3>
 <p class="small">{one("other software text")}</p>
 <p class="small">{one("other software link")}</p>

@@ -88,6 +88,11 @@ Atomically precise manufacturing is how the physical world catches up, and it st
 - The bottleneck map | Published 15 December
 - mechdb, the open dataset | On GitHub, 15 December
 
+# The big number above "Other software", which counts up when it comes into view.
+# Write the number, then + if you want one, then the word or words: 80+ projects
+[projects count]
+80+ projects
+
 # Projects, the other software part.
 [other software heading]
 Other software

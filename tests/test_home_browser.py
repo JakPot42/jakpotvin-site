@@ -248,3 +248,41 @@ def test_no_sideways_overflow_between_breakpoints(browser, site, w, h):
         page.scroll_to(k * h)
         page.wait(0.3)
         assert page.eval("document.documentElement.scrollWidth <= innerWidth"), k
+
+
+# ---------------------------------------------------------------- Task 6: projects arrive
+
+def count_number(page):
+    return page.eval("document.querySelector('#projects .count .n').textContent")
+
+
+def test_projects_rise_in_once(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    assert page.eval("[...document.querySelectorAll('#projects li')].every(li => li.classList.contains('reveal') && !li.classList.contains('in'))")
+    page.eval("document.querySelector('#projects').scrollIntoView(); 1")
+    page.wait(0.3)
+    page.eval("document.querySelector('#projects .links.areas').scrollIntoView({block: 'center'}); 1")
+    page.wait(1.5)
+    assert page.eval("[...document.querySelectorAll('#projects li')].every(li => li.classList.contains('in') && getComputedStyle(li).opacity === '1')")
+    page.scroll_to(0)
+    page.wait(0.3)
+    page.eval("document.querySelector('#projects').scrollIntoView(); 1")
+    assert page.eval("[...document.querySelectorAll('#projects li')].every(li => li.classList.contains('in'))")
+
+
+def test_counter_counts_to_80(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    page.eval("document.querySelector('#projects .count').scrollIntoView({block: 'center'}); 1")
+    page.wait(0.3)
+    mid = int(count_number(page))
+    assert 1 <= mid <= 79, mid
+    page.wait(1.7)
+    assert count_number(page) == "80"
+
+
+def test_counter_text_without_motion(browser, site):
+    page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
+    assert page.eval("document.querySelector('#projects .count').textContent.replace(/\s+/g, ' ').trim()") == "80+ projects"
+    assert page.eval("[...document.querySelectorAll('#projects *')].every(el => getComputedStyle(el).opacity === '1')")

@@ -151,6 +151,38 @@
     wall.classList.add('reveal-tiles');
   }
 
+  // Projects: each item rises into place once, the first time it is 15% visible, 90 ms after the one before it.
+  function initReveal(items) {
+    const list = [...items];
+    list.forEach(el => el.classList.add('reveal'));
+    if (reduced || !('IntersectionObserver' in window)) { list.forEach(el => el.classList.add('in')); return; }
+    const io = new IntersectionObserver(es => {
+      let k = 0;
+      for (const e of es) {
+        if (!e.isIntersecting) continue;
+        const el = e.target, delay = el.classList.contains('count') ? 0 : k++ * 90;  // the count never waits its turn
+        io.unobserve(el);
+        el.style.transitionDelay = delay + 'ms';
+        el.classList.add('in');
+        const n = el.querySelector('.n[data-to]');
+        if (n) countUp(n, delay);
+      }
+    }, {threshold: 0.15});
+    list.forEach(el => io.observe(el));
+  }
+
+  // The project count runs from 0 to its number in 1.2 s, easing out, and ends on the page's own text.
+  function countUp(n, delay) {
+    const to = +n.dataset.to, text = n.textContent, start = performance.now() + delay;
+    n.textContent = '0';
+    const step = now => {
+      const t = Math.min(1, Math.max(0, (now - start) / 1200));
+      n.textContent = t >= 1 ? text : String(Math.round(to * (1 - (1 - t) ** 3)));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
   // Each room's wall colour, taken from its painting, fills the page as the room comes into view.
   function initRooms(wrap) {
     const rooms = [...wrap.querySelectorAll('.room')];
@@ -171,6 +203,8 @@
     const wall = intro.querySelector('.wall'), cap = intro.querySelector('.album-caption');
     if (wall && cap) { initAlbumCaption(wall, cap); initTileReveal(wall); }
   }
+  const projects = document.querySelectorAll('#projects li, #projects h3, #projects .count');
+  if (projects.length) initReveal(projects);
   const rooms = document.querySelector('.rooms');
   if (rooms) initRooms(rooms);
 })();

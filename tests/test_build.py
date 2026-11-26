@@ -92,3 +92,14 @@ def test_intro_has_one_slide_per_plate():
     index = (SITE / "index.html").read_text(encoding="utf-8")
     plates = (SITE / "plates.html").read_text(encoding="utf-8")
     assert index.count('<figure class="slide') == plates.count('<span class="pl">Plate ') - 1
+
+
+def test_projects_count_text_error(tmp_path):
+    text = (ROOT / "site-text.txt").read_text(encoding="utf-8")
+    start = text.index("[projects count]\n") + len("[projects count]\n")
+    end = text.index("\n", start)
+    bad = tmp_path / "site-text.txt"
+    bad.write_text(text[:start] + "lots of projects" + text[end:], encoding="utf-8")
+    r = run_build(bad)
+    assert r.returncode == 2
+    assert "[projects count]" in r.stderr and "Traceback" not in r.stderr
