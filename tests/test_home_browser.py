@@ -338,3 +338,36 @@ def test_writing_follows_the_first_screen(browser, site, cfg):
     page.scroll_to(page.eval("innerHeight"))
     page.wait(0.5)
     assert page.eval("document.querySelector('#writing').getBoundingClientRect().top") <= 2
+
+
+# ---------------------------------------------------------------- readable text over every painting (4.5 to 1, text hidden)
+
+HERO_TEXT = [".intro h1", ".intro .lede", ".intro .note", ".hero .caption .yr", ".hero .caption .what", ".hero .caption .subj", ".hero .caption .credit"]
+ROOM_TEXT = [".room-text h2", ".room-soon", ".caption .yr", ".caption .what", ".caption .credit"]
+NO_FADE = "document.head.insertAdjacentHTML('beforeend', '<style>.slide { transition: none !important; }</style>'); 1"
+LOADED = "(a => a.complete && a.naturalWidth ? 1 : new Promise(f => { a.onload = () => f(1); setTimeout(() => f(0), 5000); }))(document.querySelector('#%s .slide.on .art'))"
+
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_banner_text_is_readable(browser, site, cfg):
+    from tools.contrast import text_contrast
+    page = open_home(browser, site, cfg)
+    page.wait(1)
+    got = text_contrast(page, HERO_TEXT)
+    assert len(got) >= 4 and min(got.values()) >= 4.5, got
+
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_room_text_is_readable_over_every_painting(browser, site, cfg):
+    from tools.contrast import text_contrast
+    page = open_home(browser, site, cfg)
+    page.eval(NO_FADE)
+    low = []
+    for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
+        for k in range(3):
+            show_painting(page, rid, k, settle=0.1)
+            assert page.eval(LOADED % rid) == 1, (rid, k)
+            got = text_contrast(page, [f"#{rid} {s}" for s in ROOM_TEXT])
+            assert len(got) == len(ROOM_TEXT), (rid, k, got)
+            low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < 4.5]
+    assert low == []

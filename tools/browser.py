@@ -331,6 +331,12 @@ class Page:
         r = self.cdp.call("Page.captureScreenshot", {"format": "jpeg", "quality": 75}, self.s)
         Path(path).write_bytes(base64.b64decode(r["data"]))
 
+    def screenshot_png(self):
+        """The page as it shows now, as PNG bytes (lossless, for measuring colours)."""
+        self.eval("document.fonts.ready.then(() => new Promise(r => setTimeout(r, 150)))")
+        r = self.cdp.call("Page.captureScreenshot", {"format": "png"}, self.s)
+        return base64.b64decode(r["data"])
+
     def console_problems(self):
         out = []
         for m in self._events("Runtime.exceptionThrown", "Runtime.consoleAPICalled", "Log.entryAdded"):

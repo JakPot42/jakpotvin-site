@@ -206,7 +206,7 @@ html[data-motion=full] .reveal:not(.in) { opacity: 0; transform: translateY(28px
 .room-text { margin-block: auto; display: flex; flex-direction: column; gap: 12px; }
 .room-text, .room-words .caption { text-shadow: 0 1px 14px rgba(10, 9, 8, .55); }
 .room h2 { font-size: clamp(40px, 5vw, 66px); line-height: 1.02; color: #f6f2ea; }
-.room-soon { margin-top: 6px; padding-top: 12px; border-top: 1px solid rgba(243, 239, 231, .22); font: 13.5px/1.4 var(--sans); color: rgba(243, 239, 231, .62); }
+.room-soon { margin-top: 6px; padding-top: 12px; border-top: 1px solid rgba(243, 239, 231, .22); font: 13.5px/1.4 var(--sans); color: rgba(243, 239, 231, .85); }
 .room-words .caption { flex: none; display: flex; flex-direction: column; gap: 3px; padding-top: 12px; border-top: 1px solid rgba(244, 241, 234, .4); }
 .rooms a { color: #9fd3da; }
 @media (max-width: 760px) {
