@@ -227,13 +227,15 @@ def test_jumps_land_on_the_right_painting(browser, site):  # Review Focus 2
     assert on_index(page, "s-philosophy") == 0 and caption_matches(page, "s-philosophy")
 
 
-def test_resize_mid_room_keeps_one_right_painting(browser, site):  # Review Focus 3
-    page = open_home(browser, site, DESKTOP)
-    show_painting(page, "s-biology", 2)
-    page.resize(700, 900, settle=0.8)
+def test_resize_mid_room_keeps_one_right_painting(browser, site):  # Review Focus 3: a phone turned sideways mid-room
+    page = open_home(browser, site, PHONE)
+    show_painting(page, "s-biology", 0)
+    assert on_index(page, "s-biology") == 0
+    page.resize(915, 412, settle=0.8)
     top, height, view = page.eval("(r => [r.getBoundingClientRect().top, r.offsetHeight, innerHeight])(document.getElementById('s-biology'))")
     want = min(2, int(max(0, -top) / max(1, height - view) * 3))
-    assert on_index(page, "s-biology") == want
+    assert want != 0 and top < view and top + height > 0  # the room is still on screen and must now show another painting
+    assert on_index(page, "s-biology") == want and caption_matches(page, "s-biology")
     assert page.eval("document.getElementById('s-biology').querySelectorAll('.slide.on').length") == 1
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
 
@@ -371,3 +373,15 @@ def test_room_text_is_readable_over_every_painting(browser, site, cfg):
             assert len(got) == len(ROOM_TEXT), (rid, k, got)
             low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < 4.5]
     assert low == []
+
+
+# ---------------------------------------------------------------- final review: JavaScript turned off
+
+def test_rooms_without_javascript_show_their_first_painting(browser, site):
+    page = browser.open(site.url("index.html"), **DESKTOP, javascript=False)
+    page.wait(1)
+    assert page.eval("[...document.querySelectorAll('.room')].every(r => Math.abs(r.offsetHeight - innerHeight) <= 2)")
+    page.eval("document.getElementById('s-future').scrollIntoView(); 1")
+    page.wait(1)
+    assert page.eval("(a => !!a && a.complete && a.naturalWidth > 0)(document.querySelector('#s-future .slide.on .art[src]'))")
+    assert page.eval("document.querySelector('#s-future .caption .credit').textContent") == "De Montaut, From the Earth to the Moon"

@@ -67,6 +67,23 @@ def test_missing_plate_file_is_skipped(tmp_path):
         assert run_build().returncode == 0
 
 
+def test_room_with_no_paintings_still_lays_out(tmp_path):  # Review Focus 1: every file of a room missing
+    names = ["antikythera.jpg", "eniac.jpg", "summit-supercomputer.jpg"]
+    for n in names:
+        shutil.move(SITE / "assets/img" / n, tmp_path / n)
+    try:
+        r = run_build()
+        assert r.returncode == 0, r.stderr
+        index = (SITE / "index.html").read_text(encoding="utf-8")
+        section = re.search(r'<section class="room" id="s-tech" style="--n:1".*?</section>', index, re.S).group(0)
+        assert '<figure class="slide' not in section and 'class="caption"' not in section
+        assert '<h2 id="s-tech-h">Technology and AI</h2>' in section
+    finally:
+        for n in names:
+            shutil.move(tmp_path / n, SITE / "assets/img" / n)
+        assert run_build().returncode == 0
+
+
 def test_build_reports_text_error_plainly(tmp_path):
     assert run_build().returncode == 0
     before = git_status_site()
@@ -161,7 +178,9 @@ ROOM_SECTION = re.compile(r'<section class="room" id="([^"]+)".*?</section>', re
 
 def room_files():
     index = (SITE / "index.html").read_text(encoding="utf-8")
-    return {m.group(1): re.findall(r'assets/img/([^"/]+\.jpg)', m.group(0)) for m in ROOM_SECTION.finditer(index)}
+    # the <noscript> copy of a room's first painting (for visitors without JavaScript) is not another painting
+    return {m.group(1): re.findall(r'assets/img/([^"/]+\.jpg)', re.sub(r"<noscript>.*?</noscript>", "", m.group(0)))
+            for m in ROOM_SECTION.finditer(index)}
 
 
 def test_each_room_shows_its_three_paintings_oldest_first():
@@ -199,7 +218,9 @@ def test_rooms_are_built_for_scrolling():
     for rid, files in ROOM_PAINTINGS.items():
         section = re.search(r'<section class="room" id="%s" style="--n:3".*?</section>' % rid, index, re.S).group(0)
         assert section.count('<figure class="slide') == 3 and len(re.findall(r'<figure class="slide[^"]* on"', section)) == 1, rid
-        assert 'data-src="assets/img/%s"' % files[0] in section and ' src="assets/img/%s"' % files[0] not in section, rid
+        lazy = re.sub(r"<noscript>.*?</noscript>", "", section)  # the copy for visitors without JavaScript is the only eager one
+        assert 'data-src="assets/img/%s"' % files[0] in lazy and ' src="assets/img/%s"' % files[0] not in lazy, rid
+        assert section.count("<noscript>") == 1 and '<noscript><img class="art" src="assets/img/%s"' % files[0] in section, rid
         assert '<div class="room-bg" aria-hidden="true">' in section and '<div class="caption">' in section, rid
     assert "rooms-stage" not in index and "data-bg=" not in index
 

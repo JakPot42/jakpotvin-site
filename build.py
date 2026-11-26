@@ -235,15 +235,17 @@ def plate_data(p):
 def slide(p, on=False, eager=False):
     """One painting filling the screen: the banner, or one of a room's paintings. An eager one has its image address
     set; the others keep it in data-src until home.js loads them. A tall or small painting (images.show_whole) also
-    gets its blurred copy behind it (about 4 KB, always loaded)."""
+    gets its blurred copy behind it (about 1 KB, always loaded). A lazy painting that shows first also carries a copy
+    in <noscript>, so a visitor without JavaScript sees each room's first painting."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     w, h = SIZE[f]
     whole = WHOLE[f]
     src = f'src="assets/img/{f}" fetchpriority="high"' if eager else f'data-src="assets/img/{f}"'
     bg = f'<img class="bg" src="assets/img/blur/{f}" alt="">' if whole else ""
     cls = "slide" + (" whole" if whole else "") + (" on" if on else "")
-    return (f'<figure class="{cls}" {plate_data(p)}>{bg}'
-            f'<img class="art" {src} alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"></figure>')
+    look = f'alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"'
+    fallback = f'<noscript><img class="art" src="assets/img/{f}" loading="lazy" {look}></noscript>' if on and not eager else ""
+    return f'<figure class="{cls}" {plate_data(p)}>{bg}<img class="art" {src} {look}>{fallback}</figure>'
 first = BANNER
 
 # ---------------------------------------------------------------- writing: one room per subject
@@ -299,6 +301,7 @@ def ld(data):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
 
 
+NO_SCRIPT = "<noscript><style>.rooms .room { height: 100svh; }</style></noscript>" + chr(10)  # without JavaScript a room is one screen, its first painting
 PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": _same})
              + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
 
@@ -385,7 +388,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", home=True, url=SITE_URL, head=PERSON_LD)
+""", home=True, url=SITE_URL, head=PERSON_LD + NO_SCRIPT)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))

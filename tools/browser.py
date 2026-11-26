@@ -236,7 +236,7 @@ class Browser:
         self.cdp = _CDP(_WS(f"ws://127.0.0.1:{port}{path}"))
         return self
 
-    def open(self, url, width, height, mobile=False, reduced_motion=False):
+    def open(self, url, width, height, mobile=False, reduced_motion=False, javascript=True):
         if self.page is not None:
             self.page.close()
         cdp = self.cdp
@@ -250,6 +250,8 @@ class Browser:
         page = Page(cdp, tid, s, mobile)
         page.resize(width, height, settle=0)
         cdp.call("Emulation.setTouchEmulationEnabled", {"enabled": mobile}, s)
+        if not javascript:
+            cdp.call("Emulation.setScriptExecutionDisabled", {"value": True}, s)
         cdp.call("Emulation.setEmulatedMedia", {"features": [
             {"name": "prefers-reduced-motion", "value": "reduce" if reduced_motion else "no-preference"},
             {"name": "prefers-color-scheme", "value": "light"}]}, s)
