@@ -16,7 +16,7 @@ tools/browser.py    drives headless Microsoft Edge for the browser tests
 tests/              the tests (python -m pytest)
 site/               the published site
   index.html        home: the first screen, the ten subject rooms, projects, contact
-  plates.html       list of plates: full picture credits
+  plates.html       picture credits: the full credit for every picture
   atoms/index.html  the atoms project page
   atoms/calculator/ the calculator
   assets/site.css   all styles
@@ -55,7 +55,7 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 ## How the home page works
 
 - **First screen.** One plate at a time fills the screen behind the name, tagline and bio, oldest first, about 5 seconds each with a slow zoom and a crossfade, with the plate's year, event and credit in the corner. A pause button stops it; it also stops while the tab is hidden and once the visitor scrolls. Plates that are tall, square or too small to fill the screen sharply (`images.show_whole`) are shown whole on the right, over a blurred copy of themselves. Only the current and the next image are loaded. The behaviour is in `site/assets/home.js`.
-- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. Plate numbers (I, II, III...) follow that order and are assigned by the build, so adding or removing a plate renumbers everything, including captions, room labels and the list of plates. The first screen shows them one at a time; each also hangs in its subject's room. Scrolling off the first screen goes straight into Writing.
+- **Plates.** `PLATES` in `build.py` lists every picture in date order of what it shows. The first screen shows them one at a time; each also hangs in its subject's room. The site shows no plate numbers; the build still numbers the plates internally (I, II, III...) to key captions and credits. Scrolling off the first screen goes straight into Writing.
 - **Rooms.** `SUBJECTS` lists the ten writing subjects in order. Each plate's anchor (for example `#s-politics`) puts it in that subject's room. `ROOM_BG` sets each room's wall colour, picked from its painting. The page background fades between room colours on scroll. On desktop the room's plates stay pinned on the right while the room names scroll past on the left.
 - **Projects.** The items rise into place once as they come into view, and the project count (`[projects count]` in `site-text.txt`) counts up from zero.
 - **Reduced motion.** A visitor whose device asks for less motion sees the first plate held still and everything else in place.

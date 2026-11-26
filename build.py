@@ -80,15 +80,15 @@ def page(title, root, current, body, script="", home=False):
 def plate(no, src, alt, caption, cls="", ratio=None, pos="50% 50%"):
     if src is None:
         return (f'<figure class="plate pending"><div class="frame" style="aspect-ratio:{ratio}"><span>Image to come</span></div>'
-                f'<figcaption><b>Plate {no}.</b><span>{caption}</span></figcaption></figure>')
+                f'<figcaption><span>{caption}</span></figcaption></figure>')
     style = f' style="aspect-ratio:{ratio}"' if ratio else ""
     img = (f'<img src="{src}" alt="{html.escape(alt)}"{"" if no == "I" else " loading=lazy"}'
            f'{f" style=\"height:100%;object-fit:cover;object-position:{pos}\"" if ratio else ""}>')
     return (f'<figure class="plate {cls}"><div class="frame"{style}>{img}</div>'
-            f'<figcaption><b>Plate {no}.</b><span>{caption}</span></figcaption></figure>')
+            f'<figcaption><span>{caption}</span></figcaption></figure>')
 
 
-# Plate IV: an engraved-style drawing of the silicon surface, two carbon pairs placed between the rows.
+# The atoms page's drawing: an engraved-style silicon surface, two carbon pairs placed between the rows.
 W, H = 640, 440
 cells = []
 for r in range(5):
@@ -257,7 +257,7 @@ def room(anchor, title):
         rows.append(cur)
         per_width = sum(1 / sum(x[2] for x in r) for r in rows)
         fig = lambda p, f, a: (f'<figure class="plate rp" style="flex:{a:.3f} 1 0"><img src="assets/img/{f}" alt="{html.escape(p[2])}" loading="lazy" style="aspect-ratio:{a:.4f}">'
-                               f'<figcaption><b>Plate {p[0]}.</b> {SHORT[p[0]]}</figcaption></figure>')
+                               f'<figcaption>{SHORT[p[0]]}</figcaption></figure>')
         inner = "".join('<div class="room-row">' + "".join(fig(*x) for x in r) + '</div>' for r in rows)
         plates = f'<div class="room-plates rows" style="max-width:min(100%, calc(68svh / {per_width:.3f}))">{inner}</div>'
         nos = [p[0] for p in ps]; label = ("Plate " if len(nos) == 1 else "Plates ") + (nos[0] if len(nos) == 1 else ", ".join(nos[:-1]) + " and " + nos[-1])
@@ -267,7 +267,7 @@ def room(anchor, title):
         label = "Plate to come"
     bg = ROOM_BG.get(anchor, bg)
     return (f'<section class="room" id="{anchor}" data-bg="{bg}" style="--bg:{bg}" aria-labelledby="{anchor}-h"><div class="room-in">'
-            f'<div class="room-text"><p class="room-pl">{label}</p><h2 id="{anchor}-h">{title}</h2>'
+            f'<div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
             f'<p class="room-soon">{one("room note: " + title)}</p></div>{plates}</div></section>')
 OUT.mkdir(exist_ok=True)
 ROOMS = ('<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS)
@@ -292,7 +292,7 @@ home = page("Jak Potvin", "", "home", f"""
 <span class="yr">{first[3]}</span>
 <span class="what">{first[4]}</span>
 <a class="subj" href="{first[6]}">{first[5]}</a>
-<span class="credit"><b>Plate {first[0]}.</b> {SHORT[first[0]]}</span>
+<span class="credit">{SHORT[first[0]]}</span>
 </div>
 <button class="pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
 <p class="cue">{one("scroll cue")}</p>
@@ -316,7 +316,7 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="stack">
 <h2 id="projects-h">Projects</h2>
 <h3 style="margin-top:18px">{one("atoms heading")}</h3>
-<p class="small">Plate {NO["alchemist-phosphorus.jpg"]}: {one("atoms plate note")}</p>
+<p class="small">{one("atoms plate note")}</p>
 </div>
 <div class="stack">
 <p class="lede">{one("atoms lede")}</p>
@@ -389,7 +389,7 @@ atoms_page = page("Atom by atom | Jak Potvin", "../", "projects", f"""
 <p class="lede">AI is making design nearly free. Making things is becoming the bottleneck. Atomically precise manufacturing is how the physical world catches up, and it starts with knowing how reliable each atomic step is.</p>
 <p>I build the open data and tools that measure that. This page sets out what has been measured so far, using only published counts.</p>
 </div>
-<figure class="plate"><div class="frame">{lattice}</div><figcaption><b>Plate {LATTICE_NO}.</b><span>{LATTICE_CAPTION}</span></figcaption></figure>
+<figure class="plate"><div class="frame">{lattice}</div><figcaption><span>{LATTICE_CAPTION}</span></figcaption></figure>
 </div>
 <div class="figures">
 <div><span class="v">84 to 97%</span><span class="k">Success of each step in a published four-step carbon build at 4 K.</span><span class="tag">Measured</span></div>
@@ -451,10 +451,12 @@ NOTE_BY_FILE = {"caesar-coustou.jpg": "Wikimedia Commons.", "eniac.jpg": "Work o
     "kennedy-von-braun.jpg": "NASA images are generally not subject to copyright in the United States.",
     "earthrise.jpg": "NASA images are generally not subject to copyright in the United States."}
 NOTES = {NO[f]: t for f, t in NOTE_BY_FILE.items() if f in NO}
-items = "\n".join(f'<li><span class="pl">Plate {n}</span><span>{FULL[n]}{(" " + NOTES[n]) if n in NOTES else ""}</span></li>' for n in [p[0] for p in PLATES] + [LATTICE_NO])
-plates_page = page("List of plates | Jak Potvin", "", "", f"""
+YEAR = {p[0]: p[3] for p in PLATES}
+YEAR[LATTICE_NO] = "Atoms page"
+items = "\n".join(f'<li><span class="pl">{YEAR[n]}</span><span>{FULL[n]}{(" " + NOTES[n]) if n in NOTES else ""}</span></li>' for n in [p[0] for p in PLATES] + [LATTICE_NO])
+plates_page = page("Picture credits | Jak Potvin", "", "", f"""
 <section aria-labelledby="pl-h">
-<h1 id="pl-h" style="font-size:clamp(36px,5vw,56px)">List of plates</h1>
+<h1 id="pl-h" style="font-size:clamp(36px,5vw,56px)">Picture credits</h1>
 <p class="small" style="margin-top:12px">Paintings, drawings and sculpture reproduced here are in the public domain; photographs are credited to their makers.</p>
 <ol class="plates-list">
 {items}

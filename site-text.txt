@@ -68,12 +68,12 @@ First essay from 15 December
 [room note: The future]
 First essay from 15 December
 
-# Projects, the atoms part. The plate note gets "Plate X: " put in front of it automatically.
+# Projects, the atoms part. The note is about the Alchemist painting, which hangs in the Physics room.
 [atoms heading]
 Atom by atom
 
 [atoms plate note]
-in 1669 Hennig Brand boiled down urine and found a substance that glowed in the dark. It was phosphorus, the first element whose discoverer we know by name.
+In 1669 Hennig Brand boiled down urine and found a substance that glowed in the dark. It was phosphorus, the first element whose discoverer we know by name.
 
 [atoms lede]
 AI is making design nearly free. Making things is becoming the bottleneck.
@@ -121,4 +121,4 @@ Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [github.com/JakPot42
 
 # The line at the very bottom of every page.
 [footer]
-© 2026 Jak Potvin. Built with AI coding tools (Claude). Picture credits: [list of plates](plates.html).
+© 2026 Jak Potvin. Built with AI coding tools (Claude). [Picture credits](plates.html).

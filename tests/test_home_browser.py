@@ -90,7 +90,8 @@ def test_reduced_motion_holds_plate_one(browser, site):
     assert page.eval("document.documentElement.dataset.motion") == "reduced"
     page.wait(7)
     assert current(page) == "0"
-    assert page.eval("document.querySelector('.intro .caption .credit b').textContent") == "Plate I."
+    first_credit = page.eval("document.querySelector('.slide[data-i=\"0\"]').dataset.credit")
+    assert page.eval("document.querySelector('.intro .caption .credit').textContent") == first_credit
     assert page.eval("[...document.querySelectorAll('.slide .art')].every(i => ['none', 'matrix(1, 0, 0, 1, 0, 0)']"
                      ".includes(getComputedStyle(i).transform))")
     assert not page.eval("!!document.querySelector('.pause') && getComputedStyle(document.querySelector('.pause')).display !== 'none'")

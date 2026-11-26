@@ -12,8 +12,7 @@
     cap.querySelector('.what').textContent = d.what;
     const subj = cap.querySelector('.subj');
     subj.textContent = d.subj; subj.setAttribute('href', d.href);
-    const b = document.createElement('b'); b.textContent = `Plate ${d.no}.`;
-    cap.querySelector('.credit').replaceChildren(b, ' ' + d.credit);
+    cap.querySelector('.credit').textContent = d.credit;
   }
 
   // One plate at a time: 5 s each, 1 s crossfade; only the current and the next image are loaded.

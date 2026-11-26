@@ -134,3 +134,5 @@ Detected with `@supports (animation-timeline: scroll())`. Without it: the first 
 ## Change after the build (26 November 2026)
 
 Jak tried the built version and dropped the album from the home page: "i dont like how when you scroll you still see all the photos together like that at the top". Offered (A) remove the album or (B) move it lower, he took Claude's pick, A. So effect 1 (the painting shrinking into the album), the album caption and the phone swipe row are gone; scrolling off the first screen goes straight into Writing. The plates still appear one at a time on the first screen, by subject in the rooms, and with full credits on the list of plates. The album's small copies (`assets/img/small/`) are no longer written.
+
+Later the same day Jak asked whether the plate numbers were needed ("do we really need the plate stuff"). Claude's pick, taken: the site shows no plate numbers anywhere (captions keep artist and title); the list of plates became "Picture credits" (same address, plates.html), with each picture's year beside its full credit, so every licence credit stays one click from every page.

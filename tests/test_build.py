@@ -90,7 +90,7 @@ def test_intro_has_one_slide_per_plate():
     assert run_build().returncode == 0
     index = (SITE / "index.html").read_text(encoding="utf-8")
     plates = (SITE / "plates.html").read_text(encoding="utf-8")
-    assert index.count('<figure class="slide') == plates.count('<span class="pl">Plate ') - 1
+    assert index.count('<figure class="slide') == plates.count('<li><span class="pl">') - 1  # the drawing on the atoms page is credited too
 
 
 def test_projects_count_text_error(tmp_path):
@@ -108,3 +108,46 @@ def test_build_reports_missing_text_file_plainly(tmp_path):
     r = run_build(tmp_path / "site-text.txt")
     assert r.returncode == 2
     assert r.stderr.startswith("site-text.txt") and "Traceback" not in r.stderr
+
+
+PLATE_NUMBER = re.compile(r"\bPlates? [IVXL]+\b")
+
+
+def visible_text(path):
+    import html.parser
+
+    class P(html.parser.HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.out, self.skip = [], 0
+
+        def handle_starttag(self, tag, attrs):
+            self.skip += tag in ("script", "style")
+
+        def handle_endtag(self, tag):
+            self.skip -= tag in ("script", "style")
+
+        def handle_data(self, d):
+            if not self.skip:
+                self.out.append(d)
+    p = P()
+    p.feed(path.read_text(encoding="utf-8"))
+    return " ".join(" ".join(p.out).split())
+
+
+def test_no_plate_numbers_shown():
+    assert run_build().returncode == 0
+    for page in ("index.html", "plates.html", "atoms/index.html"):
+        found = PLATE_NUMBER.findall(visible_text(SITE / page))
+        assert found == [], (page, found[:5])
+    assert "Plate " not in (SITE / "assets/home.js").read_text(encoding="utf-8")
+
+
+def test_picture_credits_page_keeps_every_credit():
+    assert run_build().returncode == 0
+    credits = visible_text(SITE / "plates.html")
+    raw = (SITE / "plates.html").read_text(encoding="utf-8")
+    assert re.search(r"<h1[^>]*>Picture credits</h1>", raw) and "<title>Picture credits | Jak Potvin</title>" in raw
+    for needed in ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "Photograph by Marie-Lan Nguyen",
+                   "Jacques-Louis David, The Death of Socrates, 1787", "The top layer of a silicon crystal, drawn for this site."):
+        assert needed in credits, needed
