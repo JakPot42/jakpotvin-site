@@ -1,9 +1,9 @@
-/* jakpotvin.com home page: the projects reveal and count, and the rooms (wall colour, pinned plates).
-   The first screen is one still painting and needs no script. With prefers-reduced-motion nothing moves. */
+/* jakpotvin.com home page: the projects reveal and count, and the rooms (each room's paintings, chosen by scrolling,
+   loaded as the visitor nears them). The first screen is one still painting and needs no script.
+   With prefers-reduced-motion the projects stay in place and the paintings change without the fade (site.css). */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = matchMedia('(min-width: 761px)');
   root.dataset.motion = reduced ? 'reduced' : 'full';
 
   // Year, event, subject link (if the caption has one) and credit of a painting (data-* of a slide) into a caption.
@@ -47,39 +47,55 @@
     requestAnimationFrame(step);
   }
 
-  // The rooms: each room's wall colour, taken from its painting, fills the page as the room reaches the middle of
-  // the screen. On desktop with full motion the plates move into the pinned stage and cross-fade room by room.
+  // Which of a room's n paintings shows: the share of the room scrolled past, from its top at the top of the screen
+  // to its bottom at the bottom of the screen, cut into n equal parts.
+  const paintingIndex = (top, height, view, n) =>
+    n < 2 ? 0 : Math.min(n - 1, Math.floor(Math.max(0, -top) / Math.max(1, height - view) * n));
+
+  // The rooms: each room's paintings fill the screen behind its title, one at a time, and change only as the visitor
+  // scrolls through the room. A room's paintings load when it is on screen, or, once the banner has loaded, when it
+  // comes within one screen.
   function initRooms(wrap) {
-    const rooms = [...wrap.querySelectorAll('.room')];
-    const stage = wrap.querySelector('.rooms-stage');
-    if (!rooms.length || !('IntersectionObserver' in window)) return;
-    const plates = new Map(rooms.map(r => [r.id, r.querySelector('.room-plates')]));
-    plates.forEach((p, id) => { if (p) p.dataset.room = id; });
-    let current = rooms[0].id;
-    const mark = () => plates.forEach((p, id) => p && p.classList.toggle('on', id === current));
-    const pin = () => {
-      const want = !reduced && desktop.matches && !!stage;
-      if (want === wrap.classList.contains('pinned')) return;
-      wrap.classList.toggle('pinned', want);
-      rooms.forEach(r => {
-        const p = plates.get(r.id);
-        if (p) (want ? stage : r.querySelector('.room-in')).appendChild(p);
-      });
-      mark();
+    const rooms = [...wrap.querySelectorAll('.room')].map(el => ({
+      el, slides: [...el.querySelectorAll('.slide')], cap: el.querySelector('.caption'), cur: 0, loaded: false}));
+    const load = room => {
+      if (room.loaded) return;
+      room.loaded = true;
+      room.el.querySelectorAll('.art[data-src]').forEach(img => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
     };
-    wrap.classList.add('live');
-    wrap.style.backgroundColor = rooms[0].dataset.bg;
-    const io = new IntersectionObserver(es => {
-      for (const e of es) if (e.isIntersecting) {
-        wrap.style.backgroundColor = e.target.dataset.bg;
-        current = e.target.id;
-        mark();
+    const update = () => {
+      const view = innerHeight;
+      for (const room of rooms) {
+        if (!room.slides.length) continue;
+        const r = room.el.getBoundingClientRect();
+        if (r.top < view && r.bottom > 0) load(room);
+        const i = paintingIndex(r.top, r.height, view, room.slides.length);
+        if (i === room.cur) continue;
+        room.slides[room.cur].classList.remove('on');
+        room.slides[i].classList.add('on');
+        room.cur = i;
+        if (room.cap) fillCaption(room.cap, room.slides[i].dataset);
       }
-    }, {rootMargin: '-45% 0px -45% 0px'});
-    rooms.forEach(r => io.observe(r));
-    desktop.addEventListener('change', pin);
-    pin();
-    mark();
+    };
+    let queued = false;
+    addEventListener('scroll', () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; update(); });
+    }, {passive: true});
+    addEventListener('resize', update);
+    update();
+    const lookAhead = () => {
+      if (!('IntersectionObserver' in window)) { rooms.forEach(load); return; }
+      const io = new IntersectionObserver(es => {
+        for (const e of es) if (e.isIntersecting) {
+          load(rooms.find(room => room.el === e.target));
+          io.unobserve(e.target);
+        }
+      }, {rootMargin: '100% 0px'});
+      rooms.forEach(room => { if (!room.loaded) io.observe(room.el); });
+    };
+    if (document.readyState === 'complete') lookAhead(); else addEventListener('load', lookAhead);
   }
 
   const projects = document.querySelectorAll('#projects li, #projects h3, #projects .count');

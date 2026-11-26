@@ -246,79 +246,21 @@ def slide(p, on=False, eager=False):
             f'<img class="art" {src} alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"></figure>')
 first = BANNER
 
-def row(anchor, title):
-    nos = [p[0] for p in PLATES if p[6] == "#" + anchor]
-    label = ("Plate to come" if not nos else ("Plate " if len(nos) == 1 else "Plates ") + " and ".join(nos))
-    cr = "; ".join(SHORT[n] for n in nos)
-    return f'<li id="{anchor}"><span class="pl">{label}</span><h3>{title}</h3><span class="cr">{cr}</span><span class="soon">First essay from 15 December</span></li>'
-index = "\n".join(row(a, t) for a, t in SUBJECTS)
-
-
 # ---------------------------------------------------------------- writing: one room per subject
-import colorsys
-from PIL import Image
-ROOM_TEXT = {
- "s-philosophy": "How to think, what to value, and what we can know.",
- "s-psychology": "Why people think and act the way they do.",
- "s-sociology": "How groups, institutions and cultures hold together, and how they come apart.",
- "s-politics": "Who holds power, how they got it, and what keeps it in check.",
- "s-economics": "How wealth is made, traded and lost.",
- "s-warfare": "Strategy, technology, and why wars are won.",
- "s-physics": "Matter and energy, down to single atoms.",
- "s-biology": "Life, the body, and how to keep it working.",
- "s-future": "Where technology is taking us, and what to do about it.",
-}
-ROOM_BG = {  # wall colours picked from each room's painting; auto-sampling made too many of them brown
- "s-philosophy": "#1f2a44",  # Aristotle's blue robe
- "s-psychology": "#3b1e16",  # the Salpêtrière's red walls
- "s-sociology": "#3a3014",   # Bruegel's wheat field
- "s-politics": "#3a1620",    # Charlemagne's crimson
- "s-economics": "#3a2010",   # the mill's furnace light
- "s-warfare": "#232a33",     # the winter sky over the Delaware
- "s-physics": "#1d1a36",     # the alchemist's night window
- "s-biology": "#3a2e18",     # Leonardo's sepia
- "s-tech": "#2e2c28",        # the dunes at Kill Devil Hills, in shadow
- "s-future": "#102f3d",      # the Florida sky
-}  # rooms show the whole painting
-def room_colour(path):
-    im = Image.open(path).convert("RGB"); im.thumbnail((96, 96))
-    q = im.quantize(colors=8, method=Image.Quantize.MEDIANCUT); pal = q.getpalette(); best = None
-    for count, idx in q.getcolors():
-        r, g, bl = (c / 255 for c in pal[idx * 3: idx * 3 + 3]); h, l, s = colorsys.rgb_to_hls(r, g, bl)
-        score = count * (0.08 + s) * (0.25 + min(l, 1 - l))
-        if best is None or score > best[0]: best = (score, h, s)
-    _, h, s = best
-    r, g, bl = colorsys.hls_to_rgb(h, 0.16, min(max(s, 0.18), 0.42))
-    return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(bl * 255))
-def aspect(f):
-    w, h = Image.open(OUT / "assets" / "img" / f).size; return w / h
 def room(anchor, title):
+    """A subject's room: about one screen of scrolling per painting plus half a screen. Its paintings (lazy; home.js
+    loads them as the visitor nears the room) fill the screen behind the title, one at a time, chosen by how far the
+    room has been scrolled; the caption names the painting showing, starting with the first."""
     ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
-    if ps:
-        files = [p[1] for p in ps]
-        asp = [aspect(f) for f in files]; bg = room_colour(OUT / "assets" / "img" / files[0])
-        rows, cur, s = [], [], 0.0
-        for item in zip(ps, files, asp):
-            if cur and s + item[2] > 2.6: rows.append(cur); cur, s = [], 0.0
-            cur.append(item); s += item[2]
-        rows.append(cur)
-        per_width = sum(1 / sum(x[2] for x in r) for r in rows)
-        fig = lambda p, f, a: (f'<figure class="plate rp" style="flex:{a:.3f} 1 0"><img src="assets/img/{f}" alt="{html.escape(p[2])}" loading="lazy" style="aspect-ratio:{a:.4f}">'
-                               f'<figcaption>{SHORT[p[0]]}</figcaption></figure>')
-        inner = "".join('<div class="room-row">' + "".join(fig(*x) for x in r) + '</div>' for r in rows)
-        plates = f'<div class="room-plates rows" style="max-width:min(100%, calc(68svh / {per_width:.3f}))">{inner}</div>'
-        nos = [p[0] for p in ps]; label = ("Plate " if len(nos) == 1 else "Plates ") + (nos[0] if len(nos) == 1 else ", ".join(nos[:-1]) + " and " + nos[-1])
-    else:
-        bg = "#23262b"
-        plates = '<div class="room-plates"><div class="room-empty">Plate to come</div></div>'
-        label = "Plate to come"
-    bg = ROOM_BG.get(anchor, bg)
-    return (f'<section class="room" id="{anchor}" data-bg="{bg}" style="--bg:{bg}" aria-labelledby="{anchor}-h"><div class="room-in">'
-            f'<div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
-            f'<p class="room-soon">{one("room note: " + title)}</p></div>{plates}</div></section>')
+    slides = "".join(slide(p, on=(k == 0)) for k, p in enumerate(ps))
+    cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
+           f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
+    return (f'<section class="room" id="{anchor}" style="--n:{max(len(ps), 1)}" aria-labelledby="{anchor}-h"><div class="room-stick">'
+            f'<div class="room-bg" aria-hidden="true"><div class="slides">{slides}</div><div class="room-shade"></div></div>'
+            f'<div class="room-words"><div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
+            f'<p class="room-soon">{one("room note: " + title)}</p></div>{cap}</div></div></section>')
 OUT.mkdir(exist_ok=True)
-ROOMS = ('<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS)
-         + f'<div class="rooms-stage" style="grid-row:1 / span {len(SUBJECTS)}"></div></div>')  # home.js pins the plates here on desktop
+ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
 
 BIO = one("bio")
 def make_card():

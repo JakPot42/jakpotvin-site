@@ -174,70 +174,136 @@ def test_counter_text_without_motion(browser, site):
     assert page.eval("[...document.querySelectorAll('#projects *')].every(el => getComputedStyle(el).opacity === '1')")
 
 
-# ---------------------------------------------------------------- Task 7: the rooms
+# ---------------------------------------------------------------- the rooms: three paintings, full screen, changed by scrolling
 
-ROOM_IDS = "[...document.querySelectorAll('.rooms .room')].map(r => r.id)"
-ON_ROOMS = "[...document.querySelectorAll('.room-plates.on')].map(p => p.dataset.room)"
-HEX_TO_RGB = "(h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).join(', ') + ')')"
-
-
-def center_room(page, rid):
-    page.eval("document.getElementById(%s).scrollIntoView({block: 'center'}); 1" % json.dumps(rid))
-    page.wait(1)
-
-
-def test_rooms_pin_and_swap(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    page.wait(0.5)
-    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
-    ids = page.eval(ROOM_IDS)
-    for k in (0, 3, 9):
-        center_room(page, ids[k])
-        assert page.eval(ON_ROOMS) == [ids[k]], k
-    center_room(page, ids[3])
-    first = rect(page, ".rooms-stage")["top"]
-    page.scroll_to(page.eval("scrollY") + 200)
-    page.wait(0.3)
-    second = rect(page, ".rooms-stage")["top"]
-    assert abs(first) <= 2 and abs(second) <= 2, (first, second)
+def show_painting(page, rid, k, settle=0.8):
+    """Scroll to the middle of the stretch of room rid where painting k shows."""
+    page.eval("(() => { const r = document.getElementById(%s), n = r.querySelectorAll('.slide').length;"
+              " const top = r.getBoundingClientRect().top + scrollY, span = r.offsetHeight - innerHeight;"
+              " scrollTo(0, Math.round(top + span * (%d + 0.5) / n)); return new Promise(f => requestAnimationFrame(() => requestAnimationFrame(f))); })()"
+              % (json.dumps(rid), k))
+    page.wait(settle)
 
 
-def test_room_wall_colours(browser, site):
-    page = open_home(browser, site, DESKTOP)
-    for rid in page.eval(ROOM_IDS):
-        center_room(page, rid)
-        want = page.eval(HEX_TO_RGB + "(document.getElementById(%s).dataset.bg)" % json.dumps(rid))
-        assert page.eval("getComputedStyle(document.querySelector('.rooms')).backgroundColor") == want, rid
+def on_index(page, rid):
+    return page.eval("[...document.getElementById(%s).querySelectorAll('.slide')].findIndex(s => s.classList.contains('on'))" % json.dumps(rid))
 
 
-def test_room_deep_link_shows_its_plates(browser, site):
-    page = open_home(browser, site, DESKTOP, hash="#s-economics")
-    page.wait(1)
-    h = rect(page, "#s-economics-h")
-    assert 0 <= h["top"] and h["bottom"] <= page.eval("innerHeight")
-    assert page.eval(ON_ROOMS) == ["s-economics"]
+def caption_matches(page, rid):
+    return page.eval("(r => { const s = r.querySelector('.slide.on').dataset, c = r.querySelector('.caption');"
+                     " return c.querySelector('.yr').textContent === s.yr && c.querySelector('.what').textContent === s.what"
+                     " && c.querySelector('.credit').textContent === s.credit; })(document.getElementById(%s))" % json.dumps(rid))
 
 
-@pytest.mark.parametrize("cfg", [PHONE, {**DESKTOP, "reduced_motion": True}], ids=["phone", "desktop-rm"])
-def test_rooms_unpinned_on_phone_and_reduced_motion(browser, site, cfg):
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE, {**DESKTOP, "reduced_motion": True}], ids=["desktop", "phone", "desktop-rm"])
+def test_room_painting_follows_scroll(browser, site, cfg):
     page = open_home(browser, site, cfg)
-    page.wait(0.5)
-    assert not page.eval("document.querySelector('.rooms').classList.contains('pinned')")
-    assert page.eval("[...document.querySelectorAll('.rooms .room')].every(r => { const p = r.querySelector('.room-plates'), t = r.querySelector('.room-text');"
-                     " return p && p.getBoundingClientRect().top >= t.getBoundingClientRect().top - 1 || r.querySelector('.room-plates') && getComputedStyle(r.querySelector('.room-in')).display === 'grid'; })")
-    assert page.eval("document.querySelectorAll('.rooms .room .room-plates').length") == page.eval("document.querySelectorAll('.rooms .room').length")
+    for rid in ("s-philosophy", "s-warfare", "s-future"):
+        for k in (0, 1, 2, 1):
+            show_painting(page, rid, k)
+            assert on_index(page, rid) == k and caption_matches(page, rid), (rid, k)
+    assert page.eval("[...document.querySelectorAll('.room')].every(r => r.querySelectorAll('.slide.on').length === 1)")
 
 
-def test_rooms_repin_after_resize(browser, site):
+def test_room_painting_holds_still_without_scrolling(browser, site):
     page = open_home(browser, site, DESKTOP)
+    show_painting(page, "s-biology", 1)
+    page.wait(3)
+    assert on_index(page, "s-biology") == 1
+
+
+def test_room_is_three_and_a_half_screens_long(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    assert page.eval("[...document.querySelectorAll('.room')].every(r => Math.abs(r.offsetHeight - 3.5 * innerHeight) <= 2)")
+
+
+def test_jumps_land_on_the_right_painting(browser, site):  # Review Focus 2
+    page = open_home(browser, site, DESKTOP, hash="#projects")
     page.wait(0.5)
-    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
-    page.resize(700, 900, settle=0.6)
-    assert not page.eval("document.querySelector('.rooms').classList.contains('pinned')")
-    assert page.eval("document.querySelectorAll('.rooms .room .room-plates').length") == 10
-    page.resize(1440, 900, settle=0.6)
-    assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
-    assert page.eval("document.querySelectorAll('.rooms-stage .room-plates').length") == 10
+    show_painting(page, "s-warfare", 1)
+    assert on_index(page, "s-warfare") == 1
+    page.scroll_to(page.eval("document.documentElement.scrollHeight"))
+    show_painting(page, "s-philosophy", 0)
+    assert on_index(page, "s-philosophy") == 0 and caption_matches(page, "s-philosophy")
+
+
+def test_resize_mid_room_keeps_one_right_painting(browser, site):  # Review Focus 3
+    page = open_home(browser, site, DESKTOP)
+    show_painting(page, "s-biology", 2)
+    page.resize(700, 900, settle=0.8)
+    top, height, view = page.eval("(r => [r.getBoundingClientRect().top, r.offsetHeight, innerHeight])(document.getElementById('s-biology'))")
+    want = min(2, int(max(0, -top) / max(1, height - view) * 3))
+    assert on_index(page, "s-biology") == want
+    assert page.eval("document.getElementById('s-biology').querySelectorAll('.slide.on').length") == 1
+    assert page.eval("document.documentElement.scrollWidth <= innerWidth")
+
+
+@pytest.mark.parametrize("w, h, mobile", [(1440, 900, False), (412, 915, True), (915, 412, True), (1280, 600, False), (800, 600, False)])
+def test_room_words_never_overlap_the_caption(browser, site, w, h, mobile):  # Review Focus 4
+    page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
+    for rid in ("s-politics", "s-tech"):
+        show_painting(page, rid, 0, settle=0.3)
+        assert rect(page, f"#{rid} .room-text")["bottom"] <= rect(page, f"#{rid} .caption")["top"], rid
+        assert rect(page, f"#{rid} .room-text h2")["top"] >= 0, rid
+
+
+def test_room_deep_link_lands_on_its_first_painting(browser, site):  # Review Focus 5
+    page = open_home(browser, site, DESKTOP, hash="#s-economics")
+    page.wait(1.5)
+    assert abs(rect(page, "#s-economics")["top"]) <= 1
+    assert on_index(page, "s-economics") == 0
+    assert page.eval("(a => a.complete && a.naturalWidth > 0)(document.querySelector('#s-economics .slide.on .art'))")
+
+
+def test_text_sits_left_on_laptops_and_low_on_phones(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    show_painting(page, "s-sociology", 0)
+    t = rect(page, "#s-sociology .room-text")
+    assert t["left"] <= 0.25 * 1440 and t["right"] <= 0.55 * 1440 and 0.2 * 900 <= (t["top"] + t["bottom"]) / 2 <= 0.8 * 900
+    page = open_home(browser, site, PHONE)
+    show_painting(page, "s-sociology", 0)
+    assert rect(page, "#s-sociology .room-text")["top"] >= 0.45 * 915
+
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_every_room_painting_fills_the_screen(browser, site, cfg):
+    page = open_home(browser, site, cfg)
+    for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
+        for k in range(3):
+            show_painting(page, rid, k, settle=0.2)
+            s = f"#{rid} .slide.on"
+            whole = page.eval(f"document.querySelector('{s}').classList.contains('whole')")
+            cover = rect(page, f"{s} .bg" if whole and cfg is DESKTOP else f"{s} .art")
+            assert cover["left"] <= 0 and cover["top"] <= 0 and cover["right"] >= cfg["width"] - 1 and cover["bottom"] >= cfg["height"] - 1, (rid, k)
+            if cfg is PHONE or not whole:
+                assert page.eval(f"getComputedStyle(document.querySelector('{s} .art')).objectFit") == "cover", (rid, k)
+            else:  # a tall painting on a laptop: shown whole, beside the title
+                assert rect(page, f"{s} .art")["left"] >= rect(page, f"#{rid} .room-words")["right"] - 1, (rid, k)
+
+
+@pytest.mark.parametrize("cfg, want", [(DESKTOP, "0.6s"), ({**DESKTOP, "reduced_motion": True}, "0s")], ids=["fade", "no-fade"])
+def test_paintings_fade_unless_less_motion(browser, site, cfg, want):
+    page = open_home(browser, site, cfg)
+    assert page.eval("getComputedStyle(document.querySelector('.room .slide')).transitionDuration").split(",")[0] == want
+
+
+def test_banner_loads_before_any_room_painting(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(2)
+    entries = page.eval("performance.getEntriesByType('resource').filter(e => e.name.includes('/assets/img/') && !e.name.includes('/blur/'))"
+                        ".map(e => [e.name.split('/').pop(), e.startTime, e.responseEnd])")
+    banner = [e for e in entries if e[0] == "washington-crossing.jpg"]
+    assert len(banner) == 1
+    assert all(start >= banner[0][2] - 1 for name, start, _ in entries if name != "washington-crossing.jpg")
+
+
+def test_far_rooms_wait_until_the_visitor_nears_them(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(2)
+    assert page.eval("document.querySelectorAll('#s-future .art[data-src]').length") == 3
+    page.scroll_to(page.eval("document.getElementById('s-future').getBoundingClientRect().top + scrollY - innerHeight * 0.9"))
+    page.wait(0.8)
+    assert page.eval("document.querySelectorAll('#s-future .art[data-src]').length") == 0
 
 
 # ---------------------------------------------------------------- final review fixes
@@ -246,7 +312,8 @@ def test_slides_hidden_from_screen_readers(browser, site):
     page = open_home(browser, site, DESKTOP)
     page.wait(1.2)
     assert page.eval("document.querySelector('.slides').getAttribute('aria-hidden')") == "true"
-    assert page.eval("[...document.querySelectorAll('.slide .art')].every(i => i.getAttribute('alt') === '')")
+    assert page.eval("document.querySelectorAll('.room-bg[aria-hidden=\"true\"]').length") == 10
+    assert page.eval("[...document.querySelectorAll('.slide .art, .slide .bg')].every(i => i.getAttribute('alt') === '')")
     assert page.eval("[...document.querySelectorAll('.slide:not(.on):not(.leaving)')].every(s => getComputedStyle(s).visibility === 'hidden')")
     assert page.eval("document.querySelector('.intro .caption .what').textContent.length") > 0
 

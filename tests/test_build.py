@@ -57,7 +57,9 @@ def test_missing_plate_file_is_skipped(tmp_path):
     try:
         r = run_build()
         assert r.returncode == 0, r.stderr
-        assert "eniac" not in (SITE / "index.html").read_text(encoding="utf-8")
+        index = (SITE / "index.html").read_text(encoding="utf-8")
+        assert "eniac" not in index
+        assert re.search(r'<section class="room" id="s-tech" style="--n:2"', index)  # the room keeps the two it has
         assert not (SITE / "assets/img/small/eniac.jpg").exists()
         assert not (SITE / "assets/img/blur/eniac.jpg").exists()
     finally:
@@ -189,6 +191,17 @@ def test_room_paintings_are_big_enough_to_fill_a_screen():
                 assert max(im.size) >= 1600, (f, im.size)
     with Image.open(SITE / "assets/img" / BANNER) as im:
         assert im.width >= 3000, im.size
+
+
+def test_rooms_are_built_for_scrolling():
+    assert run_build().returncode == 0
+    index = (SITE / "index.html").read_text(encoding="utf-8")
+    for rid, files in ROOM_PAINTINGS.items():
+        section = re.search(r'<section class="room" id="%s" style="--n:3".*?</section>' % rid, index, re.S).group(0)
+        assert section.count('<figure class="slide') == 3 and len(re.findall(r'<figure class="slide[^"]* on"', section)) == 1, rid
+        assert 'data-src="assets/img/%s"' % files[0] in section and ' src="assets/img/%s"' % files[0] not in section, rid
+        assert '<div class="room-bg" aria-hidden="true">' in section and '<div class="caption">' in section, rid
+    assert "rooms-stage" not in index and "data-bg=" not in index
 
 
 CREATIVE_COMMONS = {  # file: (its credit names the maker and the licence, the licence's own page)
