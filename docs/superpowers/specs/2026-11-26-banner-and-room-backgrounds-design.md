@@ -1,6 +1,6 @@
 # Banner and room backgrounds: design
 
-Date: 26 November 2026. Status: waiting for Jak's approval.
+Date: 26 November 2026. Status: approved by Jak ("looks good", 26 November 2026).
 
 ## Why
 
@@ -56,3 +56,51 @@ The exact shade gradients, the fade length, where each painting's focal point si
 
 1. Banner and room backgrounds, built with the paintings the site has now (tests first, as before).
 2. Painting options for each room, then the downloads Jak picks, added as they come.
+
+## Paintings chosen (26 November 2026)
+
+Jak's picks after two rounds of options (Claude proposed; Jak swapped Martin Luther King Jr., the Yalta Conference and Migrant Mother for the Wanderer, the Shibuya crossing and the fall of the Berlin Wall; D-Day for Iwo Jima; Earthrise for Kennedy and von Braun, whose date is 16 November 1963, not 1962 as the site said). Old, middle, modern per room, by the date of what each shows. New files and bigger copies come from Wikimedia Commons; the file name is given for each.
+
+- **Philosophy and religion**
+  - old: David, The Death of Socrates (399 BC), the site's current file.
+  - middle: Botticelli, Saint Augustine in His Study (c. 400), the site's current file.
+  - modern: Friedrich, Wanderer above the Sea of Fog (c. 1818). New: `Caspar David Friedrich - Wanderer above the Sea of Fog.jpeg` (Public domain).
+- **Psychology**
+  - old: Bosch, The Cure of Folly (c. 1501). New: `The Cure of Folly, ca. 1501-05FXD.jpg` (Public domain).
+  - middle: Goya, The Sleep of Reason Produces Monsters (1799). Bigger copy: `Goya - Caprichos (43) - Sleep of Reason.jpg` (Public domain).
+  - modern: Sigmund Freud, photograph by Max Halberstadt (c. 1921). New: `Sigmund Freud, by Max Halberstadt.jpg` (Public domain).
+- **Sociology**
+  - old: Bruegel, The Harvesters (1565), the site's current file.
+  - middle: Seurat, A Sunday on La Grande Jatte (1884), the site's current file.
+  - modern: Shibuya crossing, Tokyo (2017). New: `Shibuya Crossing, Tokyo; December 2017.jpg` (CC BY-SA 2.0).
+- **Political science**
+  - old: Coustou, Julius Caesar (49 BC). Bigger copy: `Julius Caesar Coustou Louvre MR1798 - 01a.jpg` (CC BY-SA 2.0).
+  - middle: Magna Carta (1215), the site's current file.
+  - modern: Fall of the Berlin Wall, Brandenburg Gate (1989). New: `Crane removed part of Wall Brandenburg Gate.jpg` (Public domain).
+- **Economics**
+  - old: Massys, The Moneylender and His Wife (1514). New: `Le prêteur et sa femme - Quentin Metsys - Musée du Louvre Peintures INV 1444 ; MR 821.jpg` (Public domain).
+  - middle: Stoddart, Adam Smith (1776), the site's current file.
+  - modern: Ford's moving assembly line (1913). New: `Ford assembly line - 1913.jpg` (Public domain).
+- **War and defense**
+  - old: Alexander Mosaic, Pompeii (333 BC). New: `Battle of Issus in 333 BC, between Alexander the Great & Darius III, from House of the Faun, Pompeii; closeup of Alexander on his horse Bucephalus (48452981692).jpg` (Public domain).
+  - middle: David, Napoleon Crossing the Alps (1800; replaced 26 Nov), the site's current file.
+  - modern: Rosenthal, Raising the Flag on Iwo Jima (1945). New: `Photograph of Flag Raising on Iwo Jima - NARA - 520748.tif` (Public domain).
+- **Physics and chemistry**
+  - old: Wright of Derby, The Alchemist (1669). Bigger copy: `Joseph Wright of Derby The Alchemist.jpg` (Public domain).
+  - middle: Faraday lecturing at the Royal Institution (1855). New: `Professor Faraday lecturing at the Royal Institution, 27th December, 1855 RIIC 0006 20110213 BAL EP.jpg` (Public domain).
+  - modern: The ATLAS detector, CERN (2008). New: `CERN LHC ATLAS Detector.jpg` (CC BY-SA 4.0).
+- **Biology and medicine**
+  - old: Leonardo, Vitruvian Man (c. 1490). Bigger copy: `Uomo Vitruviano.jpg` (Public domain).
+  - middle: Hillemacher, Jenner vaccinating a boy (1796). Bigger copy: `Edward Jenner vaccinating a boy. Oil painting by E.-E. Hille Wellcome L0029093.jpg` (CC BY 4.0).
+  - modern: SARS-CoV-2 under the electron microscope (2020). New: `Novel Coronavirus SARS-CoV-2 (51267393817).png` (CC BY 2.0).
+- **Technology and AI**
+  - old: The Antikythera mechanism (c. 100 BC). New: `Antikythera Mechanism (NAMA) 2017.jpg` (CC BY-SA 4.0).
+  - middle: ENIAC and two of its programmers (1946). Bigger copy: `Two women operating ENIAC (full resolution).jpg` (Public domain).
+  - modern: Summit supercomputer, Oak Ridge (2018). New: `Summit (supercomputer).jpg` (CC BY 2.0).
+- **The future**
+  - old: Verne, From the Earth to the Moon (1865). New: `From the Earth to the Moon (151481087).jpg` (Public domain).
+  - middle: Von Braun and Kennedy at Cape Canaveral (1963). Bigger copy: `Werner Von Braun and President John F. Kennedy at Cape Canaveral Missile Test Annex - 1963 - 63PC-0095.jpg` (Public domain).
+  - modern: Webb telescope, Cosmic Cliffs (2022). New: `NASA’s Webb Reveals Cosmic Cliffs, Glittering Landscape of Star Birth.jpg` (Public domain).
+- **Banner**: Leutze, Washington Crossing the Delaware (1776). Bigger copy: `Washington Crossing the Delaware by Emanuel Leutze, MMA-NYC, 1851.jpg` (Public domain).
+
+Coming out: Raphael, The School of Athens; Brouillet, A Clinical Lesson; Kaulbach, The Coronation of Charlemagne; Menzel, The Iron Rolling Mill; Newton with the Prism; First Flight; Anders, Earthrise. Washington Crossing the Delaware leaves War and defense and becomes the banner (it would otherwise show twice, and it is 24 years from Napoleon); this changes goal 1 above.
