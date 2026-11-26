@@ -85,3 +85,10 @@ def test_build_reports_text_error_plainly(tmp_path):
     assert r.stderr.startswith("site-text.txt line")
     assert "Traceback" not in r.stderr
     assert git_status_site() == before
+
+
+def test_intro_has_one_slide_per_plate():
+    assert run_build().returncode == 0
+    index = (SITE / "index.html").read_text(encoding="utf-8")
+    plates = (SITE / "plates.html").read_text(encoding="utf-8")
+    assert index.count('<figure class="slide') == plates.count('<span class="pl">Plate ') - 1

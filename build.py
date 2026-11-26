@@ -10,7 +10,7 @@ SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psych
             ("s-physics", "Physics and chemistry"), ("s-biology", "Biology and medicine"), ("s-tech", "Technology and AI"), ("s-future", "The future")]
 
 # ---------------------------------------------------------------- the words, from site-text.txt (Jak edits that file)
-SECTIONS = (["name", "page description", "tagline", "bio", "scroll cue", "writing intro", "writing note"]
+SECTIONS = (["name", "page description", "tagline", "bio", "first screen links", "scroll cue", "writing intro", "writing note"]
             + [f"room note: {t}" for _, t in SUBJECTS]
             + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "other software heading",
                "other software text", "other software link", "areas", "contact text", "contact line", "footer"])
@@ -37,30 +37,6 @@ def link_item(title, desc, plain_cls):
                 f'<span class="d">{sitetext.inline(desc)}</span></li>')
     return f'<li><span class="t">{sitetext.inline(title)}</span><span class="{plain_cls}">{sitetext.inline(desc)}</span></li>'
 DRAFT = ""  # preview banner text; when empty, no banner is written
-ALBUM_JS = """<script>{
-const sec=document.querySelector('.album'), tiles=[...document.querySelectorAll('.tile')].sort((a,b)=>a.dataset.i-b.dataset.i);
-const ro=document.querySelector('.readout'), f={yr:ro.querySelector('.yr'),what:ro.querySelector('.what'),subj:ro.querySelector('.subj'),credit:ro.querySelector('.credit')};
-const ROT=tiles.map((_,i)=>i===0?0:(i%2?-1:1)*(2+i%3*0.7));
-if(sec && !matchMedia('(prefers-reduced-motion: reduce)').matches){
-  sec.classList.add('live');
-  let cur=-1, ticking=false;
-  const show=i=>{ if(i===cur) return; cur=i; const d=tiles[i].dataset;
-    ro.classList.remove('in'); void ro.offsetWidth;
-    f.yr.textContent=d.yr; f.what.textContent=d.what; f.subj.textContent=d.subj; f.subj.hidden=!d.subj; if(d.href) f.subj.setAttribute('href',d.href);
-    f.credit.textContent=''; const b=document.createElement('b'); b.textContent='Plate '+d.no+'. '; f.credit.append(b, d.credit);
-    ro.classList.add('in'); };
-  const ease=t=>t*t*(3-2*t);
-  const draw=()=>{ ticking=false;
-    const r=sec.getBoundingClientRect(), span=Math.max(1, sec.offsetHeight-innerHeight);
-    const p=Math.min(1, Math.max(0, -r.top/span/0.88)), n=tiles.length, k=p*(n-1);
-    let last=0;
-    tiles.forEach((el,i)=>{ const t= i===0 ? 1 : ease(Math.min(1, Math.max(0, k-(i-1))));
-      el.style.setProperty('--t', t.toFixed(3)); el.style.setProperty('--r', ROT[i]+'deg');
-      el.classList.toggle('down', t>0.98); if(t>=0.5) last=i; });
-    show(last); sec.classList.toggle('started', p>0.01); };
-  const req=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(draw); } };
-  addEventListener('scroll', req, {passive:true}); addEventListener('resize', req); draw();
-}}</script>"""
 
 MOTION = """<script>{const ps=document.querySelectorAll('figure.plate');
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -68,7 +44,7 @@ const io=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){e
 ps.forEach(p=>{p.classList.add('settle');io.observe(p)})}}</script>"""
 
 
-def page(title, root, current, body, script=""):
+def page(title, root, current, body, script="", home=False):
     nav = [("Writing", f"{root}index.html#writing", "writing"), ("Projects", f"{root}index.html#projects", "projects"),
            ("Contact", f"{root}index.html#contact", "contact")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, h, k in nav)
@@ -85,14 +61,14 @@ def page(title, root, current, body, script=""):
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
 </head>
-<body>
+<body{' class="home"' if home else ""}>
 {banner}<div class="wrap">
 <header class="top"><a class="name" href="{root}index.html">Jak Potvin</a><nav aria-label="Site">{links}</nav></header>
 {body}
 <footer>{one("footer", root)}</footer>
 </div>
 {MOTION}
-{script}
+{script}{'<script src="assets/home.js" defer></script>' if home else ""}
 </body>
 </html>
 """
@@ -201,13 +177,26 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "schoo
     "goya-sleep-of-reason.jpg": "Goya, The Sleep of Reason Produces Monsters", "first-flight.jpg": "Daniels, First Flight",
     "kennedy-von-braun.jpg": "NASA, Kennedy and von Braun", "eniac.jpg": "U.S. Army, ENIAC", "earthrise.jpg": "Anders, Earthrise"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
+def plate_data(p):
+    """The data-* attributes the slideshow and the album caption read for a plate."""
+    no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
+    return " ".join(f'data-{k}="{html.escape(v, quote=True)}"' for k, v in
+                    (("yr", yr), ("what", what), ("subj", subj), ("href", href), ("credit", SHORT[no]), ("no", no)))
 def tile(i, p):
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
-    attrs = " ".join(f'data-{k}="{html.escape(v, quote=True)}"' for k, v in
-                     (("yr", yr), ("what", what), ("subj", subj), ("href", href), ("credit", SHORT[no]), ("no", no)))
-    img = f'<img src="assets/img/{f}" alt="{html.escape(alt)}" style="object-position:{pos}"{" loading=lazy" if i > 2 else ""}>'
+    img = f'<img src="assets/img/small/{f}" alt="{html.escape(alt)}" style="object-position:{pos}" loading=lazy>'
     inner = f'<a href="{href}">{img}</a>' if href else img
-    return f'<figure class="tile" data-i="{i}" {attrs} style="flex-grow:{grow}"><span class="slot" aria-hidden="true">Plate {no}</span>{inner}</figure>'
+    return f'<figure class="tile" data-i="{i}" {plate_data(p)} style="flex-grow:{grow}">{inner}</figure>'
+def slide(i, p):
+    """One plate of the first-screen slideshow; only the first has its image address set, home.js loads the rest."""
+    no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
+    w, h = SIZE[f]
+    whole = WHOLE[f]
+    src = f'src="assets/img/{f}" fetchpriority="high"' if i == 0 else f'data-src="assets/img/{f}"'
+    bg = f'<img class="bg" src="assets/img/blur/{f}" alt="">' if whole else ""
+    cls = "slide" + (" whole" if whole else "") + (" on" if i == 0 else "")
+    return (f'<figure class="{cls}" data-i="{i}" {plate_data(p)}>{bg}'
+            f'<img class="art" {src} alt="{html.escape(alt)}" style="--w:{w};--h:{h};object-position:{pos}"></figure>')
 cols = ["".join(tile(i, p) for i, p in enumerate(PLATES) if p[8] == c) for c in range(4)]
 wall = "".join(f'<div class="col">{c}</div>' for c in cols)
 first = PLATES[0]
@@ -285,32 +274,34 @@ def room(anchor, title):
             f'<p class="room-soon">{one("room note: " + title)}</p></div>{plates}</div></section>')
 OUT.mkdir(exist_ok=True)
 ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
-ROOMS_JS = """<script>{
-const wrap=document.querySelector('.rooms'), rs=[...document.querySelectorAll('.room')];
-if(wrap && rs.length && 'IntersectionObserver' in window){
-  wrap.classList.add('live'); wrap.style.backgroundColor=rs[0].dataset.bg;
-  const io=new IntersectionObserver(es=>{ for(const e of es){ if(e.isIntersecting) wrap.style.backgroundColor=e.target.dataset.bg; } }, {rootMargin:'-45% 0px -45% 0px'});
-  rs.forEach(r=>io.observe(r));
-}}</script>"""
 
 BIO = one("bio")
 home = page("Jak Potvin", "", "home", f"""
-<section class="album" aria-label="Introduction" style="--n:{len(PLATES)}">
-<div class="stage">
-<div class="intro">
+<section class="intro" aria-label="Introduction">
+<div class="intro-stage">
+<div class="slides" data-current="0">
+{chr(10).join(slide(i, p) for i, p in enumerate(PLATES))}
+</div>
+<div class="shade" aria-hidden="true"></div>
+<div class="intro-text">
 <h1>{one("name")}</h1>
 <p class="lede">{one("tagline")}</p>
 <p class="note">{BIO}</p>
-<p class="cue">{one("scroll cue")}</p>
+<nav class="intro-links" aria-label="Jump to">{" ".join(sitetext.inline(x) for x in TEXT["first screen links"])}</nav>
 </div>
-<div class="wall">{wall}</div>
-<div class="readout in">
+<div class="caption">
 <span class="yr">{first[3]}</span>
 <span class="what">{first[4]}</span>
 <a class="subj" href="{first[6]}">{first[5]}</a>
 <span class="credit"><b>Plate {first[0]}.</b> {SHORT[first[0]]}</span>
 </div>
+<button class="pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
+<p class="cue">{one("scroll cue")}</p>
 </div>
+</section>
+
+<section class="album" aria-label="The plates">
+<div class="wall">{wall}</div>
 </section>
 
 <section class="about-m" aria-label="About"><p>{BIO}</p></section>
@@ -362,7 +353,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", script=ALBUM_JS + ROOMS_JS)
+""", home=True)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))

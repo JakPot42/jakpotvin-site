@@ -21,9 +21,14 @@ I write about ideas, faith, the mind, society, power, money, war, matter, life, 
 [bio]
 I’m based in Rhode Island. I design software: more than eighty projects across defense, space, energy, law, medicine and AI, from satellite trackers and grid monitors to a gene-drive simulator and a framework for red-teaming AI models.
 
-# The small hint that tells visitors to scroll.
+# The quick links on the first screen, shown on phones. One link per line.
+[first screen links]
+- [Projects](#projects)
+- [Writing](#writing)
+
+# The small hint at the bottom of the first screen that tells visitors to scroll.
 [scroll cue]
-Scroll, and the plates fill in, oldest first.
+Scroll
 
 # The Writing section: the big sentence, then the small note under it.
 [writing intro]
