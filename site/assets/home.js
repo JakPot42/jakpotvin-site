@@ -4,6 +4,7 @@
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const desktop = matchMedia('(min-width: 761px)');
+  const tall = matchMedia('(min-width: 761px) and (min-height: 701px)');  // room for the shrink: not a phone, not a short window
   root.dataset.motion = reduced ? 'reduced' : 'full';
 
   // Year, event, subject link and credit of a plate (data-* of a slide or a tile) into a caption element.
@@ -30,7 +31,7 @@
       const prev = slides[cur];
       cur = (i + slides.length) % slides.length;
       const next = slides[cur];
-      load(cur + 1);
+      load(cur); load(cur + 1);
       prev.classList.remove('on'); prev.classList.add('leaving');
       setTimeout(() => prev.classList.remove('leaving'), 1100);
       next.classList.add('on');
@@ -48,8 +49,8 @@
     const start = () => { clearInterval(timer); timer = setInterval(tick, 5000); };
     const setPaused = p => {
       paused = p;
-      btn.setAttribute('aria-pressed', String(p));
-      btn.setAttribute('aria-label', p ? 'Play the slideshow' : 'Pause the slideshow');
+      btn.setAttribute('aria-pressed', String(p));  // a toggle: its name stays "Pause the slideshow"
+      box.classList.toggle('paused', p);           // CSS also freezes the slow zoom
       if (!p) start();
     };
 
@@ -63,6 +64,7 @@
       play: () => setPaused(false),
       stop: () => { stopped = true; },
       resume: () => { if (stopped) { stopped = false; start(); } },
+      goto: i => { if (i !== cur) show(i); },
     };
   }
 
@@ -76,7 +78,7 @@
     const reset = a => { for (const k of ['top', 'left', 'width', 'height', 'right', 'bottom', 'margin']) a.style[k] = ''; };
 
     const measure = () => {
-      const on = supported && !reduced && desktop.matches;
+      const on = supported && !reduced && tall.matches;
       root.classList.toggle('sda', on);
       intro.querySelectorAll('.tile.current').forEach(t => t.classList.remove('current'));
       intro.querySelectorAll('.slide .art').forEach(reset);
@@ -92,10 +94,13 @@
       stage.style.setProperty('--th', tile.offsetHeight + 'px');
       const a = slide.querySelector('.art');
       a.style.animation = 'none';  // measure the box the shrink starts from, without the animation applied
-      const [ax, ay] = offset(a);
-      const start = {top: ay + 'px', left: ax + 'px', width: a.offsetWidth + 'px', height: a.offsetHeight + 'px', right: 'auto', bottom: 'auto', margin: '0'};
+      let [ax, ay] = offset(a), aw = a.offsetWidth, ah = a.offsetHeight;
+      if (slide.classList.contains('whole')) {  // start from the painting as drawn (contained, right-aligned), so CSS can use cover
+        const w = +a.style.getPropertyValue('--w'), h = +a.style.getPropertyValue('--h'), k = Math.min(aw / w, ah / h);
+        ax += aw - w * k; ay += (ah - h * k) / 2; aw = w * k; ah = h * k;
+      }
       a.style.animation = '';
-      Object.assign(a.style, start);
+      Object.assign(a.style, {top: ay + 'px', left: ax + 'px', width: aw + 'px', height: ah + 'px', right: 'auto', bottom: 'auto', margin: '0'});
     };
 
     let still = false;
@@ -112,15 +117,20 @@
       const a = s.querySelector('.art'); a.style.transform = ''; a.style.transition = '';
     });
     const onScroll = () => {
+      root.classList.toggle('album-ready', scrollY >= innerHeight - 2);  // the album takes clicks only once the shrink is done
       if (scrollY > 0 && !still) { still = true; show && show.stop(); freeze(); }
       else if (scrollY <= 0 && still) { still = false; thaw(); show && show.resume(); }
     };
+    // Tabbing into the album before the shrink is done: finish it, so the focused tile is visible.
+    intro.querySelector('.album').addEventListener('focusin', () => {
+      if (root.classList.contains('sda') && scrollY < innerHeight - 2) scrollTo({top: innerHeight, behavior: 'instant'});
+    });
 
     let queued = false;
     const later = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; measure(); }); } };
     box.addEventListener('slidechange', () => { thaw(); measure(); if (still) freeze(); });
     addEventListener('resize', later);
-    desktop.addEventListener('change', later);
+    tall.addEventListener('change', later);
     addEventListener('scroll', onScroll, {passive: true});
     measure();
     onScroll();

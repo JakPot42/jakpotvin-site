@@ -132,3 +132,25 @@ def test_split_item():
     with pytest.raises(SiteTextError) as e:
         split_item("No separator in this list item at all, sorry")
     assert "No separator in this list item at all," in str(e.value)
+
+
+def test_not_utf8_names_line(tmp_path):
+    p = tmp_path / "site-text.txt"
+    p.write_bytes("[name]\nJak\n[bio]\nCafé au lait\n".encode("cp1252"))
+    with pytest.raises(SiteTextError) as e:
+        load(p, ["name", "bio"])
+    assert str(e.value).startswith("site-text.txt line 4:") and "UTF-8" in str(e.value)
+
+
+def test_utf16_file_message(tmp_path):
+    p = tmp_path / "site-text.txt"
+    p.write_bytes("[name]\nJak\n".encode("utf-16"))
+    with pytest.raises(SiteTextError) as e:
+        load(p, ["name"])
+    assert "UTF-8" in str(e.value)
+
+
+def test_missing_file_message(tmp_path):
+    with pytest.raises(SiteTextError) as e:
+        load(tmp_path / "site-text.txt", ["name"])
+    assert str(e.value).startswith("site-text.txt: the file is missing")

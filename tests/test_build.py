@@ -103,3 +103,9 @@ def test_projects_count_text_error(tmp_path):
     r = run_build(bad)
     assert r.returncode == 2
     assert "[projects count]" in r.stderr and "Traceback" not in r.stderr
+
+
+def test_build_reports_missing_text_file_plainly(tmp_path):
+    r = run_build(tmp_path / "site-text.txt")
+    assert r.returncode == 2
+    assert r.stderr.startswith("site-text.txt") and "Traceback" not in r.stderr

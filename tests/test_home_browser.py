@@ -352,3 +352,96 @@ def test_rooms_repin_after_resize(browser, site):
     page.resize(1440, 900, settle=0.6)
     assert page.eval("document.querySelector('.rooms').classList.contains('pinned')")
     assert page.eval("document.querySelectorAll('.rooms-stage .room-plates').length") == 10
+
+
+# ---------------------------------------------------------------- final review fixes
+
+def test_album_not_clickable_at_top_and_focus_finishes_it(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    assert not page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(900, 450))")
+    assert not page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(300, 700))")
+    page.eval("document.querySelector('.tile[data-i=\"4\"] a').focus(); 1")
+    page.wait(0.6)
+    assert abs(page.eval("scrollY") - page.eval("innerHeight")) <= 2
+    assert page.eval("getComputedStyle(document.querySelector('.tile[data-i=\"4\"]')).opacity") == "1"
+    assert page.eval("(el => !!(el && el.closest('.album')))(document.elementFromPoint(900, 450))")
+
+
+def test_slides_hidden_from_screen_readers(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(1.2)
+    assert page.eval("document.querySelector('.slides').getAttribute('aria-hidden')") == "true"
+    assert page.eval("[...document.querySelectorAll('.slide .art')].every(i => i.getAttribute('alt') === '')")
+    assert page.eval("[...document.querySelectorAll('.slide:not(.on):not(.leaving)')].every(s => getComputedStyle(s).visibility === 'hidden')")
+    assert page.eval("document.querySelector('.intro .caption .what').textContent.length") > 0
+
+
+def test_whole_plate_shrink_ends_as_its_tile(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    i = page.eval("[...document.querySelectorAll('.slide')].findIndex(s => s.classList.contains('whole'))")
+    page.eval("window.slideshow.pause(); window.slideshow.goto(%d); 1" % i)
+    page.wait(1.4)
+    w, h = page.eval("(a => [+a.style.getPropertyValue('--w'), +a.style.getPropertyValue('--h')])(document.querySelector('.slide.on .art'))")
+    box = rect(page, ".slide.on .art")
+    assert abs(box["width"] / box["height"] - w / h) < 0.02, (box, w, h)
+    page.scroll_to(page.eval("innerHeight"))
+    page.wait(0.5)
+    assert page.eval("getComputedStyle(document.querySelector('.slide.on .art')).objectFit") == "cover"
+    art = page.eval(BOX + "(document.querySelector('.slide.on .art'))")
+    tile = page.eval(BOX + "(" + TILE_OF_CURRENT + ")")
+    assert all(abs(a - b) <= 2 for a, b in zip(art, tile)), (art, tile)
+
+
+@pytest.mark.parametrize("w, h, mobile", [(915, 412, True), (1280, 600, False), (800, 600, False)])
+def test_text_clears_caption_on_short_screens(browser, site, w, h, mobile):
+    page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
+    page.wait(0.8)
+    assert rect(page, ".intro-text")["bottom"] <= rect(page, ".hero .caption")["top"]
+    assert page.eval("document.documentElement.scrollWidth <= innerWidth")
+    assert not page.eval("document.documentElement.classList.contains('sda')")
+
+
+def test_album_does_not_jump_on_hover(browser, site):
+    page = open_home(browser, site, dict(width=880, height=1000, mobile=False))
+    page.scroll_to(1000)
+    page.wait(0.6)
+    tops = []
+    for k in range(page.eval("document.querySelectorAll('.tile').length")):
+        page.hover('.tile[data-i="%d"]' % k)
+        tops.append(round(rect(page, ".wall")["top"]))
+    assert max(tops) - min(tops) <= 1, tops
+
+
+ZOOM = r"(m => m ? Math.hypot(+m[1], +m[2]) : 1)(getComputedStyle(document.querySelector('.slide.on .art')).transform.match(/matrix\(([^,]+), ([^,]+)/))"
+
+
+def test_pause_stops_the_zoom(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(1)
+    page.click(".pause")
+    a = page.eval(ZOOM)
+    page.wait(2)
+    assert abs(page.eval(ZOOM) - a) < 0.002
+
+
+def test_pause_button_keeps_its_name(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    name = page.eval("document.querySelector('.pause').getAttribute('aria-label')")
+    page.click(".pause")
+    assert page.eval("document.querySelector('.pause').getAttribute('aria-label')") == name
+    assert page.eval("document.querySelector('.pause').getAttribute('aria-pressed')") == "true"
+
+
+@pytest.mark.parametrize("size", [(1440, 900), (1200, 800)])
+def test_shrink_boxes_match_exactly(browser, site, size):
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    if size != (1440, 900):
+        page.resize(*size, settle=0.6)
+    page.scroll_to(page.eval("innerHeight"))
+    page.wait(0.5)
+    art = page.eval(BOX + "(document.querySelector('.slide.on .art'))")
+    tile = page.eval(BOX + "(" + TILE_OF_CURRENT + ")")
+    assert all(abs(a - b) <= 2 for a, b in zip(art, tile)), (art, tile)

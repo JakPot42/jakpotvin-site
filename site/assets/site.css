@@ -134,18 +134,21 @@ body.home .top nav a:hover { color: #9fd3da; }
 .hero :is(.intro-text, .caption, .pause) { pointer-events: auto; }
 .slides { position: absolute; inset: 0; }
 .slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity 1s ease; }
+.slide:not(.on):not(.leaving) { visibility: hidden; }
 .slide.on { opacity: 1; }
 .slide .art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
-html[data-motion=full] .slide:is(.on, .leaving):not(.whole):not(.still) .art { animation: intro-zoom 6s linear both; }
+html[data-motion=full] .slide:is(.on, .leaving):not(.whole):not(.still) .art { animation: intro-zoom 6s linear both; animation-play-state: var(--zoom, running); }
+.slides.paused { --zoom: paused; }
 @keyframes intro-zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
 .slide.whole .bg { position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover; filter: brightness(.42) saturate(.85); }
 .slide.whole .art { inset: 84px max(4vw, 18px) 56px auto; margin: auto 0; width: min(calc(var(--w) * 1.5px), calc(100vw - max(4vw, 18px) - var(--edge) - min(540px, 44vw) - 5vw)); height: min(calc(100svh - 140px), calc(var(--h) * 1.5px)); object-fit: contain; object-position: right center !important; }
 .hero .shade { position: absolute; inset: 0;
-  background: linear-gradient(0deg, rgba(10, 9, 8, .55) 0%, rgba(10, 9, 8, 0) 32%), linear-gradient(90deg, rgba(10, 9, 8, .82) 0%, rgba(10, 9, 8, .45) 45%, rgba(10, 9, 8, 0) 75%); }
+  background: linear-gradient(0deg, rgba(10, 9, 8, .6) 0%, rgba(10, 9, 8, 0) 34%), linear-gradient(90deg, rgba(10, 9, 8, .86) 0%, rgba(10, 9, 8, .62) 45%, rgba(10, 9, 8, 0) 78%); }
 .intro-text { position: absolute; left: var(--edge); top: max(120px, 20svh); width: min(540px, 44vw); display: flex; flex-direction: column; gap: 16px; }
+.intro-text, .hero .caption { text-shadow: 0 1px 14px rgba(10, 9, 8, .55); }
 .intro h1 { color: #f6f2ea; font-size: clamp(48px, 6.4vw, 84px); }
 .hero .lede { color: #f4f1ea; }
-.hero .note { font-size: 16px; line-height: 1.55; color: rgba(244, 241, 234, .78); }
+.hero .note { font-size: 16px; line-height: 1.55; color: rgba(244, 241, 234, .92); }
 .hero a { color: #9fd3da; }
 .intro-links { display: none; }
 .hero .caption { position: absolute; left: var(--edge); bottom: max(28px, 6svh); width: min(540px, 44vw); display: flex; flex-direction: column; gap: 3px; padding-top: 12px; border-top: 1px solid rgba(244, 241, 234, .4); }
@@ -183,12 +186,14 @@ html.sda .intro { height: 200svh; }
 html.sda .intro-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 html.sda .hero { position: absolute; inset: 0; z-index: 2; height: auto; min-height: 0; background: none; }
 html.sda .hero::before { content: ""; position: absolute; inset: 0; background: #0e0d0c; animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 50svh; }
-html.sda .album { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: center; padding: 12svh var(--edge) 4svh; border: 0; }
+html.sda .album { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 12svh var(--edge) 4svh; border: 0; pointer-events: none; }
+html.sda.album-ready .album { pointer-events: auto; }
 html.sda .wall { height: min(72svh, 720px); }
 html.sda :is(.intro-text, .caption, .pause, .cue, .shade) { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 30svh; }
 html.sda .slide.whole .bg { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 0 40svh; }
 html.sda .slide.on { animation: sda-fade linear both; animation-timeline: scroll(root); animation-range: 94svh 100svh; }
 html.sda .slide.on .art { animation: into-tile linear both; animation-timeline: scroll(root); animation-range: 0 100svh; }
+html.sda .slide.whole .art { object-fit: cover; object-position: var(--pos) !important; }
 html.sda .tile { animation: tile-in linear both; animation-timeline: scroll(root); animation-range: 40svh 80svh; }
 html.sda .tile.current { animation-name: tile-handoff; animation-range: 92svh 100svh; }
 html.sda .album-caption { animation: sda-show linear both; animation-timeline: scroll(root); animation-range: 70svh 95svh; }
@@ -223,6 +228,13 @@ html.sda .album-caption { animation: sda-show linear both; animation-timeline: s
   .album-caption { margin: 14px 18px 0; gap: 2px 8px; }
   .album-caption .yr { font: 600 14px/1.4 var(--sans); }
   .album-caption .what { font-size: 15px; }
+}
+/* Short screens (a phone turned sideways, a short laptop window): the first screen's text and caption flow down the
+   screen instead of being placed, so they never overlap; the screen grows taller if it has to. home.js keeps the shrink off. */
+@media (max-height: 700px) {
+  .hero { height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 92px var(--edge) 28px; }
+  .intro-text, .hero .caption { position: relative; inset: auto; width: min(560px, 100%); }
+  .hero .cue { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .slide { transition: none; } }
 ol.index { list-style: none; margin: 30px 0 0; padding: 0; border-top: 1px solid var(--ink); }

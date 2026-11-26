@@ -200,7 +200,7 @@ def slide(i, p):
     bg = f'<img class="bg" src="assets/img/blur/{f}" alt="">' if whole else ""
     cls = "slide" + (" whole" if whole else "") + (" on" if i == 0 else "")
     return (f'<figure class="{cls}" data-i="{i}" {plate_data(p)}>{bg}'
-            f'<img class="art" {src} alt="{html.escape(alt)}" style="--w:{w};--h:{h};object-position:{pos}"></figure>')
+            f'<img class="art" {src} alt="" style="--w:{w};--h:{h};--pos:{pos};object-position:{pos}"></figure>')
 cols = ["".join(tile(i, p) for i, p in enumerate(PLATES) if p[8] == c) for c in range(4)]
 wall = "".join(f'<div class="col">{c}</div>' for c in cols)
 first = PLATES[0]
@@ -285,7 +285,7 @@ home = page("Jak Potvin", "", "home", f"""
 <section class="intro" aria-label="Introduction">
 <div class="intro-stage">
 <div class="hero">
-<div class="slides" data-current="0">
+<div class="slides" data-current="0" aria-hidden="true">
 {chr(10).join(slide(i, p) for i, p in enumerate(PLATES))}
 </div>
 <div class="shade" aria-hidden="true"></div>

@@ -68,7 +68,17 @@ def load(path, sections):
     """Read and check the file; every name in `sections` must be present and non-empty, and no other."""
     path = Path(path)
     fname = path.name
-    text = path.read_bytes().decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError:
+        raise SiteTextError(f"{fname}: the file is missing (looked for {path}).") from None
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError as e:
+        line = raw[:e.start].count(b"\n") + 1
+        raise SiteTextError(f"{fname} line {line}: the file is not saved as UTF-8; in Notepad use File, Save as, "
+                            "and choose Encoding: UTF-8.") from None
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     found = _sections(text, fname)
     wanted = {key(s): s for s in sections}
     for k, (name, n, paras, lines) in found.items():
