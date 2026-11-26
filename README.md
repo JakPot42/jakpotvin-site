@@ -49,10 +49,8 @@ A plate whose image file is missing is skipped, not an error.
 
 ## Before launch (15 December)
 
-- Contact email address (Contact section; currently "Email address to come").
 - The first essays, and a page format for them.
 - Links for the bottleneck map and mechdb, both currently "Published 15 December".
-- Remove the preview banner: the `DRAFT` constant in `build.py`.
 - Image sources to confirm. Paintings and drawings are faithful reproductions of public-domain works; photographs are credited on `plates.html`. These files came from copies Jak saved, so confirm the source and whether a photographer credit is wanted: Vitruvian Man (possibly Luc Viatour's photograph on Wikimedia Commons), School of Athens, Coronation of Charlemagne, Washington Crossing the Delaware, Napoleon Crossing the Alps (a small copy; a larger one would be better).
 - On launch day, recheck the facts about other people's work against their sources: on the atoms page, that the three preprints are from CBN Nano Technologies, that none is peer reviewed, and that none has been repeated by a second lab.
 - Optional: a larger ENIAC scan (the current file is 630 pixels wide).

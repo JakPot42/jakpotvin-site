@@ -3,8 +3,7 @@ import html, json, sys, pathlib
 
 COUNTS, CALC = sys.argv[1], sys.argv[2]
 OUT = pathlib.Path(__file__).parent / "site"
-DRAFT = ("Preview, not public yet. Still to add before launch: the contact address, the first essays, "
-         "and links to mechdb and the bottleneck map.")
+DRAFT = ""  # preview banner text; when empty, no banner is written
 ALBUM_JS = """<script>{
 const sec=document.querySelector('.album'), tiles=[...document.querySelectorAll('.tile')].sort((a,b)=>a.dataset.i-b.dataset.i);
 const ro=document.querySelector('.readout'), f={yr:ro.querySelector('.yr'),what:ro.querySelector('.what'),subj:ro.querySelector('.subj'),credit:ro.querySelector('.credit')};
@@ -40,6 +39,7 @@ def page(title, root, current, body, script=""):
     nav = [("Writing", f"{root}index.html#writing", "writing"), ("Projects", f"{root}index.html#projects", "projects"),
            ("Contact", f"{root}index.html#contact", "contact")]
     links = "".join(f'<a href="{h}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, h, k in nav)
+    banner = f'<div class="draft"><div class="wrap">{DRAFT}</div></div>\n' if DRAFT else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,8 +53,7 @@ def page(title, root, current, body, script=""):
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
 </head>
 <body>
-<div class="draft"><div class="wrap">{DRAFT}</div></div>
-<div class="wrap">
+{banner}<div class="wrap">
 <header class="top"><a class="name" href="{root}index.html">Jak Potvin</a><nav aria-label="Site">{links}</nav></header>
 {body}
 <footer>&copy; 2026 Jak Potvin. Built with AI coding tools (Claude). Picture credits: <a href="{root}plates.html">list of plates</a>.</footer>
@@ -325,7 +324,7 @@ home = page("Jak Potvin", "", "home", f"""
 <h2 id="contact-h">Contact</h2>
 <div class="stack">
 <p>If you have a correction, an argument, data, or a harder question, I would like to hear from you.</p>
-<p class="small">Email address to come with the launch. Code: <a href="https://github.com/JakPot42">github.com/JakPot42</a></p>
+<p class="small">Email: <a href="mailto:jak@jakpotvin.com">jak@jakpotvin.com</a>. Code: <a href="https://github.com/JakPot42">github.com/JakPot42</a></p>
 </div>
 </div>
 </section>
