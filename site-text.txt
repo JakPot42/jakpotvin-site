@@ -88,6 +88,15 @@ Atomically precise manufacturing is how the physical world catches up, and it st
 - The bottleneck map | Published 15 December
 - mechdb, the open dataset | On GitHub, 15 December
 
+# Featured projects: the few you most want people to see, shown under the atoms part, above the big number.
+# Nothing about them shows on the site until you add at least one line under [featured projects].
+# One project per line, written like this (without the # at the start):
+# - [Project name](https://github.com/JakPot42/project-name) | One line on what it does
+[featured heading]
+Featured projects
+
+[featured projects]
+
 # The big number above "Other software", which counts up when it comes into view.
 # Write the number, then + if you want one, then the word or words: 80+ projects
 [projects count]

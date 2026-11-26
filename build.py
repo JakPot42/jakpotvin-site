@@ -12,11 +12,13 @@ SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psych
 # ---------------------------------------------------------------- the words, from site-text.txt (Jak edits that file)
 SECTIONS = (["name", "page description", "tagline", "bio", "first screen links", "scroll cue", "writing intro", "writing note"]
             + [f"room note: {t}" for _, t in SUBJECTS]
-            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "projects count", "other software heading",
+            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "featured heading", "projects count", "other software heading",
                "other software text", "other software link", "areas", "contact text", "contact line", "footer", "page not found"])
+OPTIONAL = ["featured projects"]  # may be empty: nothing about it shows on the site until it has an item
 TEXT_FILE = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else pathlib.Path(__file__).parent / "site-text.txt"
 try:
-    TEXT = sitetext.load(TEXT_FILE, SECTIONS)
+    TEXT = sitetext.load(TEXT_FILE, SECTIONS, optional=OPTIONAL)
+    FEATURED = [sitetext.split_item(p) for p in TEXT[sitetext.key("featured projects")]]
     ATOMS_LINKS = [sitetext.split_item(p) for p in TEXT[sitetext.key("atoms links")]]
     AREAS = [sitetext.split_item(p) for p in TEXT[sitetext.key("areas")]]
     COUNT = re.match(r"^(\d+)(\+?)\s+(.+)$", " ".join(TEXT["projects count"]))
@@ -331,6 +333,16 @@ def ld(data):
 PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": _same})
              + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
 
+FEATURED_BLOCK = "" if not FEATURED else f"""<div class="split" style="margin-top:clamp(32px,4vw,56px)">
+<div class="stack">
+<h3>{one("featured heading")}</h3>
+</div>
+<ul class="links featured">
+{chr(10).join(link_item(t, d, "d") for t, d in FEATURED)}
+</ul>
+</div>
+"""
+
 home = page("Jak Potvin", "", "home", f"""
 <section class="intro" aria-label="Introduction">
 <div class="intro-stage">
@@ -383,7 +395,7 @@ home = page("Jak Potvin", "", "home", f"""
 </ul>
 </div>
 </div>
-<div class="split" style="margin-top:clamp(32px,4vw,56px)">
+{FEATURED_BLOCK}<div class="split" style="margin-top:clamp(32px,4vw,56px)">
 <div class="stack">
 <p class="count"><span class="n" data-to="{COUNT.group(1)}">{COUNT.group(1)}</span><span class="plus">{COUNT.group(2)}</span> <span class="lab">{sitetext.inline(COUNT.group(3))}</span></p>
 <h3>{one("other software heading")}</h3>

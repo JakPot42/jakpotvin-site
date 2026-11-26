@@ -201,3 +201,44 @@ def test_home_says_who_the_site_belongs_to():
     assert site["name"] == "Jak Potvin" and site["url"] == "https://jakpotvin.com/"
     for page in ("plates.html", "atoms/index.html", "404.html"):
         assert "application/ld+json" not in (SITE / page).read_text(encoding="utf-8"), page
+
+
+# ---------------------------------------------------------------- featured projects (Jak lists them in site-text.txt)
+
+def with_featured(tmp_path, items):
+    text = (ROOT / "site-text.txt").read_text(encoding="utf-8")
+    assert text.count("[featured projects]\n") == 1
+    p = tmp_path / "site-text.txt"
+    p.write_text(text.replace("[featured projects]\n", "[featured projects]\n" + "".join(i + "\n" for i in items), 1),
+                 encoding="utf-8", newline="\n")
+    return p
+
+
+def test_featured_projects_hidden_until_listed():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    assert 'class="links featured"' not in t and "Featured projects" not in t
+
+
+def test_featured_projects_listed(tmp_path):
+    items = ["- [Sample tracker](https://github.com/JakPot42/sample-tracker) | Tracks samples, & more",
+             "- Plain title | No link yet"]
+    try:
+        r = run_build(with_featured(tmp_path, items))
+        assert r.returncode == 0, r.stderr
+        t = (SITE / "index.html").read_text(encoding="utf-8")
+        block = re.search(r'<ul class="links featured">(.*?)</ul>', t, re.S).group(1)
+        assert '<a class="t" href="https://github.com/JakPot42/sample-tracker">Sample tracker</a>' in block
+        assert "Tracks samples, &amp; more" in block
+        assert '<span class="t">Plain title</span>' in block
+        assert t.index('id="projects-h"') < t.index("Featured projects") < t.index('class="count"')
+    finally:
+        assert run_build().returncode == 0
+
+
+def test_featured_item_without_bar_is_a_plain_error(tmp_path):
+    try:
+        r = run_build(with_featured(tmp_path, ["- [Sample](https://example.org) no bar"]))
+        assert r.returncode == 2 and 'needs " | "' in r.stderr and "Traceback" not in r.stderr, r.stderr
+    finally:
+        assert run_build().returncode == 0

@@ -64,8 +64,9 @@ def parse(text):
     return {k: v[2] for k, v in _sections(text).items()}
 
 
-def load(path, sections):
-    """Read and check the file; every name in `sections` must be present and non-empty, and no other."""
+def load(path, sections, optional=()):
+    """Read and check the file; every name in `sections` must be present and non-empty, and no other names but those
+    in `optional`, which may be missing or empty (they come back as empty lists)."""
     path = Path(path)
     fname = path.name
     try:
@@ -80,20 +81,24 @@ def load(path, sections):
                             "and choose Encoding: UTF-8.") from None
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     found = _sections(text, fname)
-    wanted = {key(s): s for s in sections}
+    wanted = {key(s): s for s in list(sections) + list(optional)}
+    may_be_empty = {key(s) for s in optional}
     for k, (name, n, paras, lines) in found.items():
         if k not in wanted:
-            raise SiteTextError(f"{fname} line {n}: unknown section [{name}]. The sections are: {', '.join(sections)}.")
+            raise SiteTextError(f"{fname} line {n}: unknown section [{name}]. The sections are: {', '.join(wanted.values())}.")
     for k, name in wanted.items():
-        if k not in found:
+        if k not in found and k not in may_be_empty:
             raise SiteTextError(f"{fname}: section [{name}] is missing.")
     for k, (name, n, paras, lines) in found.items():
-        if not paras:
+        if not paras and k not in may_be_empty:
             raise SiteTextError(f"{fname} line {n}: section [{name}] is empty.")
         for ln, line in lines:
             if any(d in line for d in LONG_DASHES):
                 raise SiteTextError(f"{fname} line {ln}: a long dash in [{name}]; use a comma, a colon or parentheses instead.")
-    return {k: v[2] for k, v in found.items()}
+    out = {k: v[2] for k, v in found.items()}
+    for k in may_be_empty:
+        out.setdefault(k, [])
+    return out
 
 
 def inline(text, root=""):

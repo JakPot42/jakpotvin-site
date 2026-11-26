@@ -154,3 +154,18 @@ def test_missing_file_message(tmp_path):
     with pytest.raises(SiteTextError) as e:
         load(tmp_path / "site-text.txt", ["name"])
     assert str(e.value).startswith("site-text.txt: the file is missing")
+
+
+def test_optional_section_may_be_empty_or_missing(tmp_path):
+    p = write(tmp_path, "[name]\nJak\n\n[featured projects]\n# none yet\n")
+    assert load(p, ["name"], optional=["featured projects"])["featured projects"] == []
+    p = write(tmp_path, "[name]\nJak\n")
+    assert load(p, ["name"], optional=["featured projects"])["featured projects"] == []
+    p = write(tmp_path, "[name]\nJak\n\n[featured projects]\n- [A](https://example.org/a) | Does a\n")
+    assert load(p, ["name"], optional=["featured projects"])["featured projects"] == ["[A](https://example.org/a) | Does a"]
+
+
+def test_optional_section_is_known_and_required_ones_still_checked(tmp_path):
+    p = write(tmp_path, "[featured projects]\n\n[name]\n")
+    with pytest.raises(SiteTextError, match=r"line 3: section \[name\] is empty"):
+        load(p, ["name"], optional=["featured projects"])
