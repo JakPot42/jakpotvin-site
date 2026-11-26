@@ -305,7 +305,7 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="split" style="margin-top:clamp(32px,4vw,56px)">
 <div class="stack">
 <h3>Other software</h3>
-<p class="small">More than eighty projects, most built from June to August 2026, in Python, Rust, C++ and TypeScript. Each runs on public or synthetic data; none is in production use.</p>
+<p class="small">More than eighty projects, in Python, Rust, C++ and TypeScript. Each runs on public or synthetic data; none is in production use.</p>
 <p class="small"><a href="https://github.com/JakPot42?tab=repositories">All of it on GitHub</a></p>
 </div>
 <ul class="links areas">
