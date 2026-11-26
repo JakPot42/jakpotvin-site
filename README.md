@@ -8,6 +8,7 @@ Jak Potvin's personal site. Static HTML, no framework, served from the `site/` f
 build.py            writes the HTML pages in site/ from the lists inside it
 data/counts.json    mechdb export (format mechdb-counts-2) used for the chart on the atoms page
 data/calculator.html  the Atom Factory Calculator, copied to site/atoms/calculator/ with a back link
+.github/workflows/pages.yml  publishes site/ to GitHub Pages on every push to main (it does not run build.py)
 site/               the published site
   index.html        home: the album, the ten subject rooms, projects, contact
   plates.html       list of plates: full picture credits
