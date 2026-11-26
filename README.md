@@ -31,6 +31,8 @@ pip install pillow
 python build.py data/counts.json data/calculator.html
 ```
 
+Tests: `pip install pytest`, then `python -m pytest` (the browser tests need Microsoft Edge).
+
 The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html` and `site/atoms/calculator/index.html`. A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
 
 ## How the home page works
