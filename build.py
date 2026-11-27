@@ -161,20 +161,24 @@ PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subjec
  ("", "bruegel-harvesters.jpg", "Peasants in a golden wheat field at harvest: some cut and bind the grain, others rest and eat together under a pear tree.", "1565", "Bruegel paints a village at harvest time", "Sociology", "#s-sociology", "Pieter Bruegel the Elder, The Harvesters, 1565. The Metropolitan Museum of Art, New York.", 0, 0, "55% 60%"),
  ("", "rembrandt-anatomy-lesson.jpg", "Dr Tulp, in a black hat, lifts the muscles of a dead man's forearm with forceps while seven surgeons in white ruffs lean in to watch.", "1632", "Dr Tulp shows Amsterdam's surgeons the muscles of the arm", "Biology and medicine", "#s-biology", "Rembrandt van Rijn, The Anatomy Lesson of Dr Nicolaes Tulp, 1632. Mauritshuis, The Hague.", 0, 0, "60% 42%"),
  ("", "alchemist-full.jpg", "An old alchemist kneels in a dark, vaulted laboratory, gazing at a glass flask that glows with white light; two assistants work by candlelight in the shadows behind him.", "1669", "Hennig Brand discovers phosphorus", "Physics and chemistry", "#s-physics", "Joseph Wright of Derby, The Alchemist Discovering Phosphorus, 1771, reworked 1795. Derby Museum and Art Gallery.", 0, 0, "60% 70%"),
+ ("", "gaspee-burning.jpg", "A British schooner burns on the water at dusk while men in rowing boats pull away from it.", "1772", "Rhode Islanders burn the British ship Gaspee", "", "", "Charles DeWolf Brownell, The Burning of the Gaspee, 1892. Rhode Island Historical Society, Providence.", 0, 0, "45% 45%"),  # first screen only
  ("", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 10%"),
  ("", "washington-crossing.jpg", "George Washington standing in a crowded rowing boat pushing through river ice, a flag behind him.", "1776", "Washington crosses the Delaware", "War and defense", "#s-warfare", "Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art, New York.", 0, 0, "35% 45%"),
  ("", "jenner-hillemacher.jpg", "A doctor leans in to vaccinate a small child held on its mother's lap in a farmhouse, while a young man and a girl watch.", "1796", "Jenner gives the first vaccination against smallpox", "Biology and medicine", "#s-biology", "Eugène-Ernest Hillemacher, Edward Jenner Vaccinating a Boy, 1884. Wellcome Collection, licensed CC BY 4.0.", 0, 0, "55% 50%"),
  ("", "napoleon-alps.jpg", "Napoleon in a billowing red cloak on a rearing white horse, pointing up toward a mountain pass; soldiers haul a cannon up the slope behind him.", "1800", "Napoleon crosses the Alps", "War and defense", "#s-warfare", "Jacques-Louis David, Napoleon Crossing the Alps, 1802 to 1803, one of five versions. Belvedere, Vienna.", 0, 0, "60% 30%"),
+ ("", "constitution-guerriere.jpg", "Two sailing warships fight in a rough sea; the British frigate's masts are shot away and its sails hang torn.", "1812", "USS Constitution defeats HMS Guerriere", "", "", "Thomas Birch, Engagement Between the Constitution and the Guerrière, 1813. Museum of Fine Arts, Boston.", 0, 0, "58% 60%"),  # first screen only
  ("", "goya-madhouse.jpg", "Inmates of an asylum, many half-naked, crowd a vaulted stone room lit by one high barred window; one wears a feathered headdress, another a tricorn hat.", "c. 1815", "Goya paints the inmates of a madhouse", "Psychology", "#s-psychology", "Francisco Goya, The Madhouse, c. 1814 to 1816, oil on panel. Real Academia de Bellas Artes de San Fernando, Madrid.", 0, 0, "58% 62%"),
  ("", "wanderer-sea-of-fog.jpg", "A man in a dark coat stands with his back to us on a rocky summit, looking out over a sea of fog with mountains rising through it.", "c. 1817", "Friedrich's wanderer looks out over a sea of fog", "Philosophy and religion", "#s-philosophy", "Caspar David Friedrich, Wanderer above the Sea of Fog, c. 1817. Hamburger Kunsthalle, Hamburg.", 0, 0, "50% 42%"),
  ("", "faraday-lecture.jpg", "Michael Faraday stands at a demonstration table before a packed, tiered lecture theatre, with Prince Albert and two young princes in the front row.", "1855", "Faraday gives a Christmas lecture at the Royal Institution", "Physics and chemistry", "#s-physics", "After Alexander Blaikley, Professor Faraday Lecturing at the Royal Institution, 27 December 1855. Royal Institution, London.", 0, 0, "62% 55%"),
  ("", "verne-earth-to-moon.jpg", "Engraving of a huge cone-shaped shell hung with American flags beside a tall crane, men in top hats looking on.", "1865", "Verne imagines a cannon shot to the Moon", "The future", "#s-future", "Henri de Montaut, illustration for Jules Verne, From the Earth to the Moon (1865), in an 1874 edition. National Library of Poland.", 0, 0, "50% 45%"),
  ("", "seurat-grande-jatte.jpg", "Parisians of every kind, in top hats, bustles and work clothes, resting and strolling on a sunny riverbank, painted in dots.", "1884", "Parisians of every class share a Sunday afternoon", "Sociology", "#s-sociology", "Georges Seurat, A Sunday on La Grande Jatte, 1884 to 1886. The Art Institute of Chicago.", 0, 0, "50% 50%"),
+ ("", "wright-first-flight.jpg", "The Wright Flyer, a biplane, lifts a few feet above the sand with Orville lying at the controls while Wilbur watches from the right.", "1903", "The Wright brothers make the first powered flight", "", "", "John T. Daniels, First flight of the Wright Flyer, Kill Devil Hills, North Carolina, 17 December 1903. Library of Congress.", 0, 0, "58% 40%"),  # first screen only
  ("", "ford-assembly-line.jpg", "Rows of workmen in caps bend over a long waist-high line, fitting parts onto round flywheels that slide along it.", "1913", "Ford's moving assembly line begins", "Economics", "#s-economics", "Workers on a Ford Motor Company assembly line, 1913. U.S. National Archives.", 0, 0, "45% 50%"),
  ("", "freud-halberstadt.jpg", "Sigmund Freud, grey-bearded, in a three-piece suit with a watch chain, holds a cigar and looks straight at the camera, one hand on his hip.", "c. 1921", "Freud, the founder of psychoanalysis", "Psychology", "#s-psychology", "Max Halberstadt, photograph of Sigmund Freud, c. 1921.", 0, 0, "50% 4%"),
  ("", "iwo-jima.jpg", "Six servicemen strain together to raise a pole flying the American flag on a rubble-strewn hilltop.", "1945", "Marines raise the flag on Iwo Jima", "War and defense", "#s-warfare", "Joe Rosenthal, Associated Press, Raising the Flag on Iwo Jima, 23 February 1945. U.S. National Archives.", 0, 0, "45% 50%"),
  ("", "eniac.jpg", "Two women stand at ENIAC's tall panels of switches, dials and cables, one reaching up to a setting.", "1946", "ENIAC, the first general-purpose electronic computer, is unveiled", "Technology and AI", "#s-tech", "Betty Jennings (left) and Frances Bilas prepare ENIAC for its public unveiling, February 1946. U.S. Army photograph.", 0, 0, "72% 50%"),
  ("", "kennedy-von-braun.jpg", "Wernher von Braun and President Kennedy look and point upward beside a model rocket, officials crowding around them.", "1963", "Von Braun shows Kennedy the Saturn rocket", "The future", "#s-future", "NASA photograph, Cape Canaveral, 16 November 1963.", 0, 0, "55% 35%"),
+ ("", "earthrise-apollo8.jpg", "The half-lit Earth rises above the grey horizon of the Moon against black space.", "1968", "Apollo 8 sees the Earth rise over the Moon", "", "", "William Anders, Earthrise, from Apollo 8 in orbit around the Moon, 24 December 1968. NASA.", 0, 0, "56% 45%"),  # first screen only
  ("", "berlin-wall-1989.jpg", "At night, floodlights show a graffiti-covered stretch of the Berlin Wall beside the Brandenburg Gate; a crane rises over a new gap in the wall where people gather.", "1989", "The Berlin Wall is opened at the Brandenburg Gate", "Political science", "#s-politics", "East and West Germans meet at a new opening in the Berlin Wall beside the Brandenburg Gate, after a crane lifted out a section, 21 December 1989. Photograph by SSgt F. Lee Corkran, U.S. Air Force.", 0, 0, "55% 55%"),
  ("", "atlas-detector.jpg", "The ATLAS particle detector in its underground hall: a huge cylinder of metal plates, pipes and cables, ringed by scaffolding and yellow walkways.", "2012", "ATLAS helps find the Higgs boson", "Physics and chemistry", "#s-physics", "The ATLAS detector at CERN&rsquo;s Large Hadron Collider, 2019. Photograph by SimonWaldherr, licensed CC BY-SA 4.0.", 0, 0, "60% 55%"),
  ("", "shibuya-crossing.jpg", "Seen from above, crowds stream in every direction across a scramble crossing between tall buildings covered in signs and screens.", "2017", "Crowds cross at Shibuya, Tokyo", "Sociology", "#s-sociology", "Shibuya Crossing, Tokyo, December 2017. Photograph by Mark D, licensed CC BY-SA 2.0.", 0, 0, "55% 65%"),
@@ -210,8 +214,12 @@ def roman(n):
         while n >= v: out += s; n -= v
     return out
 PLATES = [(roman(i + 1),) + p[1:] for i, p in enumerate(PLATES)]
-BANNER_FILE = "washington-crossing.jpg"  # the first screen's painting: credited, captioned with its room's link, shown in no room
-BANNER = next(p for p in PLATES if p[1] == BANNER_FILE)
+# the first screen's pictures, in the order they show (Washington first, then by date); credited, in no room.
+# Washington is also the link-preview card and the one picture a visitor without JavaScript sees.
+BANNER_FILES = ["washington-crossing.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg", "wright-first-flight.jpg",
+                "earthrise-apollo8.jpg"]
+BANNERS = [next(p for p in PLATES if p[1] == f) for f in BANNER_FILES if f in {q[1] for q in PLATES}]
+BANNER = BANNERS[0]
 NO = {p[1]: p[0] for p in PLATES}
 LATTICE_NO = roman(len(PLATES) + 1)
 SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexander-mosaic.jpg": "The Alexander Mosaic, Pompeii",
@@ -227,7 +235,9 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexa
     "freud-halberstadt.jpg": "Halberstadt, Sigmund Freud", "iwo-jima.jpg": "Rosenthal, Raising the Flag on Iwo Jima",
     "eniac.jpg": "U.S. Army, ENIAC", "kennedy-von-braun.jpg": "NASA, Kennedy and von Braun", "berlin-wall-1989.jpg": "U.S. Air Force, The Berlin Wall opened",
     "atlas-detector.jpg": "The ATLAS detector, CERN", "shibuya-crossing.jpg": "Shibuya Crossing, Tokyo", "summit-supercomputer.jpg": "Summit, Oak Ridge",
-    "sars-cov-2.jpg": "NIAID, SARS-CoV-2", "webb-cosmic-cliffs.jpg": "NASA, Webb's Cosmic Cliffs"}
+    "sars-cov-2.jpg": "NIAID, SARS-CoV-2", "webb-cosmic-cliffs.jpg": "NASA, Webb's Cosmic Cliffs",
+    "gaspee-burning.jpg": "Brownell, The Burning of the Gaspee", "constitution-guerriere.jpg": "Birch, Constitution and Guerrière",
+    "wright-first-flight.jpg": "Daniels, The first flight", "earthrise-apollo8.jpg": "Anders, Earthrise"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
     """The data-* attributes home.js reads for a painting's caption."""
@@ -250,13 +260,14 @@ def slide(p, on=False, eager=False, fill=False):
     fallback = f'<noscript><img class="art" src="assets/img/{f}" loading="lazy" {look}></noscript>' if on and not eager else ""
     return f'<figure class="{cls}" {plate_data(p)}>{bg}<img class="art" {src} {look}>{fallback}</figure>'
 first = BANNER
+BANNER_SLIDES = "".join(slide(p, on=(k == 0), eager=(k == 0)) for k, p in enumerate(BANNERS))  # the first eager, the rest lazy
 
 # ---------------------------------------------------------------- writing: one room per subject
 def room(anchor, title):
     """A subject's room: one screen tall. Its paintings (lazy; home.js loads them as the visitor nears the room) fill
     the screen behind the title, one at a time, and change by themselves every 6 seconds while half the room is on
     screen (home.js, which also adds the pause button); the caption names the painting showing, starting with the first."""
-    ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
+    ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] not in BANNER_FILES]
     slides = "".join(slide(p, on=(k == 0), fill=True) for k, p in enumerate(ps))
     cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
            f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
@@ -346,7 +357,7 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="intro-stage">
 <div class="hero">
 <div class="slides" aria-hidden="true">
-{slide(BANNER, on=True, eager=True)}
+{BANNER_SLIDES}
 </div>
 <div class="shade" aria-hidden="true"></div>
 <div class="intro-text">
@@ -514,6 +525,7 @@ FULL[LATTICE_NO] = "The top layer of a silicon crystal, drawn for this site."
 US_GOV = "Work of the U.S. government; public domain."
 NASA = "NASA images are generally not subject to copyright in the United States."
 NOTE_BY_FILE = {"eniac.jpg": US_GOV, "berlin-wall-1989.jpg": US_GOV, "kennedy-von-braun.jpg": NASA, "webb-cosmic-cliffs.jpg": NASA,
+    "earthrise-apollo8.jpg": NASA,
     "iwo-jima.jpg": "Public domain in the United States: its copyright was not renewed.",
     **{f: "Wikimedia Commons." for f in ("adam-smith-statue.jpg", "magna-carta.jpg", "death-of-caesar.jpg", "alexander-mosaic.jpg", "antikythera.jpg",
                                          "atlas-detector.jpg", "shibuya-crossing.jpg", "summit-supercomputer.jpg", "sars-cov-2.jpg")}}

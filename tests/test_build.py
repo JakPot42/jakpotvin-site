@@ -48,7 +48,7 @@ def test_outputs_lf_and_no_long_dashes():
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
     plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
-    assert len(plates) == 31
+    assert len(plates) == 35  # 30 in the rooms and Washington, and four more on the first screen
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
@@ -176,6 +176,13 @@ ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
     "s-future": ["verne-earth-to-moon.jpg", "kennedy-von-braun.jpg", "webb-cosmic-cliffs.jpg"],
 }
 BANNER = "washington-crossing.jpg"
+BANNER_FILES = ["washington-crossing.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg", "wright-first-flight.jpg",
+                "earthrise-apollo8.jpg"]  # the first screen, Washington first, then by date
+BANNER_CREDITS = [
+    "Charles DeWolf Brownell, The Burning of the Gaspee, 1892. Rhode Island Historical Society, Providence.",
+    "Thomas Birch, Engagement Between the Constitution and the Guerri" + chr(0xE8) + "re, 1813. Museum of Fine Arts, Boston.",
+    "John T. Daniels, First flight of the Wright Flyer, Kill Devil Hills, North Carolina, 17 December 1903. Library of Congress.",
+    "William Anders, Earthrise, from Apollo 8 in orbit around the Moon, 24 December 1968. NASA."]
 TAKEN_OUT = ["school-of-athens.jpg", "charcot-salpetriere.jpg", "coronation-charlemagne.jpg", "iron-rolling-mill.jpg",
              "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg",
              "vitruvian-man.jpg", "goya-sleep-of-reason.jpg"]
@@ -205,7 +212,8 @@ def test_paintings_taken_out_are_gone():
     pages = [p.read_text(encoding="utf-8") for p in SITE.rglob("*.html")]
     for f in TAKEN_OUT:
         assert not (SITE / "assets/img" / f).exists(), f
-        assert not any(f in page for page in pages), f
+        named = re.compile(r'["/]' + re.escape(f))  # the whole file name: wright-first-flight.jpg is not first-flight.jpg
+        assert not any(named.search(page) for page in pages), f
 
 
 SMALL_SOURCES = {"verne-earth-to-moon.jpg": 1338, "botticelli-augustine.jpg": 1775,  # the biggest scans there are
@@ -330,6 +338,34 @@ def test_orcid_sits_in_contact_with_its_icon_and_rel_me():
     icon = (SITE / "assets/orcid-id.svg").read_bytes()
     assert hashlib.sha256(icon).hexdigest() == ORCID_ICON_SHA256  # ORCID's own file, as provided, never changed
 
+
+def intro_slides(t):
+    start = t.index('<section class="intro"')
+    intro = t[start:t.index("</section>", start)]
+    return re.findall(r'<figure class="([^"]*)"[^>]*>(?:<img class="bg"[^>]*>)?<img class="art" ([^>]*)>', intro)
+
+
+def test_banner_pictures_in_order_washington_first():
+    assert run_build().returncode == 0
+    slides = intro_slides((SITE / "index.html").read_text(encoding="utf-8"))
+    assert [re.search(r'src="assets/img/([^"]+)"', a).group(1) for _, a in slides] == BANNER_FILES
+    first_cls, first = slides[0]
+    assert first_cls.split() == ["slide", "on"] and first.startswith('src="assets/img/washington-crossing.jpg" fetchpriority="high"')
+    for cls, attrs in slides[1:]:  # the rest wait in data-src: home.js loads one ahead
+        assert cls.split() == ["slide"] and attrs.startswith('data-src="') and " src=" not in " " + attrs.replace("data-src", ""), attrs
+
+
+def test_banner_pictures_belong_to_no_room():
+    assert run_build().returncode == 0
+    rooms = "".join(m.group(0) for m in ROOM_SECTION.finditer((SITE / "index.html").read_text(encoding="utf-8")))
+    assert rooms and not [f for f in BANNER_FILES if f in rooms]
+
+
+def test_banner_pictures_are_credited():
+    import html
+    assert run_build().returncode == 0
+    plates = html.unescape((SITE / "plates.html").read_text(encoding="utf-8"))
+    assert [c for c in BANNER_CREDITS if c not in plates] == []
 
 def test_research_sits_between_the_rooms_and_projects():
     assert run_build().returncode == 0
