@@ -36,7 +36,7 @@ Scroll
 Ten subjects, each with its own room. Scroll through them.
 
 [writing note]
-The first essays are coming soon.
+More essays are coming soon.
 
 # The note under each room's title, one per room.
 [room note: Philosophy and religion]

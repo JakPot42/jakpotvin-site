@@ -1,7 +1,8 @@
 """Build jakpotvin.com. Run from this folder: python build.py data/counts.json data/calculator.html (needs Pillow)."""
-import hashlib, html, json, re, sys, pathlib
+import hashlib, html, json, re, shutil, sys, pathlib
 
 import sitetext
+import texts
 
 COUNTS, CALC = sys.argv[1], sys.argv[2]
 OUT = pathlib.Path(__file__).parent / "site"
@@ -37,17 +38,47 @@ except sitetext.SiteTextError as e:
     print(e, file=sys.stderr)
     sys.exit(2)
 
+# ---------------------------------------------------------------- essays and papers: texts/<name>.md, its PDF beside it
+TEXTS_DIR = pathlib.Path(sys.argv[4]) if len(sys.argv) > 4 else pathlib.Path(__file__).parent / "texts"
+TEXTS = []  # each: slug (the file name), meta (its header), body (HTML), folder (essays or research: its address)
+for _src in sorted(TEXTS_DIR.glob("*.md")):
+    try:
+        _meta, _body = texts.parse(_src.read_text(encoding="utf-8"))
+    except texts.TextError as e:
+        print(f"{_src.name}: {e}", file=sys.stderr)
+        sys.exit(2)
+    if _meta["place"] != "research" and _meta["place"] not in dict(SUBJECTS):
+        print(f"{_src.name}: place is research or a room: {', '.join(a for a, _ in SUBJECTS)}", file=sys.stderr)
+        sys.exit(2)
+    if not (TEXTS_DIR / _meta["pdf"]).is_file():
+        print(f"{_src.name}: its PDF, {_meta['pdf']}, is not beside it in {TEXTS_DIR.name}/", file=sys.stderr)
+        sys.exit(2)
+    TEXTS.append({"slug": _src.stem, "meta": _meta, "body": _body,
+                  "folder": "research" if _meta["place"] == "research" else "essays"})
+# newest first; on the same day, research proposals and other papers before method notes; then by name
+TEXTS.sort(key=lambda t: t["slug"])
+TEXTS.sort(key=lambda t: t["meta"]["kind"].startswith("Method note"))
+TEXTS.sort(key=lambda t: t["meta"]["published"], reverse=True)
+# a research text heads the Papers list (its title links to its page, then the PDF); an essay is listed in its room
+PAPERS = [{"title": f"[{t['meta']['title']}](research/{t['slug']}/)", "status": t["meta"]["kind"], "summary": t["meta"]["summary"],
+           "links": [f"PDF: [{t['meta']['pdf']}](research/{t['slug']}/{t['meta']['pdf']})"]}
+          for t in TEXTS if t["folder"] == "research"] + PAPERS
+ESSAYS = {}
+for _t in TEXTS:
+    if _t["folder"] == "essays":
+        ESSAYS.setdefault(_t["meta"]["place"], []).append(_t)
+
 
 SITE_URL = "https://jakpotvin.com/"  # the live address; canonical links, the sitemap and link previews use it
 CARD = "assets/card.jpg"  # the picture link previews show (texts, LinkedIn, Slack); written by make_card() below
 NAME = " ".join(TEXT["name"])
 
 
-def social(title, url):
+def social(title, url, description=None, og_type="website"):
     """Head tags that give a page its address and its link preview card."""
-    t, d = html.escape(title), html.escape(" ".join(TEXT["page description"]))
+    t, d = html.escape(title), html.escape(description or " ".join(TEXT["page description"]))
     return (f'<link rel="canonical" href="{url}">\n'
-            f'<meta property="og:type" content="website">\n'
+            f'<meta property="og:type" content="{og_type}">\n'
             f'<meta property="og:site_name" content="{html.escape(NAME)}">\n'
             f'<meta property="og:title" content="{t}">\n'
             f'<meta property="og:description" content="{d}">\n'
@@ -83,7 +114,7 @@ ps.forEach(p=>{p.classList.add('settle');io.observe(p)})}}</script>"""
 MENU = [("Writing", "writing")] + ([("Research", "research")] if PAPERS else []) + [("Projects", "projects"), ("Contact", "contact")]
 
 
-def page(title, root, current, body, script="", home=False, url=None, head="", noindex=False):
+def page(title, root, current, body, script="", home=False, url=None, head="", noindex=False, description=None, og_type="website"):
     links = "".join(f'<a href="{root}index.html#{k}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, k in MENU)
     banner = f'<div class="draft"><div class="wrap">{DRAFT}</div></div>\n' if DRAFT else ""
     return f"""<!DOCTYPE html>
@@ -92,8 +123,8 @@ def page(title, root, current, body, script="", home=False, url=None, head="", n
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">
-{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}{ME_LINKS}<link rel="stylesheet" href="{root}assets/fonts/fonts.css{asset_v("assets/fonts/fonts.css")}">
+<meta name="description" content="{html.escape(description or " ".join(TEXT["page description"]))}">
+{social(title, url, description, og_type).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}{ME_LINKS}<link rel="stylesheet" href="{root}assets/fonts/fonts.css{asset_v("assets/fonts/fonts.css")}">
 <link rel="stylesheet" href="{root}assets/site.css{asset_v("assets/site.css")}">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
@@ -287,18 +318,28 @@ first = BANNER
 BANNER_SLIDES = "".join(slide(p, on=(k == 0), eager=(k == 0)) for k, p in enumerate(BANNERS))  # the first eager, the rest lazy
 
 # ---------------------------------------------------------------- writing: one room per subject
+def essay_list(items):
+    """A room's essays, under its title: each one's short title (a link to its page), its first sentence and its date."""
+    return ('<ul class="room-essays">' + "".join(
+        f'<li><a href="essays/{t["slug"]}/">{html.escape(t["meta"]["short"], quote=False)}</a>'
+        f'<span class="d">{html.escape(t["meta"]["summary"], quote=False)}</span>'
+        f'<span class="when">{html.escape(t["meta"]["date"], quote=False)}</span></li>' for t in items) + "</ul>")
+
+
 def room(anchor, title, note=None, cls="room"):
     """A subject's room: one screen tall. Its paintings (lazy; home.js loads them as the visitor nears the room) fill
     the screen behind the title, one at a time, and change by themselves every 6 seconds while half the room is on
     screen (home.js, which also adds the pause button); the caption names the painting showing, starting with the first."""
     ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] not in BANNER_FILES]
+    words = (essay_list(ESSAYS[anchor]) if anchor in ESSAYS  # a room with essays lists them in place of its note
+             else f'<p class="room-soon">{one("room note: " + title) if note is None else note}</p>')
     slides = "".join(slide(p, on=(k == 0), fill=True) for k, p in enumerate(ps))
     cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
            f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
     return (f'<section class="{cls}" id="{anchor}" aria-labelledby="{anchor}-h"><div class="room-stick">'
             f'<div class="room-bg" aria-hidden="true"><div class="slides">{slides}</div><div class="room-shade"></div></div>'
             f'<div class="room-words"><div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
-            f'<p class="room-soon">{one("room note: " + title) if note is None else note}</p></div>{cap}</div></div></section>')
+            f'{words}</div>{cap}</div></div></section>')
 OUT.mkdir(exist_ok=True)
 ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
 
@@ -600,8 +641,42 @@ not_found = page("Page not found | Jak Potvin", "/", "", f"""
 </section>
 """, noindex=True)
 (OUT / "404.html").write_text(not_found, encoding="utf-8", newline="\n")
+
+# ---------------------------------------------------------------- the essay and paper pages, each with its PDF
+for _f in ("essays", "research"):  # a text taken out of texts/ leaves no page behind
+    for _old in sorted((OUT / _f).iterdir()) if (OUT / _f).is_dir() else []:
+        if _old.name not in {t["slug"] for t in TEXTS if t["folder"] == _f}:
+            shutil.rmtree(_old)
+for _t in TEXTS:
+    _m, _slug, _folder = _t["meta"], _t["slug"], _t["folder"]
+    _url = f"{SITE_URL}{_folder}/{_slug}/"
+    _place = ('<a href="../../index.html#research">Research</a>' if _folder == "research"
+              else f'<a href="../../index.html#{_m["place"]}">{html.escape(dict(SUBJECTS)[_m["place"]], quote=False)}</a>')
+    _kb = round((TEXTS_DIR / _m["pdf"]).stat().st_size / 1024)
+    # data-added marks what the site adds around Jak's words (tools/check_text.py leaves it out of the word check)
+    _article = f"""<article class="text">
+<p class="text-place small" data-added>{_place}</p>
+<h1>{texts.inline(_m["title"], "../../")}</h1>
+<p class="text-by">{html.escape(NAME, quote=False)}</p>
+<p class="text-orcid small">{sitetext.inline(f"ORCID: [{_m['orcid']}]({_m['orcid']})", "../../")}</p>
+<p class="text-kind small">{html.escape(_m["kind"], quote=False)}</p>
+<p class="text-pdf small" data-added><a href="{html.escape(_m["pdf"], quote=True)}">Download the PDF</a> ({_kb} KB)</p>
+<div class="text-body">
+{_t["body"]}
+</div>
+</article>
+"""
+    _ld = ld({"@context": "https://schema.org", "@type": "ScholarlyArticle" if _folder == "research" else "Article",
+              "headline": _m["title"], "author": {"@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": [_m["orcid"]]},
+              "datePublished": _m["published"], "url": _url, "inLanguage": "en"})
+    _html = page(f"{_m['short']} | {NAME}", "../../", "research" if _folder == "research" else "writing", _article,
+                 url=_url, head=_ld, description=_m["summary"], og_type="article")
+    (OUT / _folder / _slug).mkdir(parents=True, exist_ok=True)
+    (OUT / _folder / _slug / "index.html").write_text(_html, encoding="utf-8", newline="\n")
+    shutil.copyfile(TEXTS_DIR / _m["pdf"], OUT / _folder / _slug / _m["pdf"])
 (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n", encoding="utf-8", newline="\n")
-ADDRESSES = [SITE_URL, SITE_URL + "atoms/", SITE_URL + "atoms/calculator/", SITE_URL + "plates.html"]
+ADDRESSES = ([SITE_URL, SITE_URL + "atoms/", SITE_URL + "atoms/calculator/", SITE_URL + "plates.html"]
+             + [f"{SITE_URL}{t['folder']}/{t['slug']}/" for t in TEXTS])
 (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"<url><loc>{a}</loc></url>\n" for a in ADDRESSES) + "</urlset>\n", encoding="utf-8", newline="\n")
 (OUT / "CNAME").write_text("jakpotvin.com\n", newline="\n")

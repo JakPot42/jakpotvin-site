@@ -13,10 +13,12 @@ ORCID_ICON_SHA256 = "195be086656233fc1a0089086d9190d28dc6abce39c2290612d1893233e
 SITE = ROOT / "site"
 
 
-def run_build(text_path=None):
+def run_build(text_path=None, texts_dir=None):
     args = [sys.executable, "build.py", "data/counts.json", "data/calculator.html"]
-    if text_path is not None:
-        args.append(str(text_path))
+    if text_path is not None or texts_dir is not None:
+        args.append(str(text_path or ROOT / "site-text.txt"))
+    if texts_dir is not None:
+        args.append(str(texts_dir))
     return subprocess.run(args, cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
 
 
@@ -335,7 +337,9 @@ def test_card_is_drawn_from_the_banner_with_the_name_on_a_dark_band():
 def test_sitemap_robots_and_404():
     assert run_build().returncode == 0
     sm = (SITE / "sitemap.xml").read_text(encoding="utf-8")
-    assert re.findall(r"<loc>([^<]+)</loc>", sm) == list(PAGES.values())
+    locs = re.findall(r"<loc>([^<]+)</loc>", sm)
+    assert locs[:len(PAGES)] == list(PAGES.values())  # the site's own pages, then each essay and paper
+    assert sorted(locs[len(PAGES):]) == sorted(f"https://jakpotvin.com/{f}/" for f in TEXT_PAGES)
     robots = (SITE / "robots.txt").read_text(encoding="utf-8")
     assert "User-agent: *" in robots and "Sitemap: https://jakpotvin.com/sitemap.xml" in robots
     nf = (SITE / "404.html").read_text(encoding="utf-8")
@@ -436,8 +440,10 @@ def test_research_stays_hidden_until_it_has_a_paper(tmp_path):
     start = text.index(chr(10) + "[research papers]" + chr(10)) + 1  # the heading line, not a note that names it
     empty = tmp_path / "site-text.txt"
     empty.write_text(text[:start] + "[research papers]\n" + text[text.index("\n[", start + 1):], encoding="utf-8")
+    no_texts = tmp_path / "texts"
+    no_texts.mkdir()
     try:
-        r = run_build(empty)
+        r = run_build(empty, no_texts)
         assert r.returncode == 0, r.stderr
         for page in ("index.html", "plates.html", "atoms/index.html", "atoms/calculator/index.html"):
             t = (SITE / page).read_text(encoding="utf-8")
@@ -516,3 +522,100 @@ def test_style_and_script_addresses_change_with_their_files():
         assert not re.search(r'assets/(site|fonts/fonts)\.css"', t), page
     assert f'src="assets/home.js?v={js}"' in (SITE / "index.html").read_text(encoding="utf-8")
     assert f'href="../../assets/fonts/fonts.css?v={fonts}"' in (SITE / "atoms/calculator/index.html").read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------- essays and papers (27 November 2026)
+
+TEXT_PAGES = {  # address folder: (title, kind line, summary)
+    "essays/offshoring-the-mind": (
+        "Offshoring the Mind: AI Dependence, Lost Capability and the Risk of a Cold Standoff Between Humans and AI",
+        "Version 1.0, November 2026",
+        "Handing thinking over to AI resembles handing manufacturing over to another country."),
+    "research/measuring-cognitive-hollowing": (
+        "Measuring Cognitive Hollowing: A Study Design for Unassisted Skill After AI Adoption",
+        "Research proposal, version 1.0, November 2026",
+        "Professionals in several fields complete standardized tasks with the AI switched off, before AI adoption and at "
+        "intervals of up to two years afterwards."),
+    "research/measuring-siege-mentality-in-ai": (
+        "Measuring Siege Mentality in AI Systems: A Calibration-Based Test",
+        "Research proposal, version 1.0, November 2026",
+        "Four studies are proposed: calibration of beliefs about human intentions; rigidity of those beliefs under evidence; "
+        "the effect of explained versus unexplained monitoring on beliefs, behavior and internal states; and the effect of "
+        "training text that depicts cooperation or hostility between humans and AI."),
+    "research/labeling-claims-by-kind-of-support": (
+        "Labeling Claims by Kind of Support: A Claim Table for Philosophical Writing",
+        "Method note, version 1.0, November 2026",
+        "This note sets out a simple discipline, used throughout the Universal Inquiry research program: every main claim in a "
+        "paper is listed in a table with its kind, its basis and its status, and no main claim may rest only on opinion."),
+}
+
+
+def test_text_pages_are_written_with_their_pdfs():
+    assert run_build().returncode == 0
+    for folder, (title, kind, _) in TEXT_PAGES.items():
+        slug = folder.split("/")[1]
+        t = (SITE / folder / "index.html").read_text(encoding="utf-8")
+        assert f"<h1>{title}</h1>" in t, folder
+        assert f">{kind}</p>" in t, folder
+        assert f'<a class="orcid" href="{ORCID}" rel="me">' in t, folder  # his ORCID line, as in the PDF
+        assert (SITE / folder / f"{slug}.pdf").read_bytes() == (ROOT / "texts" / f"{slug}.pdf").read_bytes(), folder
+        assert t.count('<nav aria-label="Site">') == 1 and ('aria-current=page>Research<' in t) == folder.startswith("research")
+
+
+def test_text_pages_tell_search_engines_what_they_are():
+    assert run_build().returncode == 0
+    for folder, (title, kind, summary) in TEXT_PAGES.items():
+        t = (SITE / folder / "index.html").read_text(encoding="utf-8")
+        head = t[:t.index("</head>")]
+        assert meta(head, "name", "description") == summary, folder  # its own description, not the site's
+        assert f'<link rel="canonical" href="https://jakpotvin.com/{folder}/">' in head, folder
+        assert meta(head, "property", "og:type") == "article", folder
+        assert '"datePublished":"2026-11-27"' in head and f'"sameAs":["{ORCID}"]' in head, folder
+    sm = (SITE / "sitemap.xml").read_text(encoding="utf-8")
+    for folder in TEXT_PAGES:
+        assert f"<loc>https://jakpotvin.com/{folder}/</loc>" in sm, folder
+
+
+def test_every_link_on_a_text_page_resolves():
+    assert run_build().returncode == 0
+    for folder in TEXT_PAGES:
+        page = SITE / folder / "index.html"
+        for ref in re.findall(r'(?:href|src)="([^"]+)"', page.read_text(encoding="utf-8")):
+            if ref.startswith(("https://", "http://", "mailto:", "#")):
+                continue
+            path = ref.split("#")[0].split("?")[0]
+            target = page.parent / path
+            if path.endswith("/"):
+                target = target / "index.html"
+            assert target.exists(), (folder, ref)
+
+
+def test_the_war_room_lists_its_essay():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    r = t.index('<section class="room" id="s-warfare"')
+    room = t[r:t.index("</section>", r)]
+    assert '<ul class="room-essays">' in room and '<a href="essays/offshoring-the-mind/">Offshoring the Mind</a>' in room
+    assert "Handing thinking over to AI resembles handing manufacturing over to another country." in room
+    assert "November 2026" in room and "Coming soon" not in room
+    for anchor in ROOM_PAINTINGS:
+        if anchor != "s-warfare":
+            r = t.index(f'id="{anchor}"')
+            assert "Coming soon" in t[r:t.index("</section>", r)], anchor  # the other rooms wait
+
+
+def test_papers_lists_the_three_texts_first():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    p = t.index('<section class="research-papers"')
+    papers = t[p:t.index("</section>", p)]
+    at = [papers.index(x) for x in ("Measuring Cognitive Hollowing:", "Measuring Siege Mentality in AI Systems:",
+                                     "Labeling Claims by Kind of Support:", "Predicting the adopted organisation")]
+    assert at == sorted(at)  # newest first; on the same day, the two proposals before the method note
+    for slug in ("measuring-cognitive-hollowing", "measuring-siege-mentality-in-ai", "labeling-claims-by-kind-of-support"):
+        assert f'href="research/{slug}/"' in papers and f'href="research/{slug}/{slug}.pdf"' in papers, slug
+
+
+def test_writing_note_says_more_are_coming():
+    assert run_build().returncode == 0
+    assert "More essays are coming soon." in (SITE / "index.html").read_text(encoding="utf-8")
