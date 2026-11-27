@@ -48,7 +48,7 @@ def test_outputs_lf_and_no_long_dashes():
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
     plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
-    assert len(plates) == 35  # 30 in the rooms and Washington, and four more on the first screen
+    assert len(plates) == 40  # 30 in the rooms and Washington, and nine more on the first screen
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
@@ -176,13 +176,19 @@ ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
     "s-future": ["verne-earth-to-moon.jpg", "kennedy-von-braun.jpg", "webb-cosmic-cliffs.jpg"],
 }
 BANNER = "washington-crossing.jpg"
-BANNER_FILES = ["washington-crossing.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg", "wright-first-flight.jpg",
-                "earthrise-apollo8.jpg"]  # the first screen, Washington first, then by date
+BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
+                "london-sewers-1859.jpg", "wright-first-flight.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg",
+                "f22-raptor.jpg"]  # the first screen, Washington first, then by date
 BANNER_CREDITS = [
     "Charles DeWolf Brownell, The Burning of the Gaspee, 1892. Rhode Island Historical Society, Providence.",
     "Thomas Birch, Engagement Between the Constitution and the Guerri" + chr(0xE8) + "re, 1813. Museum of Fine Arts, Boston.",
     "John T. Daniels, First flight of the Wright Flyer, Kill Devil Hills, North Carolina, 17 December 1903. Library of Congress.",
-    "William Anders, Earthrise, from Apollo 8 in orbit around the Moon, 24 December 1968. NASA."]
+    "William Anders, Earthrise, from Apollo 8 in orbit around the Moon, 24 December 1968. NASA.",
+    "Newton décompose la lumière au moyen d'un prisme de verre, wood engraving in Louis Figuier, Vies des savants illustres, 1876 edition. Wellcome Collection copy, scanned for the Internet Archive.",
+    "The main drainage of the Metropolis: the tunnels from Wick Lane, near Old Ford, Bow, wood engraving, The Illustrated London News, 1859. Wellcome Collection, licensed CC BY 4.0.",
+    "Laika before her orbital flight, 1957. Museum of Cosmonautics and the Moscow Main Archive, via Mos.ru, licensed CC BY 4.0.",
+    "NASA photograph, Marshall Space Flight Center, Huntsville, Alabama, September 1960.",
+    "Tech. Sgt. Steven Tucker, U.S. Air National Guard, an F-22 Raptor at Thunder Over New Hampshire, Pease Air National Guard Base, 11 September 2021."]
 TAKEN_OUT = ["school-of-athens.jpg", "charcot-salpetriere.jpg", "coronation-charlemagne.jpg", "iron-rolling-mill.jpg",
              "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg",
              "vitruvian-man.jpg", "goya-sleep-of-reason.jpg"]
@@ -262,6 +268,8 @@ CREATIVE_COMMONS = {  # file: (its credit names the maker and the licence, the l
     "jenner-hillemacher.jpg": ("Wellcome Collection, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
     "sars-cov-2.jpg": ("NIAID, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
     "summit-supercomputer.jpg": ("Photograph by Carlos Jones, ORNL, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
+    "london-sewers-1859.jpg": ("Wellcome Collection, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
+    "laika-1957.jpg": ("Museum of Cosmonautics and the Moscow Main Archive, via Mos.ru, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
 }
 
 
@@ -362,9 +370,8 @@ def test_banner_pictures_belong_to_no_room():
 
 
 def test_banner_pictures_are_credited():
-    import html
     assert run_build().returncode == 0
-    plates = html.unescape((SITE / "plates.html").read_text(encoding="utf-8"))
+    plates = re.sub(r" ([.,])", r"\1", visible_text(SITE / "plates.html"))  # the words a visitor reads (a licence name is a link)
     assert [c for c in BANNER_CREDITS if c not in plates] == []
 
 def test_research_sits_between_the_rooms_and_projects():

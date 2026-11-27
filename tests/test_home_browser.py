@@ -38,8 +38,9 @@ BANNER = "washington-crossing.jpg"
 STILL = ("none", "matrix(1, 0, 0, 1, 0, 0)")
 
 
-BANNER_FILES = ["washington-crossing.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg", "wright-first-flight.jpg",
-                "earthrise-apollo8.jpg"]
+BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
+                "london-sewers-1859.jpg", "wright-first-flight.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg",
+                "f22-raptor.jpg"]
 BANNER_EVERY = 4.0  # the first screen changes every 4 s while half of it is on screen
 BANNER_TICK = 4.7  # one change and a margin
 ARTS_WITH_SRC = "[...document.querySelectorAll('.intro .art')].map(a => !!a.getAttribute('src'))"
