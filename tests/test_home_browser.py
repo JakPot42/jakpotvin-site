@@ -619,6 +619,17 @@ def test_orcid_link_stays_whole_on_a_small_phone(browser, site):  # the iD icon 
 
 
 
+def test_papers_heading_is_as_big_as_the_other_section_headings(browser, site):  # not the size of a paper's own title
+    for cfg in (DESKTOP, PHONE):
+        page = open_home(browser, site, cfg, hash="#projects")
+        page.wait(1)
+        size = "parseFloat(getComputedStyle(document.querySelector('%s')).fontSize)"
+        papers = page.eval(size % ".research-papers h2")
+        assert papers == page.eval(size % "#projects-h") == page.eval(size % "#writing h2"), cfg
+        assert papers > page.eval(size % ".research-papers .paper h3"), cfg
+        assert page.eval("document.querySelector('.research-papers').getAttribute('aria-labelledby')") == "papers-h"
+
+
 def test_research_fits_a_small_phone(browser, site):  # long doi.org addresses, and a menu of four
     page = open_home(browser, site, dict(width=320, height=640, mobile=True), hash="#research")
     page.wait(1)

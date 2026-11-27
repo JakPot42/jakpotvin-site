@@ -352,10 +352,10 @@ def paper(p):
 
 PAPERS_HTML = "".join(paper(p) for p in PAPERS)
 RESEARCH = "" if not PAPERS else f"""<div class="rooms">{room("research", "Research", note=one("research line"), cls="room research-room")}</div>
-<section class="research-papers" aria-label="Papers">
+<section class="research-papers" aria-labelledby="papers-h">
 <div class="split">
 <div class="stack">
-<h3>Papers</h3>
+<h2 id="papers-h">Papers</h2>
 </div>
 <div class="stack papers">
 {PAPERS_HTML}</div>
