@@ -52,13 +52,12 @@ def test_banner_is_one_still_painting(browser, site, cfg):
     assert page.eval(caption) == before and page.eval(zoom) in STILL
 
 
-def test_banner_caption_names_the_painting_and_links_its_room(browser, site):
+def test_banner_caption_names_the_painting_and_no_room(browser, site):  # the banner is the background, not a room's
     page = open_home(browser, site, DESKTOP)
     q = "document.querySelector('.hero .caption %s').%s"
     assert page.eval(q % (".yr", "textContent")) == "1776"
     assert page.eval(q % (".what", "textContent")) == "Washington crosses the Delaware"
-    assert page.eval(q % (".subj", "getAttribute('href')")) == "#s-warfare"
-    assert page.eval(q % (".subj", "textContent")) == "War and defense"
+    assert page.eval("document.querySelector('.hero .caption .subj')") is None
     assert page.eval(q % (".credit", "textContent")) == "Leutze, Washington Crossing the Delaware"
 
 
@@ -484,7 +483,7 @@ def test_writing_follows_the_first_screen(browser, site, cfg):
 
 # ---------------------------------------------------------------- readable text over every painting (4.5 to 1, text hidden)
 
-HERO_TEXT = [".intro h1", ".intro .lede", ".intro .note", ".hero .caption .yr", ".hero .caption .what", ".hero .caption .subj", ".hero .caption .credit"]
+HERO_TEXT = [".intro h1", ".intro .lede", ".intro .note", ".hero .caption .yr", ".hero .caption .what", ".hero .caption .credit"]
 ROOM_TEXT = [".room-text h2", ".room-soon", ".caption .yr", ".caption .what", ".caption .credit"]
 NO_FADE = "document.head.insertAdjacentHTML('beforeend', '<style>.slide { transition: none !important; }</style>'); 1"
 LOADED = "(a => a.complete && a.naturalWidth ? 1 : new Promise(f => { a.onload = () => f(1); setTimeout(() => f(0), 5000); }))(document.querySelector('#%s .slide.on .art'))"

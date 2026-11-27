@@ -358,7 +358,6 @@ home = page("Jak Potvin", "", "home", f"""
 <div class="caption">
 <span class="yr">{first[3]}</span>
 <span class="what">{first[4]}</span>
-<a class="subj" href="{first[6]}">{first[5]}</a>
 <span class="credit">{SHORT[first[0]]}</span>
 </div>
 <p class="cue">{one("scroll cue")}</p>
