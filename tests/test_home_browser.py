@@ -573,7 +573,8 @@ def test_writing_follows_the_first_screen(browser, site, cfg):
 # ---------------------------------------------------------------- readable text over every painting (4.5 to 1, text hidden)
 
 HERO_TEXT = [".intro h1", ".intro .lede", ".intro .note", ".hero .caption .yr", ".hero .caption .what", ".hero .caption .credit"]
-ROOM_TEXT = [".room-text h2", ".room-soon", ".caption .yr", ".caption .what", ".caption .credit"]
+ROOM_TEXT = [".room-text h2", ".room-soon", ".room-essays a", ".room-essays .d", ".room-essays .when",
+             ".caption .yr", ".caption .what", ".caption .credit"]  # a room says Coming soon, or lists its essays
 NO_FADE = "document.head.insertAdjacentHTML('beforeend', '<style>.slide { transition: none !important; }</style>'); 1"
 LOADED = "(a => a.complete && a.naturalWidth ? 1 : new Promise(f => { a.onload = () => f(1); setTimeout(() => f(0), 5000); }))(document.querySelector('#%s .slide.on .art'))"
 
@@ -600,15 +601,18 @@ def test_room_text_is_readable_over_every_painting(browser, site, cfg):
     page.eval(NO_FADE)
     room_on_screen(page, "s-philosophy")
     page.click("#s-philosophy .pause")  # every room holds still while it is measured
-    low = []
+    low, essays = [], 0
     for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
         n = page.eval(f"document.querySelectorAll('#{rid} .slide').length")
+        present = page.eval(f"{json.dumps(ROOM_TEXT)}.filter(s => document.querySelector('#{rid} ' + s)).length")
         for k in range(n):
             set_painting(page, rid, k)
             assert page.eval(LOADED % rid) == 1, (rid, k)
             got = text_contrast(page, [f"#{rid} {s}" for s in ROOM_TEXT + [".pause span"]])
-            assert len(got) == len(ROOM_TEXT) + (n > 1), (rid, k, got)  # a room of one painting has no pause button
+            assert len(got) == present + (n > 1), (rid, k, got)  # a room of one painting has no pause button
+            essays += sum(1 for s in got if ".room-essays" in s)
             low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < (3 if s.endswith(".pause span") else 4.5)]
+    assert essays == 3 * 3  # the war room's essay list, measured over each of its three paintings
     assert low == []  # text 4.5 to 1, the pause icon 3 to 1
 
 
