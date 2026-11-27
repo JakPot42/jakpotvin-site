@@ -48,7 +48,7 @@ def test_outputs_lf_and_no_long_dashes():
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
     plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
-    assert len(plates) == 40  # 30 in the rooms and Washington, and nine more on the first screen
+    assert len(plates) == 45  # 30 in the rooms and Washington, and fourteen more on the first screen
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
@@ -177,8 +177,9 @@ ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
 }
 BANNER = "washington-crossing.jpg"
 BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
-                "london-sewers-1859.jpg", "wright-first-flight.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg",
-                "f22-raptor.jpg"]  # the first screen, Washington first, then by date
+                "ether-first-operation.jpg", "london-sewers-1859.jpg", "wright-first-flight.jpg", "fleming-gabain.jpg",
+                "marshall-plan-france.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg", "iphone-2007.jpg",
+                "f22-raptor.jpg", "starship-booster-catch.jpg"]  # the first screen, Washington first, then by date
 BANNER_CREDITS = [
     "Charles DeWolf Brownell, The Burning of the Gaspee, 1892. Rhode Island Historical Society, Providence.",
     "Thomas Birch, Engagement Between the Constitution and the Guerri" + chr(0xE8) + "re, 1813. Museum of Fine Arts, Boston.",
@@ -188,7 +189,12 @@ BANNER_CREDITS = [
     "The main drainage of the Metropolis: the tunnels from Wick Lane, near Old Ford, Bow, wood engraving, The Illustrated London News, 1859. Wellcome Collection, licensed CC BY 4.0.",
     "Laika before her orbital flight, 1957. Museum of Cosmonautics and the Moscow Main Archive, via Mos.ru, licensed CC BY 4.0.",
     "NASA photograph, Marshall Space Flight Center, Huntsville, Alabama, September 1960.",
-    "Tech. Sgt. Steven Tucker, U.S. Air National Guard, an F-22 Raptor at Thunder Over New Hampshire, Pease Air National Guard Base, 11 September 2021."]
+    "Tech. Sgt. Steven Tucker, U.S. Air National Guard, an F-22 Raptor at Thunder Over New Hampshire, Pease Air National Guard Base, 11 September 2021.",
+    "Robert C. Hinckley, The First Operation Under Ether, 1882 to 1893. Boston Medical Library in the Francis A. Countway Library of Medicine, Boston.",
+    "Ethel Gabain, Sir Alexander Fleming, FRS, the Discoverer of Penicillin, 1944. Imperial War Museums, London.",
+    "Marshall Plan aid arriving in France, 1949. Economic Cooperation Administration photograph, U.S. National Archives.",
+    "Steve Jobs introduces the iPhone at Macworld, San Francisco, 9 January 2007. Photograph by Blake Patterson, licensed CC BY 2.0.",
+    "The Super Heavy booster caught by the launch tower on Starship's fifth flight test, Starbase, Texas, 13 October 2024. Photograph by Steve Jurvetson, licensed CC BY 2.0."]
 TAKEN_OUT = ["school-of-athens.jpg", "charcot-salpetriere.jpg", "coronation-charlemagne.jpg", "iron-rolling-mill.jpg",
              "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg",
              "vitruvian-man.jpg", "goya-sleep-of-reason.jpg"]
@@ -270,6 +276,8 @@ CREATIVE_COMMONS = {  # file: (its credit names the maker and the licence, the l
     "summit-supercomputer.jpg": ("Photograph by Carlos Jones, ORNL, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
     "london-sewers-1859.jpg": ("Wellcome Collection, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
     "laika-1957.jpg": ("Museum of Cosmonautics and the Moscow Main Archive, via Mos.ru, licensed CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
+    "iphone-2007.jpg": ("Photograph by Blake Patterson, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
+    "starship-booster-catch.jpg": ("Photograph by Steve Jurvetson, licensed CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
 }
 
 
