@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ORCID = "https://orcid.org/0009-0000-1700-0435"
+DOI_PLAN, DOI_AMENDMENT = "https://doi.org/10.17605/OSF.IO/NAWZD", "https://doi.org/10.17605/OSF.IO/AGFY9"
 ORCID_ICON_SHA256 = "195be086656233fc1a0089086d9190d28dc6abce39c2290612d1893233e1f166"  # orcid.org/assets/vectors/orcid.logo.icon.svg
 SITE = ROOT / "site"
 
@@ -328,6 +329,41 @@ def test_orcid_sits_in_contact_with_its_icon_and_rel_me():
         assert 'rel="me"' not in (SITE / page).read_text(encoding="utf-8"), page
     icon = (SITE / "assets/orcid-id.svg").read_bytes()
     assert hashlib.sha256(icon).hexdigest() == ORCID_ICON_SHA256  # ORCID's own file, as provided, never changed
+
+
+def test_research_sits_between_the_rooms_and_projects():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    r = t.index('<section id="research"')
+    assert t.index('<section id="writing"') < t.index('<div class="rooms">') < r < t.index('<section id="projects"')
+    research = t[r:t.index("</section>", r)]
+    assert '<h2 id="research-h">Research</h2>' in research
+    assert research.index("research-h") < research.index(f'<a class="orcid" href="{ORCID}" rel="me">') < research.index("<h3>")
+    assert "<h3>Predicting the adopted organisation before simulating it (Study 2A)</h3>" in research
+    assert "Preregistered November 2026 " + chr(0xB7) + " Paper in preparation" in research
+    assert "Earlier work found that chemistries grown from lifeless conditions" in research
+    assert "which is what a law has to do." in research
+    assert f'Plan: <a href="{DOI_PLAN}">{DOI_PLAN}</a>' in research
+    assert f'Amendment: <a href="{DOI_AMENDMENT}">{DOI_AMENDMENT}</a>' in research
+    for page, root in (("index.html", ""), ("plates.html", ""), ("atoms/index.html", "../")):  # the pages with the site menu
+        nav = re.search(r'<nav aria-label="Site">(.*?)</nav>', (SITE / page).read_text(encoding="utf-8")).group(1)
+        assert re.findall(r">([A-Za-z]+)</a>", nav) == ["Writing", "Research", "Projects", "Contact"], page
+        assert f'href="{root}index.html#research"' in nav, page
+
+
+def test_research_stays_hidden_until_it_has_a_paper(tmp_path):
+    text = (ROOT / "site-text.txt").read_text(encoding="utf-8")
+    start = text.index(chr(10) + "[research papers]" + chr(10)) + 1  # the heading line, not a note that names it
+    empty = tmp_path / "site-text.txt"
+    empty.write_text(text[:start] + "[research papers]\n" + text[text.index("\n[", start + 1):], encoding="utf-8")
+    try:
+        r = run_build(empty)
+        assert r.returncode == 0, r.stderr
+        for page in ("index.html", "plates.html", "atoms/index.html"):
+            t = (SITE / page).read_text(encoding="utf-8")
+            assert 'id="research"' not in t and "#research" not in t, page
+    finally:
+        assert run_build().returncode == 0
 
 
 def test_home_says_who_the_site_belongs_to():

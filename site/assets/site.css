@@ -42,6 +42,10 @@ h3 { font-size: 24px; line-height: 1.2; }
 p { margin: 0; max-width: 64ch; }
 .lede { font-size: clamp(19px, 2vw, 22px); line-height: 1.5; }
 .small { font: 14px/1.5 var(--sans); color: var(--muted); }
+.papers { gap: 28px; }
+.paper > * + * { margin-top: 10px; }
+.paper + .paper { padding-top: 28px; border-top: 1px solid var(--rule); }
+.paper a { overflow-wrap: anywhere; }
 a.orcid { white-space: nowrap; }  /* ORCID's iD icon stays with its link */
 a.orcid img { display: inline-block; width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; }
 

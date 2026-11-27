@@ -20,15 +20,16 @@ SUBJECTS = [("s-philosophy", "Philosophy and religion"), ("s-psychology", "Psych
 # ---------------------------------------------------------------- the words, from site-text.txt (Jak edits that file)
 SECTIONS = (["name", "page description", "tagline", "bio", "first screen links", "scroll cue", "writing intro", "writing note"]
             + [f"room note: {t}" for _, t in SUBJECTS]
-            + ["atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "featured heading", "projects count", "other software heading",
+            + ["research line", "atoms heading", "atoms plate note", "atoms lede", "atoms text", "atoms links", "featured heading", "projects count", "other software heading",
                "other software text", "other software link", "areas", "contact text", "contact line", "footer", "page not found"])
-OPTIONAL = ["featured projects"]  # may be empty: nothing about it shows on the site until it has an item
+OPTIONAL = ["featured projects", "research papers"]  # may be empty: nothing about them shows on the site until they have an item
 TEXT_FILE = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else pathlib.Path(__file__).parent / "site-text.txt"
 try:
     TEXT = sitetext.load(TEXT_FILE, SECTIONS, optional=OPTIONAL)
     FEATURED = [sitetext.split_item(p) for p in TEXT[sitetext.key("featured projects")]]
     ATOMS_LINKS = [sitetext.split_item(p) for p in TEXT[sitetext.key("atoms links")]]
     AREAS = [sitetext.split_item(p) for p in TEXT[sitetext.key("areas")]]
+    PAPERS = sitetext.papers(TEXT_FILE)  # the Research section, and its menu link, show once there is one
     COUNT = re.match(r"^(\d+)(\+?)\s+(.+)$", " ".join(TEXT["projects count"]))
     if not COUNT:
         raise sitetext.SiteTextError("site-text.txt: [projects count] must start with a number, for example: 80+ projects")
@@ -79,8 +80,9 @@ ps.forEach(p=>{p.classList.add('settle');io.observe(p)})}}</script>"""
 
 
 def page(title, root, current, body, script="", home=False, url=None, head="", noindex=False):
-    nav = [("Writing", f"{root}index.html#writing", "writing"), ("Projects", f"{root}index.html#projects", "projects"),
-           ("Contact", f"{root}index.html#contact", "contact")]
+    nav = ([("Writing", f"{root}index.html#writing", "writing")]
+           + ([("Research", f"{root}index.html#research", "research")] if PAPERS else [])
+           + [("Projects", f"{root}index.html#projects", "projects"), ("Contact", f"{root}index.html#contact", "contact")])
     links = "".join(f'<a href="{h}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, h, k in nav)
     banner = f'<div class="draft"><div class="wrap">{DRAFT}</div></div>\n' if DRAFT else ""
     return f"""<!DOCTYPE html>
@@ -309,6 +311,26 @@ PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NA
                  "sameAs": _same})
              + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
 
+def paper(p):
+    """One paper in the Research section: its title, where it stands, its summary, and its links one per line."""
+    links = "<br>".join(sitetext.inline(line) for line in p["links"])
+    return (f'<article class="paper">\n<h3>{sitetext.inline(p["title"])}</h3>\n<p class="small">{sitetext.inline(p["status"])}</p>\n'
+            f'<p>{sitetext.inline(p["summary"])}</p>\n' + (f'<p class="small">{links}</p>\n' if links else "") + "</article>\n")
+
+
+PAPERS_HTML = "".join(paper(p) for p in PAPERS)
+RESEARCH = "" if not PAPERS else f"""<section id="research" aria-labelledby="research-h">
+<div class="split">
+<div class="stack">
+<h2 id="research-h">Research</h2>
+<p class="small">{one("research line")}</p>
+</div>
+<div class="stack papers">
+{PAPERS_HTML}</div>
+</div>
+</section>
+"""
+
 FEATURED_BLOCK = "" if not FEATURED else f"""<div class="split" style="margin-top:clamp(32px,4vw,56px)">
 <div class="stack">
 <h3>{one("featured heading")}</h3>
@@ -354,7 +376,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </section>
 {ROOMS}
-
+{RESEARCH}
 <section id="projects" aria-labelledby="projects-h">
 <div class="split">
 <div class="stack">

@@ -65,9 +65,8 @@ def parse(text):
     return {k: v[2] for k, v in _sections(text).items()}
 
 
-def load(path, sections, optional=()):
-    """Read and check the file; every name in `sections` must be present and non-empty, and no other names but those
-    in `optional`, which may be missing or empty (they come back as empty lists)."""
+def _read(path):
+    """The file's words, with Windows line ends made plain, or a SiteTextError saying what is wrong with the file."""
     path = Path(path)
     fname = path.name
     try:
@@ -80,8 +79,15 @@ def load(path, sections, optional=()):
         line = raw[:e.start].count(b"\n") + 1
         raise SiteTextError(f"{fname} line {line}: the file is not saved as UTF-8; in Notepad use File, Save as, "
                             "and choose Encoding: UTF-8.") from None
-    text = text.replace("\r\n", "\n").replace("\r", "\n")
-    found = _sections(text, fname)
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def load(path, sections, optional=()):
+    """Read and check the file; every name in `sections` must be present and non-empty, and no other names but those
+    in `optional`, which may be missing or empty (they come back as empty lists)."""
+    path = Path(path)
+    fname = path.name
+    found = _sections(_read(path), fname)
     wanted = {key(s): s for s in list(sections) + list(optional)}
     may_be_empty = {key(s) for s in optional}
     for k, (name, n, paras, lines) in found.items():
@@ -118,6 +124,37 @@ def inline(text, root=""):
         pos = m.end()
     out.append(html.escape(text[pos:], quote=False))
     return "".join(out)
+
+
+LINK_LINE = re.compile(r"^[^\[\]:]+:\s*\[[^\[\]]+\]\([^()\s]+\)$")  # Label: [words](address)
+
+
+def papers(path, section="research papers"):
+    """The papers in [research papers], in order, each a dict: title, status (where it stands), summary, and links (each
+    link line as written, Label: [words](address)). A paper starts with a line "- " and its title; the next line says
+    where it stands; then comes its summary, and last one line per link. No section, or an empty one: no papers."""
+    path = Path(path)
+    found = _sections(_read(path), path.name).get(key(section))
+    out = []
+    for n, line in (found[3] if found else []):
+        s = line.strip()
+        if line.startswith("- "):
+            out.append({"title": s[2:].strip(), "status": "", "summary": [], "links": [], "line": n})
+        elif not out:
+            raise SiteTextError(f'{path.name} line {n}: in [{found[0]}], each paper starts with a line "- " and its title.')
+        elif LINK_LINE.match(s):
+            out[-1]["links"].append(s)
+        elif out[-1]["links"]:
+            raise SiteTextError(f"{path.name} line {n}: in [{found[0]}], a paper's summary goes before its links.")
+        elif not out[-1]["status"]:
+            out[-1]["status"] = s
+        else:
+            out[-1]["summary"].append(s)
+    for p in out:
+        if not p["status"] or not p["summary"]:
+            raise SiteTextError(f'{path.name} line {p["line"]}: the paper "{p["title"][:40]}" needs a line saying where '
+                                "it stands, then its summary.")
+    return [{"title": p["title"], "status": p["status"], "summary": " ".join(p["summary"]), "links": p["links"]} for p in out]
 
 
 def split_item(paragraph):

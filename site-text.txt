@@ -68,6 +68,25 @@ Coming soon
 [room note: The future]
 Coming soon
 
+# The Research section, between the rooms and Projects. It shows, with its link in the menu, once
+# [research papers] has a paper. The line under its heading:
+[research line]
+ORCID: [https://orcid.org/0009-0000-1700-0435](https://orcid.org/0009-0000-1700-0435)
+
+# One block per paper, newest first. A block starts with "- " and the paper's title; the next line says where it
+# stands. Then its summary, and last one line per link, written Label: [address](address).
+[research papers]
+- Predicting the adopted organisation before simulating it (Study 2A)
+Preregistered November 2026 · Paper in preparation
+
+Earlier work found that chemistries grown from lifeless conditions adopt their
+smallest organisation, but that was only known after finding every stable state.
+This study asks whether the outcome can be predicted before the full dynamics
+are simulated, which is what a law has to do.
+
+Plan: [https://doi.org/10.17605/OSF.IO/NAWZD](https://doi.org/10.17605/OSF.IO/NAWZD)
+Amendment: [https://doi.org/10.17605/OSF.IO/AGFY9](https://doi.org/10.17605/OSF.IO/AGFY9)
+
 # Projects, the atoms part. The note is about the Alchemist painting, which hangs in the Physics room.
 [atoms heading]
 Atom by atom

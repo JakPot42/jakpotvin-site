@@ -526,6 +526,15 @@ def test_orcid_link_stays_whole_on_a_small_phone(browser, site):  # the iD icon 
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
 
 
+
+def test_research_fits_a_small_phone(browser, site):  # long doi.org addresses, and a menu of four
+    page = open_home(browser, site, dict(width=320, height=640, mobile=True), hash="#research")
+    page.wait(1)
+    assert page.eval("document.documentElement.scrollWidth <= innerWidth")
+    assert page.eval("[...document.querySelectorAll('#research a, .top a')].every(a => a.getBoundingClientRect().right <= innerWidth)")
+    assert page.eval("document.querySelector('#research h3').getBoundingClientRect().top") < 640
+
+
 # ---------------------------------------------------------------- final review: JavaScript turned off
 
 def test_rooms_without_javascript_show_their_first_painting(browser, site):

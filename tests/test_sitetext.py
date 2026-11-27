@@ -1,6 +1,6 @@
 import pytest
 
-from sitetext import SiteTextError, inline, load, parse, split_item
+from sitetext import SiteTextError, inline, load, papers, parse, split_item
 
 SAMPLE = """# A note for Jak
 [Name]
@@ -94,6 +94,47 @@ def test_typographic_quotes_allowed(tmp_path):
     got = load(write(tmp_path, f"[bio]\n{text}\n"), ["bio"])
     assert got["bio"] == [text]
     assert inline(text) == text
+
+
+PAPERS = """[research papers]
+- A title (Study 1)
+Preregistered November 2026 · Paper in preparation
+# a note for Jak
+First line of the summary
+continues here.
+
+Plan: [https://doi.org/10.1/A](https://doi.org/10.1/A)
+Amendment: [https://doi.org/10.1/B](https://doi.org/10.1/B)
+
+- Second paper
+Published
+Its summary.
+"""
+
+
+def test_papers_reads_each_block(tmp_path):
+    assert papers(write(tmp_path, PAPERS)) == [
+        {"title": "A title (Study 1)", "status": "Preregistered November 2026 " + chr(0xB7) + " Paper in preparation",
+         "summary": "First line of the summary continues here.",
+         "links": ["Plan: [https://doi.org/10.1/A](https://doi.org/10.1/A)",
+                   "Amendment: [https://doi.org/10.1/B](https://doi.org/10.1/B)"]},
+        {"title": "Second paper", "status": "Published", "summary": "Its summary.", "links": []}]
+
+
+def test_papers_without_the_section_is_no_papers(tmp_path):
+    assert papers(write(tmp_path, "[bio]\nx\n")) == []
+    assert papers(write(tmp_path, "[research papers]\n")) == []
+
+
+@pytest.mark.parametrize("text, says", [
+    ("[research papers]\nWords before any title\n", "line 2"),
+    ("[research papers]\n- Title only\n", "line 2.*needs"),
+    ("[research papers]\n- Title\nWhere it stands\n", "line 2.*needs"),
+    ("[research papers]\n- T\nS\nSummary\nPlan: [a](https://a.b)\nMore words after the links\n", "line 6"),
+])
+def test_papers_errors_name_the_line(tmp_path, text, says):
+    with pytest.raises(SiteTextError, match=says):
+        papers(write(tmp_path, text))
 
 
 def test_inline_escapes_html():
