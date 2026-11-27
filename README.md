@@ -83,10 +83,10 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 
 A plate whose image file is missing is skipped, not an error.
 
-## Before launch (15 December)
+## Before launch
 
 - The first essays, and a page format for them.
-- Links for the bottleneck map and mechdb, both currently "Published 15 December".
+- Links for the bottleneck map and mechdb, both currently "Coming soon".
 - On launch day, recheck the facts about other people's work against their sources: on the atoms page, that the three preprints are from CBN Nano Technologies, that none is peer reviewed, and that none has been repeated by a second lab.
 
 ## Rules for this site

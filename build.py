@@ -459,10 +459,10 @@ atoms_page = page("Atom by atom | Jak Potvin", "../", "projects", f"""
 <section aria-labelledby="build-h">
 <h2 id="build-h">What I build</h2>
 <ul class="links" style="margin-top:22px">
-<li><span class="t">mechdb</span><span class="d">An open dataset of atom-by-atom fabrication outcomes, each tied to its source. On GitHub from 15 December.</span></li>
+<li><span class="t">mechdb</span><span class="d">An open dataset of atom-by-atom fabrication outcomes, each tied to its source. Coming soon.</span></li>
 <li><span class="t">A verification budget</span><span class="d">A paper on how reliable each step, check and repair must be for a long build. In preparation.</span></li>
 <li><a class="t" href="calculator/index.html">Atom Factory Calculator</a><span class="d">Good parts per day from measured rates, with every input labelled measured, estimated or made up.</span></li>
-<li><span class="t">The bottleneck map</span><span class="d">Each obstacle to this kind of manufacturing, with today&rsquo;s best number and the number needed. Published 15 December.</span></li>
+<li><span class="t">The bottleneck map</span><span class="d">Each obstacle to this kind of manufacturing, with today&rsquo;s best number and the number needed. Coming soon.</span></li>
 <li><span class="t">sidb-check</span><span class="d">A checker for published logic gates built from single silicon atoms. In preparation.</span></li>
 </ul>
 </section>
