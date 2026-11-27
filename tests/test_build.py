@@ -48,7 +48,7 @@ def test_outputs_lf_and_no_long_dashes():
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
     plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
-    assert len(plates) == 47  # 30 in the rooms and Washington, fifteen more on the first screen, and Research's
+    assert len(plates) == 49  # 30 in the rooms and Washington, fifteen more on the first screen, and Research's three
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
@@ -417,11 +417,16 @@ def test_research_opens_with_the_air_pump_like_a_room():
     t = (SITE / "index.html").read_text(encoding="utf-8")
     r = t.index('<section class="room research-room" id="research"')
     screen = t[r:t.index("</section>", r)]
-    assert screen.count('<figure class="slide') == 1 and 'data-src="assets/img/wright-air-pump.jpg"' in screen  # loads as it nears
+    assert re.findall(r'data-src="assets/img/([^"]+)"', screen) == [  # by date, each loading as the room nears
+        "wright-air-pump.jpg", "edelfelt-pasteur.jpg", "solvay-1927.jpg"]
     assert '<noscript><img class="art" src="assets/img/wright-air-pump.jpg"' in screen  # and shows without JavaScript
     assert '<span class="yr">1768</span> <span class="what">A lecturer pumps the air from a glass flask</span>' in screen
     assert '<span class="credit">Wright of Derby, An Experiment on a Bird in the Air Pump</span>' in screen
-    assert "Joseph Wright of Derby, An Experiment on a Bird in the Air Pump, 1768. The National Gallery, London." in visible_text(SITE / "plates.html")
+    plates = visible_text(SITE / "plates.html")
+    assert "Joseph Wright of Derby, An Experiment on a Bird in the Air Pump, 1768. The National Gallery, London." in plates
+    assert "Albert Edelfelt, Louis Pasteur, 1885. Musée d'Orsay, Paris." in plates
+    assert ("Benjamin Couprie, the Fifth Solvay Conference on Electrons and Photons, Brussels, October 1927. "
+            "Institut International de Physique Solvay. Public domain in the United States: published in 1927.") in plates
     intro = t[t.index('<nav class="intro-links"'):t.index("</nav>", t.index('<nav class="intro-links"'))]
     assert re.findall(r'href="(#[a-z]+)"', intro) == ["#projects", "#writing", "#research"]  # the first screen's buttons
 

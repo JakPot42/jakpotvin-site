@@ -190,6 +190,9 @@ def all_pressed(page, value):
     return page.eval("[...document.querySelectorAll('.room .pause')].every(b => b.getAttribute('aria-pressed') === %s)" % json.dumps(value))
 
 
+SHOWS = "[...document.querySelectorAll('.room')].filter(r => r.querySelectorAll('.slide').length > 1).length"  # rooms of more than one picture
+
+
 def set_painting(page, rid, k):
     """Show painting k of room rid directly (its caption filled from the painting's data), scroll the room to the top of
     the screen and wait until the painting has loaded: for measuring what a painting looks like, not how rooms change."""
@@ -261,7 +264,7 @@ def test_one_pause_holds_the_banner_and_the_rooms(browser, site):  # Review Focu
     page = open_home(browser, site, DESKTOP)
     page.wait(0.5)
     page.click(".intro .pause")
-    assert set(page.eval(pressed)) == {"true"} and len(page.eval(pressed)) == 11
+    assert set(page.eval(pressed)) == {"true"} and len(page.eval(pressed)) == 1 + page.eval(SHOWS) == 12  # the first screen's and each room's
     page.wait(BANNER_TICK)
     assert on_index(page, "intro") == 0
     room_on_screen(page, "s-economics")
@@ -439,7 +442,7 @@ def test_room_skips_a_painting_that_failed_to_load(browser, site):
 @pytest.mark.parametrize("w, h, mobile", [(1440, 900, False), (412, 915, True), (915, 412, True), (1280, 600, False)])
 def test_pause_button_is_a_named_button_clear_of_the_words(browser, site, w, h, mobile):  # Review Focus 3
     page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
-    assert page.eval("document.querySelectorAll('.room .pause').length") == 10
+    assert page.eval("document.querySelectorAll('.room .pause').length") == page.eval(SHOWS) == 11  # each room of more than one picture
     assert page.eval("[...document.querySelectorAll('.room .pause')].every(b => b.tagName === 'BUTTON' && b.type === 'button'"
                      " && b.getAttribute('aria-label') === 'Pause the paintings' && !b.closest('[aria-hidden]'))")
     assert page.eval("(b => { b.focus(); return document.activeElement === b; })(document.querySelector('#s-politics .pause'))")

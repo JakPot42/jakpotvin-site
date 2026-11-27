@@ -178,9 +178,11 @@ PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subjec
  ("", "london-sewers-1859.jpg", "Workmen and engineers in top hats stand on scaffolding among the great brick arches of new sewer tunnels being built.", "1859", "London builds Bazalgette's main drainage sewers", "", "", "The main drainage of the Metropolis: the tunnels from Wick Lane, near Old Ford, Bow, wood engraving, The Illustrated London News, 1859. Wellcome Collection, licensed CC BY 4.0.", 0, 0, "55% 40%"),  # first screen only
  ("", "verne-earth-to-moon.jpg", "Engraving of a huge cone-shaped shell hung with American flags beside a tall crane, men in top hats looking on.", "1865", "Verne imagines a cannon shot to the Moon", "The future", "#s-future", "Henri de Montaut, illustration for Jules Verne, From the Earth to the Moon (1865), in an 1874 edition. National Library of Poland.", 0, 0, "50% 45%"),
  ("", "seurat-grande-jatte.jpg", "Parisians of every kind, in top hats, bustles and work clothes, resting and strolling on a sunny riverbank, painted in dots.", "1884", "Parisians of every class share a Sunday afternoon", "Sociology", "#s-sociology", "Georges Seurat, A Sunday on La Grande Jatte, 1884 to 1886. The Art Institute of Chicago.", 0, 0, "50% 50%"),
+ ("", "edelfelt-pasteur.jpg", "Louis Pasteur, grey-bearded and in a black coat, holds up a glass jar to study it at a laboratory bench crowded with flasks and bottles.", "1885", "Pasteur at work in his laboratory on a vaccine for rabies", "Research", "#research", "Albert Edelfelt, Louis Pasteur, 1885. Musée d'Orsay, Paris.", 0, 0, "46% 22%"),
  ("", "wright-first-flight.jpg", "The Wright Flyer, a biplane, lifts a few feet above the sand with Orville lying at the controls while Wilbur watches from the right.", "1903", "The Wright brothers make the first powered flight", "", "", "John T. Daniels, First flight of the Wright Flyer, Kill Devil Hills, North Carolina, 17 December 1903. Library of Congress.", 0, 0, "58% 40%"),  # first screen only
  ("", "ford-assembly-line.jpg", "Rows of workmen in caps bend over a long waist-high line, fitting parts onto round flywheels that slide along it.", "1913", "Ford's moving assembly line begins", "Economics", "#s-economics", "Workers on a Ford Motor Company assembly line, 1913. U.S. National Archives.", 0, 0, "45% 50%"),
  ("", "freud-halberstadt.jpg", "Sigmund Freud, grey-bearded, in a three-piece suit with a watch chain, holds a cigar and looks straight at the camera, one hand on his hip.", "c. 1921", "Freud, the founder of psychoanalysis", "Psychology", "#s-psychology", "Max Halberstadt, photograph of Sigmund Freud, c. 1921.", 0, 0, "50% 4%"),
+ ("", "solvay-1927.jpg", "Twenty-nine scientists in dark suits pose in three rows outside a stone building, Marie Curie and Albert Einstein among those seated in the front row.", "1927", "Einstein, Curie and Bohr meet to debate quantum physics", "Research", "#research", "Benjamin Couprie, the Fifth Solvay Conference on Electrons and Photons, Brussels, October 1927. Institut International de Physique Solvay.", 0, 0, "56% 70%"),
  ("", "fleming-gabain.jpg", "Alexander Fleming in a white coat works at a laboratory bench crowded with flasks, culture dishes and test tubes plugged with coloured cotton.", "1928", "Fleming discovers penicillin", "", "", "Ethel Gabain, Sir Alexander Fleming, FRS, the Discoverer of Penicillin, 1944. Imperial War Museums, London.", 0, 0, "35% 45%"),  # first screen only
  ("", "iwo-jima.jpg", "Six servicemen strain together to raise a pole flying the American flag on a rubble-strewn hilltop.", "1945", "Marines raise the flag on Iwo Jima", "War, strategy and defense", "#s-warfare", "Joe Rosenthal, Associated Press, Raising the Flag on Iwo Jima, 23 February 1945. U.S. National Archives.", 0, 0, "45% 50%"),
  ("", "eniac.jpg", "Two women stand at ENIAC's tall panels of switches, dials and cables, one reaching up to a setting.", "1946", "ENIAC, the first general-purpose electronic computer, is unveiled", "Technology and AI", "#s-tech", "Betty Jennings (left) and Frances Bilas prepare ENIAC for its public unveiling, February 1946. U.S. Army photograph.", 0, 0, "72% 50%"),
@@ -258,7 +260,8 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexa
     "f22-raptor.jpg": "Tucker, F-22 Raptor", "ether-first-operation.jpg": "Hinckley, The First Operation Under Ether",
     "fleming-gabain.jpg": "Gabain, Sir Alexander Fleming", "marshall-plan-france.jpg": "ECA, Marshall Plan aid in France",
     "iphone-2007.jpg": "Patterson, Jobs and the iPhone", "starship-booster-catch.jpg": "Jurvetson, The booster caught",
-    "wright-air-pump.jpg": "Wright of Derby, An Experiment on a Bird in the Air Pump", "balloon-1783.jpg": "Charles and Robert's balloon"}
+    "wright-air-pump.jpg": "Wright of Derby, An Experiment on a Bird in the Air Pump", "balloon-1783.jpg": "Charles and Robert's balloon",
+    "edelfelt-pasteur.jpg": "Edelfelt, Louis Pasteur", "solvay-1927.jpg": "Couprie, The Solvay Conference"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
     """The data-* attributes home.js reads for a painting's caption."""
@@ -544,8 +547,9 @@ FULL = {p[0]: p[7] for p in PLATES}
 FULL[NO["kennedy-von-braun.jpg"]] = "Wernher von Braun explains the Saturn rocket to President John F. Kennedy, Cape Canaveral, 16 November 1963. NASA photograph."
 FULL[LATTICE_NO] = "The top layer of a silicon crystal, drawn for this site."
 US_GOV = "Work of the U.S. government; public domain."
+PUBLISHED_1927 = "Public domain in the United States: published in 1927."
 NASA = "NASA images are generally not subject to copyright in the United States."
-NOTE_BY_FILE = {"eniac.jpg": US_GOV, "berlin-wall-1989.jpg": US_GOV, "kennedy-von-braun.jpg": NASA, "webb-cosmic-cliffs.jpg": NASA,
+NOTE_BY_FILE = {"solvay-1927.jpg": PUBLISHED_1927, "eniac.jpg": US_GOV, "berlin-wall-1989.jpg": US_GOV, "kennedy-von-braun.jpg": NASA, "webb-cosmic-cliffs.jpg": NASA,
     "earthrise-apollo8.jpg": NASA, "von-braun-office.jpg": NASA, "f22-raptor.jpg": US_GOV, "marshall-plan-france.jpg": US_GOV,
     "iwo-jima.jpg": "Public domain in the United States: its copyright was not renewed.",
     **{f: "Wikimedia Commons." for f in ("adam-smith-statue.jpg", "magna-carta.jpg", "death-of-caesar.jpg", "alexander-mosaic.jpg", "antikythera.jpg",
