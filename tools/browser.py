@@ -236,7 +236,9 @@ class Browser:
         self.cdp = _CDP(_WS(f"ws://127.0.0.1:{port}{path}"))
         return self
 
-    def open(self, url, width, height, mobile=False, reduced_motion=False, javascript=True):
+    def open(self, url, width, height, mobile=False, reduced_motion=False, javascript=True, kbps=None, latency=0):
+        """Open url in a fresh tab and wait for its load event. kbps (kilobits a second) and latency (ms) slow the
+        connection, as on a weak phone signal."""
         if self.page is not None:
             self.page.close()
         cdp = self.cdp
@@ -245,6 +247,9 @@ class Browser:
         for domain in ("Page.enable", "Runtime.enable", "Log.enable", "Network.enable"):
             cdp.call(domain, {}, s)
         cdp.call("Network.setCacheDisabled", {"cacheDisabled": True}, s)
+        if kbps:
+            cdp.call("Network.emulateNetworkConditions", {"offline": False, "latency": latency,
+                     "downloadThroughput": kbps * 1000 / 8, "uploadThroughput": kbps * 1000 / 8}, s)
         if self.no_scroll_timeline:
             cdp.call("Page.addScriptToEvaluateOnNewDocument", {"source": NO_SCROLL_TIMELINE}, s)
         page = Page(cdp, tid, s, mobile)

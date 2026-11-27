@@ -237,6 +237,16 @@ def test_banner_loads_one_picture_ahead(browser, site):  # Review Focus 2: a vis
     assert page.eval(ARTS_WITH_SRC) == [True, True, True] + [False] * (len(BANNER_FILES) - 3)
 
 
+def test_banner_waits_for_the_page_on_a_slow_connection(browser, site):  # final review: nothing starts ahead of Washington
+    page = browser.open(site.url("index.html"), **DESKTOP, kbps=1500, latency=100)  # the page takes longer than one change
+    entries = page.eval("performance.getEntriesByType('resource').filter(e => e.name.includes('/assets/img/') && !e.name.includes('/blur/'))"
+                        ".map(e => [e.name.split('/').pop(), e.startTime, e.responseEnd])")
+    washington = [e for e in entries if e[0] == BANNER]
+    assert len(washington) == 1
+    assert [name for name, start, _ in entries if name != BANNER and start < washington[0][2] - 1] == []
+    assert on_index(page, "intro") == 0
+
+
 def test_banner_skips_a_picture_that_failed_to_load(browser, site):  # Review Focus 1
     page = open_home(browser, site, DESKTOP)
     page.eval("(a => new Promise(f => { a.onerror = () => f(1); a.removeAttribute('data-src'); a.src = 'assets/img/missing.jpg'; }))"

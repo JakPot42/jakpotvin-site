@@ -85,7 +85,10 @@
       const n = room.slides.length;
       for (let k = 1; k < n; k++) {
         const i = (room.cur + k) % n, img = room.slides[i].querySelector('.art');
-        if (img.dataset.src) { fetchSlide(room, i); return; }  // its turn came before it was fetched: fetch it, try next tick
+        if (img.dataset.src) {  // its turn came before it was fetched: fetch it, but never ahead of the page itself
+          if (document.readyState === 'complete') fetchSlide(room, i);
+          return;  // try again at the next tick
+        }
         if (!img.complete) return;  // still loading: try again at the next tick
         if (img.naturalWidth > 0) { show(room, i); return; }
       }  // the others failed: stay
