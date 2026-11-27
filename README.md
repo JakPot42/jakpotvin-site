@@ -8,6 +8,8 @@ Jak Potvin's personal site. Static HTML, no framework, served from the `site/` f
 build.py            writes the HTML pages in site/ from the lists inside it and the words in site-text.txt
 site-text.txt       the words on the home page, the page description and the footer: edit these in Notepad
 sitetext.py         reads and checks site-text.txt for build.py
+texts/              each essay and paper: its PDF and its words (<name>.md), made into a page by build.py
+texts.py            reads and checks a texts/ source for build.py
 data/counts.json    mechdb export (format mechdb-counts-2) used for the chart on the atoms page
 data/calculator.html  the Atom Factory Calculator, copied to site/atoms/calculator/ with a back link
 .github/workflows/pages.yml  publishes site/ to GitHub Pages on every push to main (it does not run build.py)
@@ -46,7 +48,7 @@ Rebuild after editing `site.css`, `home.js` or `fonts.css` too: the pages ask fo
 
 Tests: `pip install pytest`, then `python -m pytest` (the browser tests need Microsoft Edge).
 
-The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html` and `site/atoms/calculator/index.html`. A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
+The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html`, `site/atoms/calculator/index.html` and the pages under `site/essays/` and `site/research/` (a text taken out of `texts/` loses its page). A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
 
 ## Editing the words
 
@@ -57,6 +59,21 @@ The words on the home page, the description search engines show, and the footer 
 3. Save, then ask Claude to push. Claude rebuilds the pages, runs the tests and the private-name scan, and pushes.
 
 If something in the file is wrong (a section renamed, a long dash), the build stops with one sentence saying which line to fix.
+
+## Adding an essay or a paper
+
+Each essay and paper is two files in `texts/`: its PDF, as Jak made it, and a source with the same words (`texts/<name>.md`). The build gives each a page in the site's style, puts the PDF beside it, and lists it: an essay in its room, in place of "Coming soon"; a paper at the top of Research's Papers list. The page's address comes from the file name: `essays/<name>/` for an essay, `research/<name>/` for a paper.
+
+1. Put the PDF in `texts/`.
+2. Write `texts/<name>.md`. It starts with a header between two lines of `---`:
+   - `title`, `short` (the title before its colon), `kind` (the version line, as the PDF has it), `date` (as the room shows it, for example November 2026), `published` (for search engines, for example 2026-11-27), `orcid`, `pdf` (the PDF's file name);
+   - `place`: `research` for a paper, or the room's anchor for an essay (`s-warfare`, `s-philosophy`, and so on: `SUBJECTS` in `build.py`);
+   - `summary`: one of the text's own sentences that makes sense alone. It shows in the room or the Papers list, and as the description search engines show.
+3. Then the text, in the small set of marks `texts.py` describes at its top: `##` and `###` headings, paragraphs, `**bold**`, `*italic*`, lists, tables, links. Anything else stops the build with its line number.
+4. Make the words from the PDF, never retyped: `pdftotext` (it comes with Git for Windows) gives the words; bold, italic and tables follow the PDF's pages.
+5. Rebuild, then check the page against its PDF: `python tools/check_text.py texts/<name>.pdf site/<essays or research>/<name>/index.html --order`. It counts every word on both sides and must say "the same words". Pass `--allow OLD=NEW` for a correction Jak approved, and for a real hyphen `pdftotext` drops at the end of a line (it reads "self-determination" split over two lines as "selfdetermination"). It also checks that each paragraph reads in the PDF's order.
+
+On a phone a wide table scrolls sideways in its own box; the page itself never does.
 
 ## How the home page works
 
@@ -74,7 +91,7 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 - **Link previews.** Every page carries its address (`canonical`) and the tags that texts, LinkedIn, Slack and the like read to show a card: the page's title, `[page description]` from `site-text.txt`, and `assets/card.jpg`. The build draws the card from the banner painting, darkened at the left and at the bottom, with `[name]` and the site address. `SITE_URL` in `build.py` holds the address.
 - **Who the site belongs to.** The home page tells search engines, in a form they read, the name, a job title (`JOB_TITLE` in `build.py`, never shown on the page), the address and the https links in `[contact line]` (the GitHub and ORCID links today; never the email). An ORCID link also gets a `rel="me"` line in every page's head, the calculator's too, which tells search engines the site and the ORCID record are the same person.
 - **ORCID links.** Any link in `site-text.txt` to an address starting `https://orcid.org/` shows ORCID's green iD icon, 16 pixels, just before the link, as ORCID's display guidelines ask (the full https address, with the icon). The icon and the link never part on a narrow screen.
-- **Sitemap.** `sitemap.xml` lists the four pages; `robots.txt` points to it. A new page needs its address added to `ADDRESSES` in `build.py`.
+- **Sitemap.** `sitemap.xml` lists the site's four pages and every essay and paper; `robots.txt` points to it. Another new page needs its address added to `ADDRESSES` in `build.py`. Each essay and paper page also has its own description (its `summary`) and tells search engines it is an article by Jak, with his ORCID.
 - **Google Search Console** (Jak's step, after the push that publishes these files): sign in at search.google.com/search-console, add jakpotvin.com as a Domain property, and copy the TXT record Google shows. Adding it in Cloudflare is the one DNS change this needs; Claude enters it only when Jak asks for that record. Once Google says verified, submit `https://jakpotvin.com/sitemap.xml` under Sitemaps.
 
 ### Adding a plate
@@ -88,7 +105,6 @@ A plate whose image file is missing is skipped, not an error.
 
 ## Before launch
 
-- The first essays, and a page format for them.
 - Links for the bottleneck map and mechdb, both currently "Coming soon".
 - On launch day, recheck the facts about other people's work against their sources: on the atoms page, that the three preprints are from CBN Nano Technologies, that none is peer reviewed, and that none has been repeated by a second lab.
 
