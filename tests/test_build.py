@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+ORCID = "https://orcid.org/0009-0000-1700-0435"
+ORCID_ICON_SHA256 = "195be086656233fc1a0089086d9190d28dc6abce39c2290612d1893233e1f166"  # orcid.org/assets/vectors/orcid.logo.icon.svg
 SITE = ROOT / "site"
 
 
@@ -314,6 +316,20 @@ def test_sitemap_robots_and_404():
     assert 'href="/index.html"' in nf and "/assets/site.css" in nf and '<meta name="robots" content="noindex">' in nf
 
 
+def test_orcid_sits_in_contact_with_its_icon_and_rel_me():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    start = t.index('<section id="contact"')
+    contact = t[start:t.index("</section>", start)]
+    assert (f'<a class="orcid" href="{ORCID}" rel="me"><img src="assets/orcid-id.svg" width="16" height="16" alt="">'
+            f'{ORCID}</a>') in contact
+    assert t[:t.index("</head>")].count(f'<link rel="me" href="{ORCID}">') == 1  # the same person, for search engines
+    for page in ("plates.html", "atoms/index.html", "404.html"):
+        assert 'rel="me"' not in (SITE / page).read_text(encoding="utf-8"), page
+    icon = (SITE / "assets/orcid-id.svg").read_bytes()
+    assert hashlib.sha256(icon).hexdigest() == ORCID_ICON_SHA256  # ORCID's own file, as provided, never changed
+
+
 def test_home_says_who_the_site_belongs_to():
     import json as _json
     assert run_build().returncode == 0
@@ -321,7 +337,8 @@ def test_home_says_who_the_site_belongs_to():
     found = [_json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', t, re.S)]
     person = next(d for d in found if d["@type"] == "Person")
     assert person["name"] == "Jak Potvin" and person["url"] == "https://jakpotvin.com/"
-    assert person["sameAs"] == ["https://github.com/JakPot42"]  # the https links in [contact line]; never the email
+    assert person["jobTitle"] == "Researcher and software designer"  # his choice; search engines only, never on the page
+    assert person["sameAs"] == ["https://github.com/JakPot42", ORCID]  # the https links in [contact line]; never the email
     site = next(d for d in found if d["@type"] == "WebSite")
     assert site["name"] == "Jak Potvin" and site["url"] == "https://jakpotvin.com/"
     for page in ("plates.html", "atoms/index.html", "404.html"):

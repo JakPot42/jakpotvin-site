@@ -302,7 +302,11 @@ def ld(data):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
 
 
-PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": _same})
+# and, for an ORCID record among them, a rel="me" line in the home page's head: the site and the record are one person
+ME_LINKS = "".join(f'<link rel="me" href="{html.escape(a, quote=True)}">\n' for a in _same if a.startswith(sitetext.ORCID))
+JOB_TITLE = "Researcher and software designer"  # for search engines only; never shown on the page
+PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "jobTitle": JOB_TITLE, "url": SITE_URL,
+                 "sameAs": _same})
              + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
 
 FEATURED_BLOCK = "" if not FEATURED else f"""<div class="split" style="margin-top:clamp(32px,4vw,56px)">
@@ -388,7 +392,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", home=True, url=SITE_URL, head=PERSON_LD)
+""", home=True, url=SITE_URL, head=PERSON_LD + ME_LINKS)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))

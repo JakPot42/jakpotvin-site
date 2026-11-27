@@ -125,8 +125,9 @@ More than eighty projects, in Python, Rust, C++ and TypeScript. Each runs on pub
 [contact text]
 If you have a correction, an argument, data, or a harder question, I would like to hear from you.
 
+# A link to orcid.org shows ORCID's small green iD icon by itself.
 [contact line]
-Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [github.com/JakPot42](https://github.com/JakPot42)
+Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [github.com/JakPot42](https://github.com/JakPot42). ORCID: [https://orcid.org/0009-0000-1700-0435](https://orcid.org/0009-0000-1700-0435)
 
 # The line at the very bottom of every page.
 [footer]

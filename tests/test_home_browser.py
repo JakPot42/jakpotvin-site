@@ -517,6 +517,15 @@ def test_room_text_is_readable_over_every_painting(browser, site, cfg):
     assert low == []  # text 4.5 to 1, the pause icon 3 to 1
 
 
+
+def test_orcid_link_stays_whole_on_a_small_phone(browser, site):  # the iD icon never parts from its link
+    page = open_home(browser, site, dict(width=320, height=640, mobile=True), hash="#contact")
+    page.wait(1)
+    assert page.eval("document.querySelector('#contact a.orcid').getClientRects().length") == 1
+    assert page.eval("(i => i.complete && i.naturalWidth > 0)(document.querySelector('#contact a.orcid img'))")
+    assert page.eval("document.documentElement.scrollWidth <= innerWidth")
+
+
 # ---------------------------------------------------------------- final review: JavaScript turned off
 
 def test_rooms_without_javascript_show_their_first_painting(browser, site):

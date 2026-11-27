@@ -24,6 +24,7 @@ site/               the published site
   assets/site.css   all styles
   assets/home.js    the home page's project reveal, and the rooms' changing paintings and pause buttons
   assets/card.jpg   the link preview picture (1200 by 630), written by the build; do not edit
+  assets/orcid-id.svg  ORCID's green iD icon, ORCID's own file (orcid.org/assets/vectors/orcid.logo.icon.svg); never edit it
   assets/img/       the plates (these are source files; build.py reads their sizes)
   assets/img/blur/  a blurred copy of each plate, written by the build (images.py); do not edit
   assets/fonts/     the fonts, served from the site itself (woff2: IBM Plex from IBM's own release,
@@ -70,7 +71,8 @@ If something in the file is wrong (a section renamed, a long dash), the build st
 ## Link previews and search engines
 
 - **Link previews.** Every page carries its address (`canonical`) and the tags that texts, LinkedIn, Slack and the like read to show a card: the page's title, `[page description]` from `site-text.txt`, and `assets/card.jpg`. The build draws the card from the banner painting, darkened at the left and at the bottom, with `[name]` and the site address. `SITE_URL` in `build.py` holds the address.
-- **Who the site belongs to.** The home page tells search engines, in a form they read, the name, the address and the https links in `[contact line]` (the GitHub link today; never the email).
+- **Who the site belongs to.** The home page tells search engines, in a form they read, the name, a job title (`JOB_TITLE` in `build.py`, never shown on the page), the address and the https links in `[contact line]` (the GitHub and ORCID links today; never the email). An ORCID link also gets a `rel="me"` line in the home page's head, which tells search engines the site and the ORCID record are the same person.
+- **ORCID links.** Any link in `site-text.txt` to an address starting `https://orcid.org/` shows ORCID's green iD icon, 16 pixels, just before the link, as ORCID's display guidelines ask (the full https address, with the icon). The icon and the link never part on a narrow screen.
 - **Sitemap.** `sitemap.xml` lists the four pages; `robots.txt` points to it. A new page needs its address added to `ADDRESSES` in `build.py`.
 - **Google Search Console** (Jak's step, after the push that publishes these files): sign in at search.google.com/search-console, add jakpotvin.com as a Domain property, and copy the TXT record Google shows. Adding it in Cloudflare is the one DNS change this needs; Claude enters it only when Jak asks for that record. Once Google says verified, submit `https://jakpotvin.com/sitemap.xml` under Sitemaps.
 

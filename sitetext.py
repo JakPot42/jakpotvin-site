@@ -11,6 +11,7 @@ HEADER = re.compile(r"^\[(.+)\]$")
 LINK = re.compile(r"\[([^\[\]]+)\]\(([^()\s]+)\)")
 LONG_DASHES = (chr(0x2013), chr(0x2014))
 ABSOLUTE = ("http:", "https:", "mailto:", "#", "/")
+ORCID = "https://orcid.org/"  # a link here shows ORCID's green iD icon (assets/orcid-id.svg, ORCID's own file) and says rel="me"
 
 
 class SiteTextError(Exception):
@@ -109,7 +110,11 @@ def inline(text, root=""):
         words, addr = m.group(1), m.group(2)
         if not addr.startswith(ABSOLUTE):
             addr = root + addr
-        out.append(f'<a href="{html.escape(addr, quote=True)}">{html.escape(words, quote=False)}</a>')
+        href, shown = html.escape(addr, quote=True), html.escape(words, quote=False)
+        if addr.startswith(ORCID):
+            out.append(f'<a class="orcid" href="{href}" rel="me"><img src="{root}assets/orcid-id.svg" width="16" height="16" alt="">{shown}</a>')
+        else:
+            out.append(f'<a href="{href}">{shown}</a>')
         pos = m.end()
     out.append(html.escape(text[pos:], quote=False))
     return "".join(out)

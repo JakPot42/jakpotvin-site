@@ -111,6 +111,13 @@ def test_inline_absolute_and_mailto_untouched():
     assert inline("[top](#projects)", "../") == '<a href="#projects">top</a>'
 
 
+def test_inline_orcid_link_shows_the_id_icon():  # ORCID asks for its green iD icon beside the full https link
+    addr = "https://orcid.org/0009-0000-1700-0435"
+    assert inline(f"ORCID: [{addr}]({addr})", "../") == (
+        f'ORCID: <a class="orcid" href="{addr}" rel="me"><img src="../assets/orcid-id.svg" width="16" height="16" alt="">{addr}</a>')
+    assert inline("[x](https://orcid.org.example.com/a)") == '<a href="https://orcid.org.example.com/a">x</a>'  # only orcid.org itself
+
+
 def test_inline_link_inside_sentence():
     assert inline("Email: [jak@jakpotvin.com](mailto:jak@jakpotvin.com). Code: [x](https://a.b/?q=1&r=2)") == (
         'Email: <a href="mailto:jak@jakpotvin.com">jak@jakpotvin.com</a>. Code: <a href="https://a.b/?q=1&amp;r=2">x</a>')
