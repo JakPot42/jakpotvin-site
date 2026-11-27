@@ -353,7 +353,7 @@ FEATURED_BLOCK = "" if not FEATURED else f"""<div class="split" style="margin-to
 """
 
 home = page("Jak Potvin", "", "home", f"""
-<section class="intro" aria-label="Introduction">
+<section class="intro" id="intro" aria-label="Introduction">
 <div class="intro-stage">
 <div class="hero">
 <div class="slides" aria-hidden="true">

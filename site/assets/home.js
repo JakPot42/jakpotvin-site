@@ -1,8 +1,9 @@
-/* jakpotvin.com home page: the projects reveal and count, and the rooms (each room's paintings change by themselves
-   every 6 seconds while half the room is on screen, with a pause button that holds every room; a room's paintings load
-   as the visitor nears it). The first screen is one still painting and needs no script.
-   With prefers-reduced-motion the projects stay in place, the rooms start paused and the paintings change without the
-   fade (site.css). */
+/* jakpotvin.com home page: the projects reveal and count, the first screen's pictures and the rooms. While half of it
+   is on screen the first screen changes picture every 4 seconds and each room every 6, with a pause button that holds
+   them all; a room's paintings load as the visitor nears it, the first screen's one picture ahead. Without the script
+   the first screen shows its first picture and each room its first painting.
+   With prefers-reduced-motion the projects stay in place, the pictures start paused and change without the fade
+   (site.css). */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -50,19 +51,25 @@
   }
 
   const EVERY = 6000;  // milliseconds between a room's paintings
+  const BANNER_EVERY = 4000;  // and between the first screen's pictures
 
-  // The rooms: each room is one screen and its paintings fill it behind the title, one at a time. While at least half
-  // of a room is on screen, and the page is neither hidden nor paused, its painting moves on every EVERY ms and loops,
-  // picking up where it stopped; a painting whose image failed is skipped, and one still loading is waited for. A room's
-  // paintings load when it is on screen, or, once the banner has loaded, when it comes within one screen. Each room with
-  // two or more paintings gets a pause button, and every button holds or lets go of every room.
-  function initRooms(wrap) {
-    const rooms = [...wrap.querySelectorAll('.room')].map(el => ({
-      el, slides: [...el.querySelectorAll('.slide')], cap: el.querySelector('.caption'), cur: 0, loaded: false, seen: false, timer: 0}));
+  // The first screen and the rooms: each is one screen and its pictures fill it behind the words, one at a time. While
+  // at least half of one is on screen, and the page is neither hidden nor paused, its picture moves on (the first screen
+  // every BANNER_EVERY ms, a room every EVERY) and loops, picking up where it stopped; a picture whose image failed is
+  // skipped, and one still loading is waited for. A room's paintings load when it is on screen, or, once the page has
+  // loaded, when it comes within one screen. The first screen loads one picture ahead: its second once the page has
+  // loaded, then the next each time it changes. Each with two or more pictures gets a pause button, and every button
+  // holds or lets go of them all.
+  function initRooms(els) {
+    const rooms = els.map(el => ({
+      el, slides: [...el.querySelectorAll('.slide')], cap: el.querySelector('.caption'), cur: 0, loaded: false, seen: false, timer: 0,
+      banner: el.classList.contains('intro')}));
+    const fetchArt = img => { img.src = img.dataset.src; img.removeAttribute('data-src'); };
+    const fetchSlide = (room, i) => { const img = room.slides[i].querySelector('.art[data-src]'); if (img) fetchArt(img); };
     const load = room => {
-      if (room.loaded) return;
+      if (room.loaded || room.banner) return;  // the first screen loads one picture ahead instead
       room.loaded = true;
-      room.el.querySelectorAll('.art[data-src]').forEach(img => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
+      room.el.querySelectorAll('.art[data-src]').forEach(fetchArt);
     };
     if (!('IntersectionObserver' in window)) { rooms.forEach(load); return; }  // every first painting, nothing moves
     let paused = reduced;
@@ -72,19 +79,21 @@
       room.slides[i].classList.add('on');
       room.cur = i;
       if (room.cap) fillCaption(room.cap, room.slides[i].dataset);
+      if (room.banner) fetchSlide(room, (i + 1) % room.slides.length);  // the next picture starts loading now
     };
     const step = room => {
       const n = room.slides.length;
       for (let k = 1; k < n; k++) {
         const i = (room.cur + k) % n, img = room.slides[i].querySelector('.art');
-        if (img.dataset.src || !img.complete) return;  // not loaded yet: try again at the next tick
+        if (img.dataset.src) { fetchSlide(room, i); return; }  // its turn came before it was fetched: fetch it, try next tick
+        if (!img.complete) return;  // still loading: try again at the next tick
         if (img.naturalWidth > 0) { show(room, i); return; }
       }  // the others failed: stay
     };
     const stop = room => { clearInterval(room.timer); room.timer = 0; };
     const start = room => {
       if (room.timer || !room.seen || paused || document.hidden || room.slides.length < 2) return;
-      room.timer = setInterval(() => step(room), EVERY);
+      room.timer = setInterval(() => step(room), room.banner ? BANNER_EVERY : EVERY);
     };
     const setPaused = p => {
       paused = p;
@@ -100,7 +109,7 @@
       b.setAttribute('aria-pressed', String(paused));
       b.appendChild(document.createElement('span'));
       b.addEventListener('click', () => setPaused(!paused));
-      room.el.querySelector('.room-stick').appendChild(b);
+      (room.el.querySelector('.room-stick') || room.el.querySelector('.hero')).appendChild(b);
       buttons.push(b);
     }
     const io = new IntersectionObserver(es => {
@@ -114,19 +123,20 @@
     rooms.forEach(room => io.observe(room.el));
     document.addEventListener('visibilitychange', () => rooms.forEach(room => (document.hidden ? stop(room) : start(room))));
     const lookAhead = () => {
+      rooms.forEach(room => { if (room.banner && room.slides.length > 1) fetchSlide(room, 1); });  // the first screen's second picture
       const near = new IntersectionObserver(es => {
         for (const e of es) if (e.isIntersecting) {
           load(rooms.find(room => room.el === e.target));
           near.unobserve(e.target);
         }
       }, {rootMargin: '100% 0px'});
-      rooms.forEach(room => { if (!room.loaded) near.observe(room.el); });
+      rooms.forEach(room => { if (!room.loaded && !room.banner) near.observe(room.el); });
     };
     if (document.readyState === 'complete') lookAhead(); else addEventListener('load', lookAhead);
   }
 
   const projects = document.querySelectorAll('#projects li, #projects h3, #projects .count');
   if (projects.length) initReveal(projects);
-  const rooms = document.querySelector('.rooms');
-  if (rooms) initRooms(rooms);
+  const pictures = [...document.querySelectorAll('.intro, .rooms .room')];  // the first screen, then the rooms
+  if (pictures.length) initRooms(pictures);
 })();

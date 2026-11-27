@@ -135,7 +135,7 @@ body.home .top nav a:hover { color: #9fd3da; }
 .intro { position: relative; width: 100vw; margin-left: calc(50% - 50vw); padding: 0; border: 0; }
 .intro-stage { position: relative; }
 .hero { position: relative; height: 100svh; min-height: 520px; overflow: hidden; color: #f4f1ea; background: #0e0d0c; pointer-events: none; }
-.hero :is(.intro-text, .caption) { pointer-events: auto; }
+.hero :is(.intro-text, .caption, .pause) { pointer-events: auto; }
 .slides { position: absolute; inset: 0; }
 .slide { position: absolute; inset: 0; margin: 0; opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s linear .6s; }
 .slide.on { opacity: 1; visibility: visible; transition: opacity .6s ease; }
@@ -157,6 +157,7 @@ body.home .top nav a:hover { color: #9fd3da; }
 .caption .subj { font: 600 13.5px/1.5 var(--sans); }
 .caption .credit { font: 12.5px/1.45 var(--sans); color: rgba(244, 241, 234, .66); }
 .caption .credit b { color: #f4f1ea; font-weight: 600; }
+.intro .hero .pause { right: var(--edge); }  /* in line with the menu above it (outranks the rooms' rule below) */
 .hero .cue { position: absolute; left: 50%; bottom: max(20px, 3svh); transform: translateX(-50%); margin: 0; font: 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 241, 234, .7); }
 
 
@@ -168,7 +169,8 @@ body.home .top nav a:hover { color: #9fd3da; }
   .hero .lede { font-size: 18px; line-height: 1.45; }
   .hero .note { font-size: 15px; line-height: 1.5; }
   .intro-links { display: flex; gap: 22px; font: 600 15px/1.4 var(--sans); }
-  .hero .caption { left: 18px; right: 18px; width: auto; bottom: 22px; flex-direction: row; flex-wrap: wrap; gap: 0 6px; padding-top: 8px; font: 13px/1.4 var(--sans); }
+  .intro .hero .pause { right: 18px; bottom: 20px; }  /* beside the caption */
+  .hero .caption { left: 18px; right: 72px; width: auto; bottom: 22px; flex-direction: row; flex-wrap: wrap; gap: 0 6px; padding-top: 8px; font: 13px/1.4 var(--sans); }
   .caption .yr { font: 600 13px/1.4 var(--sans); }
   .caption .what { font-size: 13px; line-height: 1.4; }
   .caption .subj, .caption .credit { display: none; }
@@ -180,6 +182,7 @@ body.home .top nav a:hover { color: #9fd3da; }
 @media (max-height: 700px) {
   .hero { height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 92px var(--edge) 28px; }
   .intro-text, .hero .caption { position: relative; inset: auto; width: min(560px, 100%); }
+  .hero .caption { max-width: calc(100% - 64px); }  /* room for the pause button beside it */
   .hero .cue { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .slide, .slide.on { transition: none; } }
@@ -205,10 +208,10 @@ html[data-motion=full] .reveal:not(.in) { opacity: 0; transform: translateY(28px
 .rooms { width: 100vw; margin-left: calc(50% - 50vw); color: #f3efe7; }
 .room { position: relative; height: 100svh; padding: 0; border: 0; background: #0e0d0c; scroll-margin-top: -24px; }
 .room-stick { position: relative; height: 100%; overflow: hidden; }
-.room .pause { position: absolute; right: max(4vw, 18px); bottom: max(28px, 6svh); display: grid; width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid rgba(244, 241, 234, .5); border-radius: 50%; background: rgba(10, 9, 8, .6); color: #f4f1ea; cursor: pointer; }
-.room .pause span { width: 12px; height: 14px; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
-.room .pause[aria-pressed=true] span { width: 0; height: 0; margin-left: 4px; border: 0; border-left: 13px solid currentColor; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
-.room .pause:focus-visible { outline: 2px solid #9fd3da; outline-offset: 3px; }
+:is(.room, .intro) .pause { position: absolute; right: max(4vw, 18px); bottom: max(28px, 6svh); display: grid; width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid rgba(244, 241, 234, .5); border-radius: 50%; background: rgba(10, 9, 8, .6); color: #f4f1ea; cursor: pointer; }
+:is(.room, .intro) .pause span { width: 12px; height: 14px; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
+:is(.room, .intro) .pause[aria-pressed=true] span { width: 0; height: 0; margin-left: 4px; border: 0; border-left: 13px solid currentColor; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+:is(.room, .intro) .pause:focus-visible { outline: 2px solid #9fd3da; outline-offset: 3px; }
 .room-bg, .room-bg .slides { position: absolute; inset: 0; }
 .room-shade { position: absolute; inset: 0;
   background: linear-gradient(0deg, rgba(10, 9, 8, .6) 0%, rgba(10, 9, 8, 0) 34%), linear-gradient(90deg, rgba(10, 9, 8, .86) 0%, rgba(10, 9, 8, .62) 45%, rgba(10, 9, 8, 0) 78%); }

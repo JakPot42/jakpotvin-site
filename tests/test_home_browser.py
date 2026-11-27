@@ -38,18 +38,11 @@ BANNER = "washington-crossing.jpg"
 STILL = ("none", "matrix(1, 0, 0, 1, 0, 0)")
 
 
-@pytest.mark.parametrize("cfg", [DESKTOP, PHONE, {**DESKTOP, "reduced_motion": True}], ids=["desktop", "phone", "desktop-rm"])
-def test_banner_is_one_still_painting(browser, site, cfg):
-    page = open_home(browser, site, cfg)
-    assert page.eval("document.querySelectorAll('.intro .slide').length") == 1
-    assert page.eval("document.querySelector('.intro .slide.on .art').getAttribute('src')") == "assets/img/" + BANNER
-    assert page.eval("document.querySelector('.intro .pause')") is None  # the banner has no pause button (the rooms do)
-    caption = "document.querySelector('.hero .caption').textContent"
-    zoom = "getComputedStyle(document.querySelector('.intro .slide .art')).transform"
-    before = page.eval(caption)
-    assert page.eval(zoom) in STILL
-    page.wait(6.5)
-    assert page.eval(caption) == before and page.eval(zoom) in STILL
+BANNER_FILES = ["washington-crossing.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg", "wright-first-flight.jpg",
+                "earthrise-apollo8.jpg"]
+BANNER_EVERY = 4.0  # the first screen changes every 4 s while half of it is on screen
+BANNER_TICK = 4.7  # one change and a margin
+ARTS_WITH_SRC = "[...document.querySelectorAll('.intro .art')].map(a => !!a.getAttribute('src'))"
 
 
 def test_banner_caption_names_the_painting_and_no_room(browser, site):  # the banner is the background, not a room's
@@ -217,6 +210,86 @@ def caption_matches(page, rid):
     return page.eval("(r => { const s = r.querySelector('.slide.on').dataset, c = r.querySelector('.caption');"
                      " return c.querySelector('.yr').textContent === s.yr && c.querySelector('.what').textContent === s.what"
                      " && c.querySelector('.credit').textContent === s.credit; })(document.getElementById(%s))" % json.dumps(rid))
+
+
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_banner_changes_every_four_seconds(browser, site, cfg):
+    page = open_home(browser, site, cfg)
+    assert page.eval("document.querySelectorAll('.intro .slide').length") == len(BANNER_FILES)
+    assert page.eval("document.querySelector('.intro .slide.on .art').getAttribute('src')") == "assets/img/" + BANNER
+    page.wait(1)
+    assert on_index(page, "intro") == 0
+    page.wait(BANNER_TICK - 1)
+    assert on_index(page, "intro") == 1 and caption_matches(page, "intro")
+    page.wait(BANNER_EVERY)
+    assert on_index(page, "intro") == 2 and caption_matches(page, "intro")
+    zoom = "getComputedStyle(document.querySelector('.intro .slide.on .art')).transform"
+    assert page.eval(zoom) in STILL  # it fades from one to the next; nothing zooms
+
+
+def test_banner_loads_one_picture_ahead(browser, site):  # Review Focus 2: a visitor who never waits fetches one more
+    page = open_home(browser, site, DESKTOP)
+    page.wait(1.5)
+    assert page.eval(ARTS_WITH_SRC) == [True, True] + [False] * (len(BANNER_FILES) - 2)
+    page.wait(BANNER_TICK - 1.5)
+    assert on_index(page, "intro") == 1
+    assert page.eval(ARTS_WITH_SRC) == [True, True, True] + [False] * (len(BANNER_FILES) - 3)
+
+
+def test_banner_skips_a_picture_that_failed_to_load(browser, site):  # Review Focus 1
+    page = open_home(browser, site, DESKTOP)
+    page.eval("(a => new Promise(f => { a.onerror = () => f(1); a.removeAttribute('data-src'); a.src = 'assets/img/missing.jpg'; }))"
+              "(document.querySelectorAll('.intro .art')[1])")
+    page.wait(BANNER_TICK + BANNER_EVERY)
+    assert on_index(page, "intro") == 2 and caption_matches(page, "intro")
+
+
+def test_one_pause_holds_the_banner_and_the_rooms(browser, site):  # Review Focus 3
+    pressed = "[...document.querySelectorAll('.pause')].map(b => b.getAttribute('aria-pressed'))"
+    page = open_home(browser, site, DESKTOP)
+    page.wait(0.5)
+    page.click(".intro .pause")
+    assert set(page.eval(pressed)) == {"true"} and len(page.eval(pressed)) == 11
+    page.wait(BANNER_TICK)
+    assert on_index(page, "intro") == 0
+    room_on_screen(page, "s-economics")
+    loaded(page, "s-economics")
+    page.wait(TICK)
+    assert on_index(page, "s-economics") == 0
+    page.click("#s-economics .pause")
+    assert set(page.eval(pressed)) == {"false"}
+    page.scroll_to(0)
+    page.wait(BANNER_TICK)
+    assert on_index(page, "intro") == 1 and caption_matches(page, "intro")
+
+
+def test_less_motion_starts_the_banner_paused(browser, site):
+    page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
+    assert page.eval("document.querySelector('.intro .pause').getAttribute('aria-pressed')") == "true"
+    page.wait(BANNER_TICK)
+    assert on_index(page, "intro") == 0
+
+
+@pytest.mark.parametrize("w, h, mobile", [(1440, 900, False), (412, 915, True), (320, 640, True), (915, 412, True), (1280, 600, False)])
+def test_banner_pause_is_a_named_button_clear_of_the_words(browser, site, w, h, mobile):  # Review Focus 4
+    page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
+    page.wait(0.5)
+    assert page.eval("(b => b.tagName === 'BUTTON' && b.type === 'button' && b.getAttribute('aria-label') === 'Pause the paintings'"
+                     " && !b.closest('[aria-hidden]') && getComputedStyle(b).pointerEvents !== 'none')(document.querySelector('.intro .pause'))")
+    b, hero = rect(page, ".intro .pause"), rect(page, ".hero")
+    assert b["left"] >= 0 and b["right"] <= w and b["top"] >= hero["top"] and b["bottom"] <= hero["bottom"], (b, hero)
+    for other in (".intro-text", ".hero .caption", ".hero .cue", ".top nav"):
+        o = rect(page, other)
+        assert b["right"] <= o["left"] or b["left"] >= o["right"] or b["bottom"] <= o["top"] or b["top"] >= o["bottom"], (other, b, o)
+
+
+def test_banner_without_javascript_is_washington_alone(browser, site):  # Review Focus 5
+    page = browser.open(site.url("index.html"), **DESKTOP, javascript=False)
+    page.wait(1)
+    assert page.eval("[...document.querySelectorAll('.intro .art')].filter(a => a.getAttribute('src')).map(a => a.getAttribute('src'))") == [
+        "assets/img/" + BANNER]
+    assert page.eval("document.querySelector('.intro .slide.on .art').complete")
+    assert page.eval("document.querySelector('.intro .pause')") is None
 
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
@@ -490,12 +563,18 @@ LOADED = "(a => a.complete && a.naturalWidth ? 1 : new Promise(f => { a.onload =
 
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
-def test_banner_text_is_readable(browser, site, cfg):
+def test_banner_text_is_readable_over_every_picture(browser, site, cfg):
     from tools.contrast import text_contrast
     page = open_home(browser, site, cfg)
-    page.wait(1)
-    got = text_contrast(page, HERO_TEXT)
-    assert len(got) >= 4 and min(got.values()) >= 4.5, got
+    page.eval(NO_FADE)
+    page.click(".intro .pause")  # the first screen holds still while it is measured
+    low = []
+    for k in range(len(BANNER_FILES)):
+        set_painting(page, "intro", k)
+        got = text_contrast(page, HERO_TEXT + [".intro .pause span"])
+        assert len(got) >= 5, (k, got)
+        low += [(BANNER_FILES[k], sel, round(v, 2)) for sel, v in got.items() if v < (3 if sel.endswith(".pause span") else 4.5)]
+    assert low == []  # text 4.5 to 1, the pause icon 3 to 1
 
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
