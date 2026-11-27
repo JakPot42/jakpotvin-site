@@ -267,6 +267,37 @@ def test_coming_back_does_not_speed_up_a_room(browser, site):  # Review Focus 5
     assert on_index(page, "s-sociology") == 1
 
 
+
+def test_room_stops_when_it_slips_under_half(browser, site):  # final review: a slow scroll out of a room
+    page = open_home(browser, site, DESKTOP)
+    room_on_screen(page, "s-economics")
+    loaded(page, "s-economics")
+    room_on_screen(page, "s-economics", share=0.495)  # just under half: the first frame past the 0.5 line
+    room_on_screen(page, "s-economics", share=0.2)
+    page.wait(TICK)
+    assert on_index(page, "s-economics") == 0
+
+
+def test_one_timer_per_room_however_often_it_starts(browser, site):  # final review: Review Focus 5, the guard itself
+    import time
+    page = open_home(browser, site, DESKTOP)
+    room_on_screen(page, "s-sociology")
+    loaded(page, "s-sociology")
+    t0 = time.monotonic()
+    for _ in range(4):  # across the 0.75 line and back, always more than half on screen: start() is asked again each time
+        room_on_screen(page, "s-sociology", share=0.6)
+        page.wait(0.1)
+        room_on_screen(page, "s-sociology", share=0.95)
+        page.wait(0.1)
+    page.wait(3)
+    assert on_index(page, "s-sociology") == 0
+    page.wait(max(0.5, t0 + TICK - time.monotonic()))
+    assert on_index(page, "s-sociology") == 1  # stacked timers would have moved it on several times
+    page.scroll_to(0)
+    page.wait(TICK)
+    room_on_screen(page, "s-sociology")
+    assert on_index(page, "s-sociology") == 1  # and an orphaned one would have kept going off screen
+
 def test_pause_stops_every_room_and_play_resumes(browser, site):
     page = open_home(browser, site, DESKTOP)
     room_on_screen(page, "s-philosophy")

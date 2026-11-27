@@ -107,10 +107,10 @@
       for (const e of es) {
         const room = rooms.find(r => r.el === e.target);
         if (e.isIntersecting) load(room);
-        room.seen = e.intersectionRatio >= 0.49;  // half on screen (a hair under, for rounding at the threshold)
+        room.seen = e.intersectionRatio >= 0.499;  // half on screen (a hair under, for rounding at the threshold)
         if (room.seen) start(room); else stop(room);
       }
-    }, {threshold: [0, 0.5, 0.75]});
+    }, {threshold: [0, 0.45, 0.5, 0.75]});  // 0.45: a room that slips just under half on a slow scroll is told again
     rooms.forEach(room => io.observe(room.el));
     document.addEventListener('visibilitychange', () => rooms.forEach(room => (document.hidden ? stop(room) : start(room))));
     const lookAhead = () => {
