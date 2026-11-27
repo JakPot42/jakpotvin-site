@@ -43,7 +43,7 @@ def test_banner_is_one_still_painting(browser, site, cfg):
     page = open_home(browser, site, cfg)
     assert page.eval("document.querySelectorAll('.intro .slide').length") == 1
     assert page.eval("document.querySelector('.intro .slide.on .art').getAttribute('src')") == "assets/img/" + BANNER
-    assert page.eval("document.querySelector('.pause')") is None
+    assert page.eval("document.querySelector('.intro .pause')") is None  # the banner has no pause button (the rooms do)
     caption = "document.querySelector('.hero .caption').textContent"
     zoom = "getComputedStyle(document.querySelector('.intro .slide .art')).transform"
     before = page.eval(caption)
@@ -174,15 +174,26 @@ def test_counter_text_without_motion(browser, site):
     assert page.eval("[...document.querySelectorAll('#projects *')].every(el => getComputedStyle(el).opacity === '1')")
 
 
-# ---------------------------------------------------------------- the rooms: three paintings, full screen, changed by scrolling
+# ---------------------------------------------------------------- the rooms: three paintings, full screen, changing by themselves
 
-def show_painting(page, rid, k, settle=0.8):
-    """Scroll to the middle of the stretch of room rid where painting k shows."""
-    page.eval("(() => { const r = document.getElementById(%s), n = r.querySelectorAll('.slide').length;"
-              " const top = r.getBoundingClientRect().top + scrollY, span = r.offsetHeight - innerHeight;"
-              " scrollTo(0, Math.round(top + span * (%d + 0.5) / n)); return new Promise(f => requestAnimationFrame(() => requestAnimationFrame(f))); })()"
-              % (json.dumps(rid), k))
-    page.wait(settle)
+TICK = 6.8  # a room changes every 6 s while half of it is on screen; this is one change plus the fade and a margin
+
+
+def room_on_screen(page, rid, share=1.0):
+    """Scroll so that `share` of room rid is on screen: 1.0 puts its top at the top of the screen, 0.3 its top 70% down."""
+    page.eval("(() => { const r = document.getElementById(%s);"
+              " scrollTo(0, Math.round(r.getBoundingClientRect().top + scrollY - innerHeight * (1 - %s)));"
+              " return new Promise(f => requestAnimationFrame(() => requestAnimationFrame(f))); })()" % (json.dumps(rid), share))
+
+
+def loaded(page, rid):
+    """Wait until every painting of room rid has loaded (or failed)."""
+    return page.eval("Promise.all([...document.querySelectorAll('#%s .art')].map(a => a.complete && !a.dataset.src ? 1 :"
+                     " new Promise(f => { a.addEventListener('load', () => f(1)); a.addEventListener('error', () => f(0)); setTimeout(() => f(0), 8000); })))" % rid)
+
+
+def all_pressed(page, value):
+    return page.eval("[...document.querySelectorAll('.room .pause')].every(b => b.getAttribute('aria-pressed') === %s)" % json.dumps(value))
 
 
 def set_painting(page, rid, k):
@@ -209,48 +220,134 @@ def caption_matches(page, rid):
                      " && c.querySelector('.credit').textContent === s.credit; })(document.getElementById(%s))" % json.dumps(rid))
 
 
-@pytest.mark.parametrize("cfg", [DESKTOP, PHONE, {**DESKTOP, "reduced_motion": True}], ids=["desktop", "phone", "desktop-rm"])
-def test_room_painting_follows_scroll(browser, site, cfg):
+@pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
+def test_room_is_one_screen_tall(browser, site, cfg):
     page = open_home(browser, site, cfg)
-    for rid in ("s-philosophy", "s-warfare", "s-future"):
-        for k in (0, 1, 2, 1):
-            show_painting(page, rid, k)
-            assert on_index(page, rid) == k and caption_matches(page, rid), (rid, k)
-    assert page.eval("[...document.querySelectorAll('.room')].every(r => r.querySelectorAll('.slide.on').length === 1)")
+    assert page.eval("[...document.querySelectorAll('.room')].every(r => Math.abs(r.offsetHeight - innerHeight) <= 2)")
 
 
-def test_room_painting_holds_still_without_scrolling(browser, site):
+@pytest.mark.parametrize("cfg, steps", [(DESKTOP, (1, 2, 0)), (PHONE, (1,))], ids=["desktop", "phone"])
+def test_room_paintings_change_by_themselves(browser, site, cfg, steps):
+    page = open_home(browser, site, cfg)
+    room_on_screen(page, "s-philosophy")
+    loaded(page, "s-philosophy")
+    assert on_index(page, "s-philosophy") == 0 and caption_matches(page, "s-philosophy")
+    for n, want in enumerate(steps):
+        page.wait(TICK if n == 0 else 6.0)
+        assert on_index(page, "s-philosophy") == want and caption_matches(page, "s-philosophy"), want
+    assert page.eval("document.getElementById('s-philosophy').querySelectorAll('.slide.on').length") == 1
+
+
+def test_room_waits_while_off_screen(browser, site):  # Review Focus 4
     page = open_home(browser, site, DESKTOP)
-    show_painting(page, "s-biology", 1)
+    room_on_screen(page, "s-economics", share=0.3)
+    loaded(page, "s-economics")
+    page.wait(TICK)
+    assert on_index(page, "s-economics") == 0  # less than half of it on screen: it waits
+    room_on_screen(page, "s-economics")
     page.wait(3)
+    page.scroll_to(0)  # gone before its first change
+    page.wait(TICK)
+    room_on_screen(page, "s-economics")
+    assert on_index(page, "s-economics") == 0
+
+
+def test_coming_back_does_not_speed_up_a_room(browser, site):  # Review Focus 5
+    page = open_home(browser, site, DESKTOP)
+    room_on_screen(page, "s-sociology")
+    loaded(page, "s-sociology")
+    for _ in range(4):
+        page.scroll_to(0)
+        page.wait(0.1)
+        room_on_screen(page, "s-sociology")
+        page.wait(0.1)
+    page.wait(3)
+    assert on_index(page, "s-sociology") == 0
+    page.wait(TICK - 3)
+    assert on_index(page, "s-sociology") == 1
+
+
+def test_pause_stops_every_room_and_play_resumes(browser, site):
+    page = open_home(browser, site, DESKTOP)
+    room_on_screen(page, "s-philosophy")
+    loaded(page, "s-philosophy")
+    page.click("#s-philosophy .pause")
+    assert all_pressed(page, "true")
+    page.wait(TICK)
+    assert on_index(page, "s-philosophy") == 0
+    room_on_screen(page, "s-warfare")
+    loaded(page, "s-warfare")
+    page.wait(TICK)
+    assert on_index(page, "s-warfare") == 0
+    page.click("#s-warfare .pause")
+    assert all_pressed(page, "false")
+    page.wait(TICK)
+    assert on_index(page, "s-warfare") == 1 and caption_matches(page, "s-warfare")
+
+
+def test_less_motion_starts_paused(browser, site):
+    page = open_home(browser, site, {**DESKTOP, "reduced_motion": True})
+    room_on_screen(page, "s-physics")
+    loaded(page, "s-physics")
+    assert all_pressed(page, "true")
+    page.wait(TICK)
+    assert on_index(page, "s-physics") == 0
+    page.click("#s-physics .pause")
+    page.wait(TICK)
+    assert on_index(page, "s-physics") == 1
+
+
+def test_hidden_tab_holds_the_rooms(browser, site):  # Review Focus 2
+    page = open_home(browser, site, DESKTOP)
+    room_on_screen(page, "s-biology")
+    loaded(page, "s-biology")
+    hide = "Object.defineProperty(document, 'hidden', {configurable: true, get: () => %s}); document.dispatchEvent(new Event('visibilitychange')); 1"
+    page.eval(hide % "true")
+    page.wait(TICK)
+    assert on_index(page, "s-biology") == 0
+    page.eval(hide % "false")
+    page.wait(3)
+    assert on_index(page, "s-biology") == 0  # no catching up
+    page.wait(TICK - 3)
     assert on_index(page, "s-biology") == 1
 
 
-def test_room_is_three_and_a_half_screens_long(browser, site):
+def test_room_skips_a_painting_that_failed_to_load(browser, site):
     page = open_home(browser, site, DESKTOP)
-    assert page.eval("[...document.querySelectorAll('.room')].every(r => Math.abs(r.offsetHeight - 3.5 * innerHeight) <= 2)")
+    room_on_screen(page, "s-tech")
+    loaded(page, "s-tech")
+    page.eval("(a => new Promise(f => { a.onerror = () => f(1); a.src = 'assets/img/missing.jpg'; }))(document.querySelectorAll('#s-tech .art')[1])")
+    page.wait(TICK)
+    assert on_index(page, "s-tech") == 2 and caption_matches(page, "s-tech")
 
 
-def test_jumps_land_on_the_right_painting(browser, site):  # Review Focus 2
-    page = open_home(browser, site, DESKTOP, hash="#projects")
-    page.wait(0.5)
-    show_painting(page, "s-warfare", 1)
-    assert on_index(page, "s-warfare") == 1
-    page.scroll_to(page.eval("document.documentElement.scrollHeight"))
-    show_painting(page, "s-philosophy", 0)
-    assert on_index(page, "s-philosophy") == 0 and caption_matches(page, "s-philosophy")
+@pytest.mark.parametrize("w, h, mobile", [(1440, 900, False), (412, 915, True), (915, 412, True), (1280, 600, False)])
+def test_pause_button_is_a_named_button_clear_of_the_words(browser, site, w, h, mobile):  # Review Focus 3
+    page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
+    assert page.eval("document.querySelectorAll('.room .pause').length") == 10
+    assert page.eval("[...document.querySelectorAll('.room .pause')].every(b => b.tagName === 'BUTTON' && b.type === 'button'"
+                     " && b.getAttribute('aria-label') === 'Pause the paintings' && !b.closest('[aria-hidden]'))")
+    assert page.eval("(b => { b.focus(); return document.activeElement === b; })(document.querySelector('#s-politics .pause'))")
+    assert page.eval("document.querySelector('.room .caption').getAttribute('aria-live')") is None  # changes are not announced
+    for rid in ("s-politics", "s-tech"):
+        room_on_screen(page, rid)
+        b = rect(page, f"#{rid} .pause")
+        assert b["top"] >= 0 and b["bottom"] <= h and b["left"] >= 0 and b["right"] <= w, (rid, b)
+        for other in (f"#{rid} .room-text", f"#{rid} .caption"):
+            o = rect(page, other)
+            assert b["right"] <= o["left"] or b["left"] >= o["right"] or b["bottom"] <= o["top"] or b["top"] >= o["bottom"], (rid, other, b, o)
 
 
-def test_resize_mid_room_keeps_one_right_painting(browser, site):  # Review Focus 3: a phone turned sideways mid-room
+def test_resize_mid_room_keeps_one_right_painting(browser, site):  # a phone turned sideways in a room
     page = open_home(browser, site, PHONE)
-    show_painting(page, "s-biology", 0)
-    assert on_index(page, "s-biology") == 0
+    room_on_screen(page, "s-biology")
+    loaded(page, "s-biology")
+    page.wait(TICK)
+    assert on_index(page, "s-biology") == 1
     page.resize(915, 412, settle=0.8)
-    top, height, view = page.eval("(r => [r.getBoundingClientRect().top, r.offsetHeight, innerHeight])(document.getElementById('s-biology'))")
-    want = min(2, int(max(0, -top) / max(1, height - view) * 3))
-    assert want != 0 and top < view and top + height > 0  # the room is still on screen and must now show another painting
-    assert on_index(page, "s-biology") == want and caption_matches(page, "s-biology")
     assert page.eval("document.getElementById('s-biology').querySelectorAll('.slide.on').length") == 1
+    assert on_index(page, "s-biology") == 1 and caption_matches(page, "s-biology")
+    assert abs(page.eval("document.getElementById('s-biology').offsetHeight") - 412) <= 2
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
 
 
@@ -258,7 +355,7 @@ def test_resize_mid_room_keeps_one_right_painting(browser, site):  # Review Focu
 def test_room_words_never_overlap_the_caption(browser, site, w, h, mobile):  # Review Focus 4
     page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
     for rid in ("s-politics", "s-tech"):
-        show_painting(page, rid, 0, settle=0.3)
+        room_on_screen(page, rid)
         assert rect(page, f"#{rid} .room-text")["bottom"] <= rect(page, f"#{rid} .caption")["top"], rid
         assert rect(page, f"#{rid} .room-text h2")["top"] >= 0, rid
 
@@ -273,11 +370,11 @@ def test_room_deep_link_lands_on_its_first_painting(browser, site):  # Review Fo
 
 def test_text_sits_left_on_laptops_and_low_on_phones(browser, site):
     page = open_home(browser, site, DESKTOP)
-    show_painting(page, "s-sociology", 0)
+    room_on_screen(page, "s-sociology")
     t = rect(page, "#s-sociology .room-text")
     assert t["left"] <= 0.25 * 1440 and t["right"] <= 0.55 * 1440 and 0.2 * 900 <= (t["top"] + t["bottom"]) / 2 <= 0.8 * 900
     page = open_home(browser, site, PHONE)
-    show_painting(page, "s-sociology", 0)
+    room_on_screen(page, "s-sociology")
     assert rect(page, "#s-sociology .room-text")["top"] >= 0.45 * 915
 
 
@@ -376,15 +473,17 @@ def test_room_text_is_readable_over_every_painting(browser, site, cfg):
     from tools.contrast import text_contrast
     page = open_home(browser, site, cfg)
     page.eval(NO_FADE)
+    room_on_screen(page, "s-philosophy")
+    page.click("#s-philosophy .pause")  # every room holds still while it is measured
     low = []
     for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
         for k in range(3):
-            show_painting(page, rid, k, settle=0.1)
+            set_painting(page, rid, k)
             assert page.eval(LOADED % rid) == 1, (rid, k)
-            got = text_contrast(page, [f"#{rid} {s}" for s in ROOM_TEXT])
-            assert len(got) == len(ROOM_TEXT), (rid, k, got)
-            low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < 4.5]
-    assert low == []
+            got = text_contrast(page, [f"#{rid} {s}" for s in ROOM_TEXT + [".pause span"]])
+            assert len(got) == len(ROOM_TEXT) + 1, (rid, k, got)
+            low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < (3 if s.endswith(".pause span") else 4.5)]
+    assert low == []  # text 4.5 to 1, the pause icon 3 to 1
 
 
 # ---------------------------------------------------------------- final review: JavaScript turned off

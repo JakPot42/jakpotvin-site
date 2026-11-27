@@ -194,11 +194,15 @@ ol.index { list-style: none; margin: 30px 0 0; padding: 0; border-top: 1px solid
 html[data-motion=full] .reveal { transition: opacity .6s ease, transform .6s ease; }
 html[data-motion=full] .reveal:not(.in) { opacity: 0; transform: translateY(28px); }
 
-/* Rooms: each subject's paintings fill the screen behind its title, one at a time. A room is about one screen of
-   scrolling per painting plus half a screen (--n paintings); home.js picks the painting from how far it has been scrolled. */
+/* Rooms: each subject is one screen tall, its paintings filling the screen behind its title, one at a time. home.js
+   changes them every 6 seconds while half the room is on screen and adds a pause button that holds every room. */
 .rooms { width: 100vw; margin-left: calc(50% - 50vw); color: #f3efe7; }
-.room { position: relative; height: calc((var(--n) * 100 + 50) * 1svh); padding: 0; border: 0; background: #0e0d0c; scroll-margin-top: -24px; }
-.room-stick { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.room { position: relative; height: 100svh; padding: 0; border: 0; background: #0e0d0c; scroll-margin-top: -24px; }
+.room-stick { position: relative; height: 100%; overflow: hidden; }
+.room .pause { position: absolute; right: max(4vw, 18px); bottom: max(28px, 6svh); display: grid; width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid rgba(244, 241, 234, .5); border-radius: 50%; background: rgba(10, 9, 8, .6); color: #f4f1ea; cursor: pointer; }
+.room .pause span { width: 12px; height: 14px; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
+.room .pause[aria-pressed=true] span { width: 0; height: 0; margin-left: 4px; border: 0; border-left: 13px solid currentColor; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+.room .pause:focus-visible { outline: 2px solid #9fd3da; outline-offset: 3px; }
 .room-bg, .room-bg .slides { position: absolute; inset: 0; }
 .room-shade { position: absolute; inset: 0;
   background: linear-gradient(0deg, rgba(10, 9, 8, .6) 0%, rgba(10, 9, 8, 0) 34%), linear-gradient(90deg, rgba(10, 9, 8, .86) 0%, rgba(10, 9, 8, .62) 45%, rgba(10, 9, 8, 0) 78%); }
@@ -215,6 +219,7 @@ html[data-motion=full] .reveal:not(.in) { opacity: 0; transform: translateY(28px
   .room-text { margin: auto 0 0; }
   .room-words .caption { flex-direction: row; flex-wrap: wrap; gap: 0 6px; padding-top: 8px; font: 13px/1.4 var(--sans); }
   .room-words .caption .credit { display: block; flex-basis: 100%; font-size: 12px; }
+  .room .pause { top: 18px; right: 18px; bottom: auto; }
 }
 ol.plates-list { list-style: none; margin: 28px 0 0; padding: 0; border-top: 1px solid var(--ink); max-width: 820px; }
 .plates-list li { display: grid; grid-template-columns: 7em minmax(0, 1fr); gap: 4px 20px; padding: 14px 0; border-bottom: 1px solid var(--rule); font: 14.5px/1.5 var(--sans); }

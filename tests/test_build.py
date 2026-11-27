@@ -59,7 +59,8 @@ def test_missing_plate_file_is_skipped(tmp_path):
         assert r.returncode == 0, r.stderr
         index = (SITE / "index.html").read_text(encoding="utf-8")
         assert "eniac" not in index
-        assert re.search(r'<section class="room" id="s-tech" style="--n:2"', index)  # the room keeps the two it has
+        tech = re.search(r'<section class="room" id="s-tech"[^>]*>.*?</section>', index, re.S).group(0)
+        assert tech.count('<figure class="slide') == 2  # the room keeps the two it has
         assert not (SITE / "assets/img/small/eniac.jpg").exists()
         assert not (SITE / "assets/img/blur/eniac.jpg").exists()
     finally:
@@ -75,7 +76,7 @@ def test_room_with_no_paintings_still_lays_out(tmp_path):  # Review Focus 1: eve
         r = run_build()
         assert r.returncode == 0, r.stderr
         index = (SITE / "index.html").read_text(encoding="utf-8")
-        section = re.search(r'<section class="room" id="s-tech" style="--n:1".*?</section>', index, re.S).group(0)
+        section = re.search(r'<section class="room" id="s-tech"[^>]*>.*?</section>', index, re.S).group(0)
         assert '<figure class="slide' not in section and 'class="caption"' not in section
         assert '<h2 id="s-tech-h">Technology and AI</h2>' in section
     finally:
@@ -226,11 +227,13 @@ def test_site_pictures_stay_light():
     assert heavy == []
 
 
-def test_rooms_are_built_for_scrolling():
+def test_rooms_are_built_to_change_by_themselves():
     assert run_build().returncode == 0
     index = (SITE / "index.html").read_text(encoding="utf-8")
+    assert "<noscript><style>" not in index  # a room is one screen tall with or without JavaScript
     for rid, files in ROOM_PAINTINGS.items():
-        section = re.search(r'<section class="room" id="%s" style="--n:3".*?</section>' % rid, index, re.S).group(0)
+        section = re.search(r'<section class="room" id="%s"[^>]*>.*?</section>' % rid, index, re.S).group(0)
+        assert "style=" not in section.split(">", 1)[0], rid  # no per-room length any more
         assert section.count('<figure class="slide') == 3 and len(re.findall(r'<figure class="slide[^"]* on"', section)) == 1, rid
         lazy = re.sub(r"<noscript>.*?</noscript>", "", section)  # the copy for visitors without JavaScript is the only eager one
         assert 'data-src="assets/img/%s"' % files[0] in lazy and ' src="assets/img/%s"' % files[0] not in lazy, rid

@@ -251,14 +251,14 @@ first = BANNER
 
 # ---------------------------------------------------------------- writing: one room per subject
 def room(anchor, title):
-    """A subject's room: about one screen of scrolling per painting plus half a screen. Its paintings (lazy; home.js
-    loads them as the visitor nears the room) fill the screen behind the title, one at a time, chosen by how far the
-    room has been scrolled; the caption names the painting showing, starting with the first."""
+    """A subject's room: one screen tall. Its paintings (lazy; home.js loads them as the visitor nears the room) fill
+    the screen behind the title, one at a time, and change by themselves every 6 seconds while half the room is on
+    screen (home.js, which also adds the pause button); the caption names the painting showing, starting with the first."""
     ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
     slides = "".join(slide(p, on=(k == 0), fill=True) for k, p in enumerate(ps))
     cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
            f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
-    return (f'<section class="room" id="{anchor}" style="--n:{max(len(ps), 1)}" aria-labelledby="{anchor}-h"><div class="room-stick">'
+    return (f'<section class="room" id="{anchor}" aria-labelledby="{anchor}-h"><div class="room-stick">'
             f'<div class="room-bg" aria-hidden="true"><div class="slides">{slides}</div><div class="room-shade"></div></div>'
             f'<div class="room-words"><div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
             f'<p class="room-soon">{one("room note: " + title)}</p></div>{cap}</div></div></section>')
@@ -302,7 +302,6 @@ def ld(data):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
 
 
-NO_SCRIPT = "<noscript><style>.rooms .room { height: 100svh; }</style></noscript>" + chr(10)  # without JavaScript a room is one screen, its first painting
 PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "url": SITE_URL, "sameAs": _same})
              + ld({"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE_URL}))
 
@@ -389,7 +388,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", home=True, url=SITE_URL, head=PERSON_LD + NO_SCRIPT)
+""", home=True, url=SITE_URL, head=PERSON_LD)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))

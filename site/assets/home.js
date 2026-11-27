@@ -1,6 +1,8 @@
-/* jakpotvin.com home page: the projects reveal and count, and the rooms (each room's paintings, chosen by scrolling,
-   loaded as the visitor nears them). The first screen is one still painting and needs no script.
-   With prefers-reduced-motion the projects stay in place and the paintings change without the fade (site.css). */
+/* jakpotvin.com home page: the projects reveal and count, and the rooms (each room's paintings change by themselves
+   every 6 seconds while half the room is on screen, with a pause button that holds every room; a room's paintings load
+   as the visitor nears it). The first screen is one still painting and needs no script.
+   With prefers-reduced-motion the projects stay in place, the rooms start paused and the paintings change without the
+   fade (site.css). */
 (() => {
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -47,53 +49,78 @@
     requestAnimationFrame(step);
   }
 
-  // Which of a room's n paintings shows: the share of the room scrolled past, from its top at the top of the screen
-  // to its bottom at the bottom of the screen, cut into n equal parts.
-  const paintingIndex = (top, height, view, n) =>
-    n < 2 ? 0 : Math.min(n - 1, Math.floor(Math.max(0, -top) / Math.max(1, height - view) * n));
+  const EVERY = 6000;  // milliseconds between a room's paintings
 
-  // The rooms: each room's paintings fill the screen behind its title, one at a time, and change only as the visitor
-  // scrolls through the room. A room's paintings load when it is on screen, or, once the banner has loaded, when it
-  // comes within one screen.
+  // The rooms: each room is one screen and its paintings fill it behind the title, one at a time. While at least half
+  // of a room is on screen, and the page is neither hidden nor paused, its painting moves on every EVERY ms and loops,
+  // picking up where it stopped; a painting whose image failed is skipped, and one still loading is waited for. A room's
+  // paintings load when it is on screen, or, once the banner has loaded, when it comes within one screen. Each room with
+  // two or more paintings gets a pause button, and every button holds or lets go of every room.
   function initRooms(wrap) {
     const rooms = [...wrap.querySelectorAll('.room')].map(el => ({
-      el, slides: [...el.querySelectorAll('.slide')], cap: el.querySelector('.caption'), cur: 0, loaded: false}));
+      el, slides: [...el.querySelectorAll('.slide')], cap: el.querySelector('.caption'), cur: 0, loaded: false, seen: false, timer: 0}));
     const load = room => {
       if (room.loaded) return;
       room.loaded = true;
       room.el.querySelectorAll('.art[data-src]').forEach(img => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
     };
-    const update = () => {
-      const view = innerHeight;
-      for (const room of rooms) {
-        if (!room.slides.length) continue;
-        const r = room.el.getBoundingClientRect();
-        if (r.top < view && r.bottom > 0) load(room);
-        const i = paintingIndex(r.top, r.height, view, room.slides.length);
-        if (i === room.cur) continue;
-        room.slides[room.cur].classList.remove('on');
-        room.slides[i].classList.add('on');
-        room.cur = i;
-        if (room.cap) fillCaption(room.cap, room.slides[i].dataset);
-      }
+    if (!('IntersectionObserver' in window)) { rooms.forEach(load); return; }  // every first painting, nothing moves
+    let paused = reduced;
+    const buttons = [];
+    const show = (room, i) => {
+      room.slides[room.cur].classList.remove('on');
+      room.slides[i].classList.add('on');
+      room.cur = i;
+      if (room.cap) fillCaption(room.cap, room.slides[i].dataset);
     };
-    let queued = false;
-    addEventListener('scroll', () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => { queued = false; update(); });
-    }, {passive: true});
-    addEventListener('resize', update);
-    update();
+    const step = room => {
+      const n = room.slides.length;
+      for (let k = 1; k < n; k++) {
+        const i = (room.cur + k) % n, img = room.slides[i].querySelector('.art');
+        if (img.dataset.src || !img.complete) return;  // not loaded yet: try again at the next tick
+        if (img.naturalWidth > 0) { show(room, i); return; }
+      }  // the others failed: stay
+    };
+    const stop = room => { clearInterval(room.timer); room.timer = 0; };
+    const start = room => {
+      if (room.timer || !room.seen || paused || document.hidden || room.slides.length < 2) return;
+      room.timer = setInterval(() => step(room), EVERY);
+    };
+    const setPaused = p => {
+      paused = p;
+      buttons.forEach(b => b.setAttribute('aria-pressed', String(p)));
+      rooms.forEach(room => (p ? stop(room) : start(room)));
+    };
+    for (const room of rooms) {
+      if (room.slides.length < 2) continue;
+      const b = document.createElement('button');
+      b.className = 'pause';
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Pause the paintings');  // a toggle: its name stays, aria-pressed says whether it holds them
+      b.setAttribute('aria-pressed', String(paused));
+      b.appendChild(document.createElement('span'));
+      b.addEventListener('click', () => setPaused(!paused));
+      room.el.querySelector('.room-stick').appendChild(b);
+      buttons.push(b);
+    }
+    const io = new IntersectionObserver(es => {
+      for (const e of es) {
+        const room = rooms.find(r => r.el === e.target);
+        if (e.isIntersecting) load(room);
+        room.seen = e.intersectionRatio >= 0.49;  // half on screen (a hair under, for rounding at the threshold)
+        if (room.seen) start(room); else stop(room);
+      }
+    }, {threshold: [0, 0.5, 0.75]});
+    rooms.forEach(room => io.observe(room.el));
+    document.addEventListener('visibilitychange', () => rooms.forEach(room => (document.hidden ? stop(room) : start(room))));
     const lookAhead = () => {
-      if (!('IntersectionObserver' in window)) { rooms.forEach(load); return; }
-      const io = new IntersectionObserver(es => {
+      const near = new IntersectionObserver(es => {
         for (const e of es) if (e.isIntersecting) {
           load(rooms.find(room => room.el === e.target));
-          io.unobserve(e.target);
+          near.unobserve(e.target);
         }
       }, {rootMargin: '100% 0px'});
-      rooms.forEach(room => { if (!room.loaded) io.observe(room.el); });
+      rooms.forEach(room => { if (!room.loaded) near.observe(room.el); });
     };
     if (document.readyState === 'complete') lookAhead(); else addEventListener('load', lookAhead);
   }
