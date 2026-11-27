@@ -152,7 +152,8 @@ def test_picture_credits_page_keeps_every_credit():
     raw = (SITE / "plates.html").read_text(encoding="utf-8")
     assert re.search(r"<h1[^>]*>Picture credits</h1>", raw) and "<title>Picture credits | Jak Potvin</title>" in raw
     for needed in ("Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0", "Photograph by Mark D, licensed CC BY-SA 2.0",
-                   "Jacques-Louis David, The Death of Socrates, 1787", "The top layer of a silicon crystal, drawn for this site."):
+                   "Jacques-Louis David, The Death of Socrates, 1787", "The top layer of a silicon crystal, drawn for this site.",
+                   "Rembrandt van Rijn, The Anatomy Lesson of Dr Nicolaes Tulp, 1632", "Francisco Goya, The Madhouse"):
         assert needed in credits, needed
 
 
@@ -160,19 +161,20 @@ def test_picture_credits_page_keeps_every_credit():
 
 ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
     "s-philosophy": ["death-of-socrates.jpg", "botticelli-augustine.jpg", "wanderer-sea-of-fog.jpg"],
-    "s-psychology": ["bosch-cure-of-folly.jpg", "goya-sleep-of-reason.jpg", "freud-halberstadt.jpg"],
+    "s-psychology": ["bosch-cure-of-folly.jpg", "goya-madhouse.jpg", "freud-halberstadt.jpg"],
     "s-sociology": ["bruegel-harvesters.jpg", "seurat-grande-jatte.jpg", "shibuya-crossing.jpg"],
     "s-politics": ["death-of-caesar.jpg", "magna-carta.jpg", "berlin-wall-1989.jpg"],
     "s-economics": ["massys-moneylender.jpg", "adam-smith-statue.jpg", "ford-assembly-line.jpg"],
     "s-warfare": ["alexander-mosaic.jpg", "napoleon-alps.jpg", "iwo-jima.jpg"],
     "s-physics": ["alchemist-full.jpg", "faraday-lecture.jpg", "atlas-detector.jpg"],
-    "s-biology": ["vitruvian-man.jpg", "jenner-hillemacher.jpg", "sars-cov-2.jpg"],
+    "s-biology": ["rembrandt-anatomy-lesson.jpg", "jenner-hillemacher.jpg", "sars-cov-2.jpg"],
     "s-tech": ["antikythera.jpg", "eniac.jpg", "summit-supercomputer.jpg"],
     "s-future": ["verne-earth-to-moon.jpg", "kennedy-von-braun.jpg", "webb-cosmic-cliffs.jpg"],
 }
 BANNER = "washington-crossing.jpg"
 TAKEN_OUT = ["school-of-athens.jpg", "charcot-salpetriere.jpg", "coronation-charlemagne.jpg", "iron-rolling-mill.jpg",
-             "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg"]
+             "newton-romney.jpg", "first-flight.jpg", "earthrise.jpg", "caesar-coustou.jpg", "alchemist-phosphorus.jpg",
+             "vitruvian-man.jpg", "goya-sleep-of-reason.jpg"]
 ROOM_SECTION = re.compile(r'<section class="room" id="([^"]+)".*?</section>', re.S)
 
 
@@ -202,14 +204,26 @@ def test_paintings_taken_out_are_gone():
         assert not any(f in page for page in pages), f
 
 
+SMALL_SOURCES = {"verne-earth-to-moon.jpg": 1338, "botticelli-augustine.jpg": 1775,  # the biggest scans there are
+                 "freud-halberstadt.jpg": 1625}  # the photograph itself, inside its mount, in the biggest scan
+
+
 def test_room_paintings_are_big_enough_to_fill_a_screen():
     from PIL import Image
     for files in ROOM_PAINTINGS.values():
         for f in files:
             with Image.open(SITE / "assets/img" / f) as im:
-                assert max(im.size) >= 1600, (f, im.size)
+                w, h = im.size
+            assert w >= min(1600, SMALL_SOURCES.get(f, 1600)), (f, im.size)  # every painting fills a laptop screen's width
+            if h > w:  # a tall painting fills the screen by its width, so it is made 1,920 wide where its source allows
+                assert w >= SMALL_SOURCES.get(f, 1900), (f, im.size)
     with Image.open(SITE / "assets/img" / BANNER) as im:
         assert im.width >= 3000, im.size
+
+
+def test_site_pictures_stay_light():
+    heavy = [(p.name, p.stat().st_size) for p in (SITE / "assets/img").glob("*.jpg") if p.stat().st_size > 1_250_000]
+    assert heavy == []
 
 
 def test_rooms_are_built_for_scrolling():
@@ -222,6 +236,7 @@ def test_rooms_are_built_for_scrolling():
         assert 'data-src="assets/img/%s"' % files[0] in lazy and ' src="assets/img/%s"' % files[0] not in lazy, rid
         assert section.count("<noscript>") == 1 and '<noscript><img class="art" src="assets/img/%s"' % files[0] in section, rid
         assert '<div class="room-bg" aria-hidden="true">' in section and '<div class="caption">' in section, rid
+        assert not re.search(r'<figure class="slide[^"]* whole', section) and 'class="bg"' not in section, rid  # every one fills
     assert "rooms-stage" not in index and "data-bg=" not in index
 
 

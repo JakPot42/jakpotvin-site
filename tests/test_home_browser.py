@@ -185,6 +185,20 @@ def show_painting(page, rid, k, settle=0.8):
     page.wait(settle)
 
 
+def set_painting(page, rid, k):
+    """Show painting k of room rid directly (its caption filled from the painting's data), scroll the room to the top of
+    the screen and wait until the painting has loaded: for measuring what a painting looks like, not how rooms change."""
+    page.eval("(() => { const r = document.getElementById(%s), k = %d; r.scrollIntoView();"
+              " r.querySelectorAll('.art[data-src]').forEach(i => { i.src = i.dataset.src; i.removeAttribute('data-src'); });"
+              " r.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('on', i === k));"
+              " const d = r.querySelectorAll('.slide')[k].dataset, c = r.querySelector('.caption');"
+              " c.querySelector('.yr').textContent = d.yr; c.querySelector('.what').textContent = d.what; c.querySelector('.credit').textContent = d.credit;"
+              " const a = r.querySelector('.slide.on .art');"
+              " return a.complete && a.naturalWidth ? 1 : new Promise(f => { a.onload = () => f(1); a.onerror = () => f(0); setTimeout(() => f(0), 8000); }); })()"
+              % (json.dumps(rid), k))
+    page.eval("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+
+
 def on_index(page, rid):
     return page.eval("[...document.getElementById(%s).querySelectorAll('.slide')].findIndex(s => s.classList.contains('on'))" % json.dumps(rid))
 
@@ -268,19 +282,17 @@ def test_text_sits_left_on_laptops_and_low_on_phones(browser, site):
 
 
 @pytest.mark.parametrize("cfg", [DESKTOP, PHONE], ids=["desktop", "phone"])
-def test_every_room_painting_fills_the_screen(browser, site, cfg):
+def test_every_room_painting_fills_the_screen(browser, site, cfg):  # tall ones too, cropped around their focal point
     page = open_home(browser, site, cfg)
+    page.eval(NO_FADE)
     for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
+        assert page.eval(f"document.querySelectorAll('#{rid} .bg').length") == 0, rid
         for k in range(3):
-            show_painting(page, rid, k, settle=0.2)
-            s = f"#{rid} .slide.on"
-            whole = page.eval(f"document.querySelector('{s}').classList.contains('whole')")
-            cover = rect(page, f"{s} .bg" if whole and cfg is DESKTOP else f"{s} .art")
-            assert cover["left"] <= 0 and cover["top"] <= 0 and cover["right"] >= cfg["width"] - 1 and cover["bottom"] >= cfg["height"] - 1, (rid, k)
-            if cfg is PHONE or not whole:
-                assert page.eval(f"getComputedStyle(document.querySelector('{s} .art')).objectFit") == "cover", (rid, k)
-            else:  # a tall painting on a laptop: shown whole, beside the title
-                assert rect(page, f"{s} .art")["left"] >= rect(page, f"#{rid} .room-words")["right"] - 1, (rid, k)
+            set_painting(page, rid, k)
+            s = f"#{rid} .slide.on .art"
+            cover = rect(page, s)
+            assert cover["left"] <= 1 and cover["top"] <= 1 and cover["right"] >= cfg["width"] - 1 and cover["bottom"] >= cfg["height"] - 1, (rid, k, cover)
+            assert page.eval(f"getComputedStyle(document.querySelector('{s}')).objectFit") == "cover", (rid, k)
 
 
 @pytest.mark.parametrize("cfg, want", [(DESKTOP, "0.6s"), ({**DESKTOP, "reduced_motion": True}, "0s")], ids=["fade", "no-fade"])

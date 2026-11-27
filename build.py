@@ -154,22 +154,22 @@ PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subjec
  ("", "death-of-caesar.jpg", "Senators in white togas raise daggers as Caesar, in a red cloak, sinks to the marble floor; others flee across the hall beneath a tall statue.", "44 BC", "Caesar is assassinated on the Ides of March", "Political science", "#s-politics", "Vincenzo Camuccini, The Death of Caesar, 1804 to 1805. Galleria Nazionale d&rsquo;Arte Moderna, Rome. Photograph by Daderot.", 0, 0, "40% 62%"),
  ("", "botticelli-augustine.jpg", "Saint Augustine at his desk, one hand on his chest, looking up from his books toward a light, with a clock and an armillary sphere on the shelf behind him.", "c. 400", "Augustine writes the Confessions", "Philosophy and religion", "#s-philosophy", "Sandro Botticelli, Saint Augustine in His Study, fresco, 1480. Church of Ognissanti, Florence.", 0, 0, "50% 30%"),
  ("", "magna-carta.jpg", "The Magna Carta of 1215: a sheet of parchment densely written in medieval Latin.", "1215", "King John seals Magna Carta at Runnymede", "Political science", "#s-politics", "Magna Carta, 1215. Cotton MS Augustus II.106, British Library, London.", 0, 0, "50% 40%"),
- ("", "vitruvian-man.jpg", "Leonardo da Vinci's drawing of a man in two overlapping poses inside a circle and a square.", "c. 1490", "Leonardo measures the human body", "Biology and medicine", "#s-biology", "Leonardo da Vinci, Vitruvian Man, pen and ink, c. 1490. Gallerie dell&rsquo;Accademia, Venice.", 0, 0, "50% 45%"),
  ("", "bosch-cure-of-folly.jpg", "In a round landscape framed by gold lettering, a surgeon in a funnel hat cuts into the head of a seated man, watched by a monk with a jug and a nun with a book balanced on her head.", "c. 1501", "A quack cuts out the stone of madness", "Psychology", "#s-psychology", "Workshop or follower of Hieronymus Bosch, The Cure of Folly (The Extraction of the Stone of Madness), c. 1501 to 1505. Museo del Prado, Madrid.", 0, 0, "50% 50%"),
  ("", "massys-moneylender.jpg", "A moneylender in a fur-collared coat weighs coins on a small balance while his wife, turning the pages of an illuminated book, looks over at the money; a round mirror on the table reflects a window.", "1514", "A moneylender weighs coins as his wife looks on", "Economics", "#s-economics", "Quentin Massys, The Moneylender and His Wife, 1514. Louvre, Paris.", 0, 0, "50% 60%"),
  ("", "bruegel-harvesters.jpg", "Peasants in a golden wheat field at harvest: some cut and bind the grain, others rest and eat together under a pear tree.", "1565", "Bruegel paints a village at harvest time", "Sociology", "#s-sociology", "Pieter Bruegel the Elder, The Harvesters, 1565. The Metropolitan Museum of Art, New York.", 0, 0, "55% 60%"),
+ ("", "rembrandt-anatomy-lesson.jpg", "Dr Tulp, in a black hat, lifts the muscles of a dead man's forearm with forceps while seven surgeons in white ruffs lean in to watch.", "1632", "Dr Tulp shows Amsterdam's surgeons the muscles of the arm", "Biology and medicine", "#s-biology", "Rembrandt van Rijn, The Anatomy Lesson of Dr Nicolaes Tulp, 1632. Mauritshuis, The Hague.", 0, 0, "60% 42%"),
  ("", "alchemist-full.jpg", "An old alchemist kneels in a dark, vaulted laboratory, gazing at a glass flask that glows with white light; two assistants work by candlelight in the shadows behind him.", "1669", "Hennig Brand discovers phosphorus", "Physics and chemistry", "#s-physics", "Joseph Wright of Derby, The Alchemist Discovering Phosphorus, 1771, reworked 1795. Derby Museum and Art Gallery.", 0, 0, "60% 70%"),
- ("", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 42%"),
+ ("", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 10%"),
  ("", "washington-crossing.jpg", "George Washington standing in a crowded rowing boat pushing through river ice, a flag behind him.", "1776", "Washington crosses the Delaware", "War and defense", "#s-warfare", "Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art, New York.", 0, 0, "35% 45%"),
  ("", "jenner-hillemacher.jpg", "A doctor leans in to vaccinate a small child held on its mother's lap in a farmhouse, while a young man and a girl watch.", "1796", "Jenner gives the first vaccination against smallpox", "Biology and medicine", "#s-biology", "Eugène-Ernest Hillemacher, Edward Jenner Vaccinating a Boy, 1884. Wellcome Collection, licensed CC BY 4.0.", 0, 0, "55% 50%"),
- ("", "goya-sleep-of-reason.jpg", "A man slumped asleep over his desk while owls and bats swarm out of the darkness behind him and a lynx watches.", "1799", "Goya: the sleep of reason produces monsters", "Psychology", "#s-psychology", "Francisco Goya, The Sleep of Reason Produces Monsters, plate 43 of Los Caprichos, etching and aquatint, 1799.", 0, 0, "50% 55%"),
  ("", "napoleon-alps.jpg", "Napoleon in a billowing red cloak on a rearing white horse, pointing up toward a mountain pass; soldiers haul a cannon up the slope behind him.", "1800", "Napoleon crosses the Alps", "War and defense", "#s-warfare", "Jacques-Louis David, Napoleon Crossing the Alps, 1802 to 1803, one of five versions. Belvedere, Vienna.", 0, 0, "60% 30%"),
+ ("", "goya-madhouse.jpg", "Inmates of an asylum, many half-naked, crowd a vaulted stone room lit by one high barred window; one wears a feathered headdress, another a tricorn hat.", "c. 1815", "Goya paints the inmates of a madhouse", "Psychology", "#s-psychology", "Francisco Goya, The Madhouse, c. 1814 to 1816, oil on panel. Real Academia de Bellas Artes de San Fernando, Madrid.", 0, 0, "58% 62%"),
  ("", "wanderer-sea-of-fog.jpg", "A man in a dark coat stands with his back to us on a rocky summit, looking out over a sea of fog with mountains rising through it.", "c. 1817", "Friedrich's wanderer looks out over a sea of fog", "Philosophy and religion", "#s-philosophy", "Caspar David Friedrich, Wanderer above the Sea of Fog, c. 1817. Hamburger Kunsthalle, Hamburg.", 0, 0, "50% 42%"),
  ("", "faraday-lecture.jpg", "Michael Faraday stands at a demonstration table before a packed, tiered lecture theatre, with Prince Albert and two young princes in the front row.", "1855", "Faraday gives a Christmas lecture at the Royal Institution", "Physics and chemistry", "#s-physics", "After Alexander Blaikley, Professor Faraday Lecturing at the Royal Institution, 27 December 1855. Royal Institution, London.", 0, 0, "62% 55%"),
  ("", "verne-earth-to-moon.jpg", "Engraving of a huge cone-shaped shell hung with American flags beside a tall crane, men in top hats looking on.", "1865", "Verne imagines a cannon shot to the Moon", "The future", "#s-future", "Henri de Montaut, illustration for Jules Verne, From the Earth to the Moon (1865), in an 1874 edition. National Library of Poland.", 0, 0, "50% 45%"),
  ("", "seurat-grande-jatte.jpg", "Parisians of every kind, in top hats, bustles and work clothes, resting and strolling on a sunny riverbank, painted in dots.", "1884", "Parisians of every class share a Sunday afternoon", "Sociology", "#s-sociology", "Georges Seurat, A Sunday on La Grande Jatte, 1884 to 1886. The Art Institute of Chicago.", 0, 0, "50% 50%"),
  ("", "ford-assembly-line.jpg", "Rows of workmen in caps bend over a long waist-high line, fitting parts onto round flywheels that slide along it.", "1913", "Ford's moving assembly line begins", "Economics", "#s-economics", "Workers on a Ford Motor Company assembly line, 1913. U.S. National Archives.", 0, 0, "45% 50%"),
- ("", "freud-halberstadt.jpg", "Sigmund Freud, grey-bearded, in a three-piece suit with a watch chain, holds a cigar and looks straight at the camera, one hand on his hip.", "c. 1921", "Freud, the founder of psychoanalysis", "Psychology", "#s-psychology", "Max Halberstadt, photograph of Sigmund Freud, c. 1921.", 0, 0, "50% 25%"),
+ ("", "freud-halberstadt.jpg", "Sigmund Freud, grey-bearded, in a three-piece suit with a watch chain, holds a cigar and looks straight at the camera, one hand on his hip.", "c. 1921", "Freud, the founder of psychoanalysis", "Psychology", "#s-psychology", "Max Halberstadt, photograph of Sigmund Freud, c. 1921.", 0, 0, "50% 4%"),
  ("", "iwo-jima.jpg", "Six servicemen strain together to raise a pole flying the American flag on a rubble-strewn hilltop.", "1945", "Marines raise the flag on Iwo Jima", "War and defense", "#s-warfare", "Joe Rosenthal, Associated Press, Raising the Flag on Iwo Jima, 23 February 1945. U.S. National Archives.", 0, 0, "45% 50%"),
  ("", "eniac.jpg", "Two women stand at ENIAC's tall panels of switches, dials and cables, one reaching up to a setting.", "1946", "ENIAC, the first general-purpose electronic computer, is unveiled", "Technology and AI", "#s-tech", "Betty Jennings (left) and Frances Bilas prepare ENIAC for its public unveiling, February 1946. U.S. Army photograph.", 0, 0, "72% 50%"),
  ("", "kennedy-von-braun.jpg", "Wernher von Braun and President Kennedy look and point upward beside a model rocket, officials crowding around them.", "1963", "Von Braun shows Kennedy the Saturn rocket", "The future", "#s-future", "NASA photograph, Cape Canaveral, 16 November 1963.", 0, 0, "55% 35%"),
@@ -214,11 +214,11 @@ NO = {p[1]: p[0] for p in PLATES}
 LATTICE_NO = roman(len(PLATES) + 1)
 SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexander-mosaic.jpg": "The Alexander Mosaic, Pompeii",
     "antikythera.jpg": "The Antikythera mechanism", "death-of-caesar.jpg": "Camuccini, The Death of Caesar",
-    "botticelli-augustine.jpg": "Botticelli, Saint Augustine in His Study", "magna-carta.jpg": "Magna Carta, 1215", "vitruvian-man.jpg": "Leonardo, Vitruvian Man",
+    "botticelli-augustine.jpg": "Botticelli, Saint Augustine in His Study", "magna-carta.jpg": "Magna Carta, 1215", "rembrandt-anatomy-lesson.jpg": "Rembrandt, The Anatomy Lesson of Dr Tulp",
     "bosch-cure-of-folly.jpg": "Bosch workshop or follower, The Cure of Folly", "massys-moneylender.jpg": "Massys, The Moneylender and His Wife",
     "bruegel-harvesters.jpg": "Bruegel, The Harvesters", "alchemist-full.jpg": "Wright of Derby, The Alchemist",
     "adam-smith-statue.jpg": "Stoddart, Adam Smith", "washington-crossing.jpg": "Leutze, Washington Crossing the Delaware",
-    "jenner-hillemacher.jpg": "Hillemacher, Jenner Vaccinating a Boy", "goya-sleep-of-reason.jpg": "Goya, The Sleep of Reason Produces Monsters",
+    "jenner-hillemacher.jpg": "Hillemacher, Jenner Vaccinating a Boy", "goya-madhouse.jpg": "Goya, The Madhouse",
     "napoleon-alps.jpg": "David, Napoleon Crossing the Alps", "wanderer-sea-of-fog.jpg": "Friedrich, Wanderer above the Sea of Fog",
     "faraday-lecture.jpg": "After Blaikley, Faraday Lecturing", "verne-earth-to-moon.jpg": "De Montaut, From the Earth to the Moon",
     "seurat-grande-jatte.jpg": "Seurat, A Sunday on La Grande Jatte", "ford-assembly-line.jpg": "Ford assembly line, 1913",
@@ -232,14 +232,15 @@ def plate_data(p):
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     return " ".join(f'data-{k}="{html.escape(v, quote=True)}"' for k, v in
                     (("yr", yr), ("what", what), ("subj", subj), ("href", href), ("credit", SHORT[no]), ("no", no)))
-def slide(p, on=False, eager=False):
+def slide(p, on=False, eager=False, fill=False):
     """One painting filling the screen: the banner, or one of a room's paintings. An eager one has its image address
-    set; the others keep it in data-src until home.js loads them. A tall or small painting (images.show_whole) also
-    gets its blurred copy behind it (about 1 KB, always loaded). A lazy painting that shows first also carries a copy
+    set; the others keep it in data-src until home.js loads them. On the first screen a tall or small painting
+    (images.show_whole) is shown whole over its blurred copy (about 1 KB, always loaded); with fill (the rooms) every
+    painting fills the screen, cropped around its focal point. A lazy painting that shows first also carries a copy
     in <noscript>, so a visitor without JavaScript sees each room's first painting."""
     no, f, alt, yr, what, subj, href, credit, col, grow, pos = p
     w, h = SIZE[f]
-    whole = WHOLE[f]
+    whole = WHOLE[f] and not fill  # a room's paintings always fill the screen, tall ones too
     src = f'src="assets/img/{f}" fetchpriority="high"' if eager else f'data-src="assets/img/{f}"'
     bg = f'<img class="bg" src="assets/img/blur/{f}" alt="">' if whole else ""
     cls = "slide" + (" whole" if whole else "") + (" on" if on else "")
@@ -254,7 +255,7 @@ def room(anchor, title):
     loads them as the visitor nears the room) fill the screen behind the title, one at a time, chosen by how far the
     room has been scrolled; the caption names the painting showing, starting with the first."""
     ps = [p for p in PLATES if p[6] == "#" + anchor and p[1] != BANNER_FILE]
-    slides = "".join(slide(p, on=(k == 0)) for k, p in enumerate(ps))
+    slides = "".join(slide(p, on=(k == 0), fill=True) for k, p in enumerate(ps))
     cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
            f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
     return (f'<section class="room" id="{anchor}" style="--n:{max(len(ps), 1)}" aria-labelledby="{anchor}-h"><div class="room-stick">'
