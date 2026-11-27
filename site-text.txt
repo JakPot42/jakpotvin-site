@@ -25,6 +25,7 @@ I’m based in Rhode Island. I design software: more than eighty projects across
 [first screen links]
 - [Projects](#projects)
 - [Writing](#writing)
+- [Research](#research)
 
 # The small hint at the bottom of the first screen that tells visitors to scroll.
 [scroll cue]
@@ -73,6 +74,8 @@ Coming soon
 [research line]
 ORCID: [https://orcid.org/0009-0000-1700-0435](https://orcid.org/0009-0000-1700-0435)
 
+# Study 1 goes above Study 2A when its preprint is out. Call it "pre-specified", never "preregistered".
+# The verification budget paper from the atoms page also goes here when it is posted.
 # One block per paper, newest first. A block starts with "- " and the paper's title; the next line says where it
 # stands. Then its summary, and last one line per link, written Label: [address](address).
 [research papers]

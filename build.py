@@ -79,11 +79,12 @@ const io=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){e
 ps.forEach(p=>{p.classList.add('settle');io.observe(p)})}}</script>"""
 
 
+# the site menu, the same on every page; Research once there is a paper
+MENU = [("Writing", "writing")] + ([("Research", "research")] if PAPERS else []) + [("Projects", "projects"), ("Contact", "contact")]
+
+
 def page(title, root, current, body, script="", home=False, url=None, head="", noindex=False):
-    nav = ([("Writing", f"{root}index.html#writing", "writing")]
-           + ([("Research", f"{root}index.html#research", "research")] if PAPERS else [])
-           + [("Projects", f"{root}index.html#projects", "projects"), ("Contact", f"{root}index.html#contact", "contact")])
-    links = "".join(f'<a href="{h}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, h, k in nav)
+    links = "".join(f'<a href="{root}index.html#{k}"{" aria-current=page" if k == current else ""}>{t}</a>' for t, k in MENU)
     banner = f'<div class="draft"><div class="wrap">{DRAFT}</div></div>\n' if DRAFT else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -92,7 +93,7 @@ def page(title, root, current, body, script="", home=False, url=None, head="", n
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">
-{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}<link rel="stylesheet" href="{root}assets/fonts/fonts.css{asset_v("assets/fonts/fonts.css")}">
+{social(title, url).replace("{CARD_ALT}", CARD_ALT) if url else ""}{'<meta name="robots" content="noindex">' + chr(10) if noindex else ""}{head}{ME_LINKS}<link rel="stylesheet" href="{root}assets/fonts/fonts.css{asset_v("assets/fonts/fonts.css")}">
 <link rel="stylesheet" href="{root}assets/site.css{asset_v("assets/site.css")}">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon.ico" sizes="32x32">
@@ -162,9 +163,11 @@ PLATES = [  # chronological by what is shown; (no, file, alt, year, what, subjec
  ("", "rembrandt-anatomy-lesson.jpg", "Dr Tulp, in a black hat, lifts the muscles of a dead man's forearm with forceps while seven surgeons in white ruffs lean in to watch.", "1632", "Dr Tulp shows Amsterdam's surgeons the muscles of the arm", "Biology and medicine", "#s-biology", "Rembrandt van Rijn, The Anatomy Lesson of Dr Nicolaes Tulp, 1632. Mauritshuis, The Hague.", 0, 0, "60% 42%"),
  ("", "newton-prism.jpg", "In a dark room a beam of sunlight passes through a glass prism on a stand and spreads across a white screen, while Newton watches and a second man stands by a chair.", "c. 1666", "Newton splits white light with a prism", "", "", "Newton décompose la lumière au moyen d'un prisme de verre, wood engraving in Louis Figuier, Vies des savants illustres, 1876 edition. Wellcome Collection copy, scanned for the Internet Archive.", 0, 0, "50% 45%"),  # first screen only
  ("", "alchemist-full.jpg", "An old alchemist kneels in a dark, vaulted laboratory, gazing at a glass flask that glows with white light; two assistants work by candlelight in the shadows behind him.", "1669", "Hennig Brand discovers phosphorus", "Physics and chemistry", "#s-physics", "Joseph Wright of Derby, The Alchemist Discovering Phosphorus, 1771, reworked 1795. Derby Museum and Art Gallery.", 0, 0, "60% 70%"),
+ ("", "wright-air-pump.jpg", "By the light of a single candle a lecturer in a red robe pumps the air from a glass flask holding a white cockatoo, while a family watches, one girl hiding her eyes.", "1768", "A lecturer pumps the air from a glass flask", "Research", "#research", "Joseph Wright of Derby, An Experiment on a Bird in the Air Pump, 1768. The National Gallery, London.", 0, 0, "55% 45%"),  # the Research screen
  ("", "gaspee-burning.jpg", "A British schooner burns on the water at night while men in rowing boats pull away from it.", "1772", "Rhode Islanders burn the British ship Gaspee", "", "", "Charles DeWolf Brownell, The Burning of the Gaspee, 1892. Rhode Island Historical Society, Providence.", 0, 0, "45% 45%"),  # first screen only
  ("", "adam-smith-statue.jpg", "Bronze statue of Adam Smith on a stone plinth, with St Giles' Cathedral behind him.", "1776", "Adam Smith publishes The Wealth of Nations", "Economics", "#s-economics", "Alexander Stoddart, statue of Adam Smith, bronze, 2008. Royal Mile, Edinburgh. Photograph by Stefan Schäfer, Lich, licensed CC BY-SA 4.0.", 0, 0, "66% 10%"),
  ("", "washington-crossing.jpg", "George Washington standing in a crowded rowing boat pushing through river ice, a flag behind him.", "1776", "Washington crosses the Delaware", "War and defense", "#s-warfare", "Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art, New York.", 0, 0, "35% 45%"),
+ ("", "balloon-1783.jpg", "A crowd scrambles over a wall and over each other, waving, as a striped hydrogen balloon carrying two men rises above the Tuileries in Paris.", "1783", "Charles and Robert fly the first hydrogen balloon to carry people", "", "", "Expérience du globe aérostatique de MM. Charles et Robert au jardin des Thuilleries, le 1er décembre 1783, coloured print. Bibliothèque nationale de France.", 0, 0, "60% 35%"),  # first screen only
  ("", "jenner-hillemacher.jpg", "A doctor leans in to vaccinate a small child held on its mother's lap in a farmhouse, while a young man and a girl watch.", "1796", "Jenner gives the first vaccination against smallpox", "Biology and medicine", "#s-biology", "Eugène-Ernest Hillemacher, Edward Jenner Vaccinating a Boy, 1884. Wellcome Collection, licensed CC BY 4.0.", 0, 0, "55% 50%"),
  ("", "napoleon-alps.jpg", "Napoleon in a billowing red cloak on a rearing white horse, pointing up toward a mountain pass; soldiers haul a cannon up the slope behind him.", "1800", "Napoleon crosses the Alps", "War and defense", "#s-warfare", "Jacques-Louis David, Napoleon Crossing the Alps, 1802 to 1803, one of five versions. Belvedere, Vienna.", 0, 0, "60% 30%"),
  ("", "constitution-guerriere.jpg", "Two sailing warships fight in a rough sea; the British frigate's masts are shot away and its sails hang torn.", "1812", "USS Constitution defeats HMS Guerriere", "", "", "Thomas Birch, Engagement Between the Constitution and the Guerrière, 1813. Museum of Fine Arts, Boston.", 0, 0, "58% 60%"),  # first screen only
@@ -226,7 +229,7 @@ def roman(n):
 PLATES = [(roman(i + 1),) + p[1:] for i, p in enumerate(PLATES)]
 # the first screen's pictures, in the order they show (Washington first, then by date); credited, in no room.
 # Washington is also the link-preview card and the one picture a visitor without JavaScript sees.
-BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
+BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "balloon-1783.jpg", "constitution-guerriere.jpg",
                 "ether-first-operation.jpg", "london-sewers-1859.jpg", "wright-first-flight.jpg", "fleming-gabain.jpg",
                 "marshall-plan-france.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg", "iphone-2007.jpg",
                 "f22-raptor.jpg", "starship-booster-catch.jpg"]
@@ -254,7 +257,8 @@ SHORT_BY_FILE = {"death-of-socrates.jpg": "David, The Death of Socrates", "alexa
     "laika-1957.jpg": "Museum of Cosmonautics, Laika", "von-braun-office.jpg": "NASA, Von Braun at Marshall",
     "f22-raptor.jpg": "Tucker, F-22 Raptor", "ether-first-operation.jpg": "Hinckley, The First Operation Under Ether",
     "fleming-gabain.jpg": "Gabain, Sir Alexander Fleming", "marshall-plan-france.jpg": "ECA, Marshall Plan aid in France",
-    "iphone-2007.jpg": "Patterson, Jobs and the iPhone", "starship-booster-catch.jpg": "Jurvetson, The booster caught"}
+    "iphone-2007.jpg": "Patterson, Jobs and the iPhone", "starship-booster-catch.jpg": "Jurvetson, The booster caught",
+    "wright-air-pump.jpg": "Wright of Derby, An Experiment on a Bird in the Air Pump", "balloon-1783.jpg": "Charles and Robert's balloon"}
 SHORT = {p[0]: SHORT_BY_FILE[p[1]] for p in PLATES}
 def plate_data(p):
     """The data-* attributes home.js reads for a painting's caption."""
@@ -280,7 +284,7 @@ first = BANNER
 BANNER_SLIDES = "".join(slide(p, on=(k == 0), eager=(k == 0)) for k, p in enumerate(BANNERS))  # the first eager, the rest lazy
 
 # ---------------------------------------------------------------- writing: one room per subject
-def room(anchor, title):
+def room(anchor, title, note=None, cls="room"):
     """A subject's room: one screen tall. Its paintings (lazy; home.js loads them as the visitor nears the room) fill
     the screen behind the title, one at a time, and change by themselves every 6 seconds while half the room is on
     screen (home.js, which also adds the pause button); the caption names the painting showing, starting with the first."""
@@ -288,10 +292,10 @@ def room(anchor, title):
     slides = "".join(slide(p, on=(k == 0), fill=True) for k, p in enumerate(ps))
     cap = (f'<div class="caption"><span class="yr">{ps[0][3]}</span> <span class="what">{ps[0][4]}</span> '
            f'<span class="credit">{SHORT[ps[0][0]]}</span></div>') if ps else ""
-    return (f'<section class="room" id="{anchor}" aria-labelledby="{anchor}-h"><div class="room-stick">'
+    return (f'<section class="{cls}" id="{anchor}" aria-labelledby="{anchor}-h"><div class="room-stick">'
             f'<div class="room-bg" aria-hidden="true"><div class="slides">{slides}</div><div class="room-shade"></div></div>'
             f'<div class="room-words"><div class="room-text"><h2 id="{anchor}-h">{title}</h2>'
-            f'<p class="room-soon">{one("room note: " + title)}</p></div>{cap}</div></div></section>')
+            f'<p class="room-soon">{one("room note: " + title) if note is None else note}</p></div>{cap}</div></div></section>')
 OUT.mkdir(exist_ok=True)
 ROOMS = '<div class="rooms">' + "".join(room(a, t) for a, t in SUBJECTS) + '</div>'
 
@@ -332,7 +336,7 @@ def ld(data):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
 
 
-# and, for an ORCID record among them, a rel="me" line in the home page's head: the site and the record are one person
+# and, for an ORCID record among them, a rel="me" line in every page's head: the site and the record are one person
 ME_LINKS = "".join(f'<link rel="me" href="{html.escape(a, quote=True)}">\n' for a in _same if a.startswith(sitetext.ORCID))
 JOB_TITLE = "Researcher and software designer"  # for search engines only; never shown on the page
 PERSON_LD = (ld({"@context": "https://schema.org", "@type": "Person", "name": NAME, "jobTitle": JOB_TITLE, "url": SITE_URL,
@@ -347,11 +351,11 @@ def paper(p):
 
 
 PAPERS_HTML = "".join(paper(p) for p in PAPERS)
-RESEARCH = "" if not PAPERS else f"""<section id="research" aria-labelledby="research-h">
+RESEARCH = "" if not PAPERS else f"""<div class="rooms">{room("research", "Research", note=one("research line"), cls="room research-room")}</div>
+<section class="research-papers" aria-label="Papers">
 <div class="split">
 <div class="stack">
-<h2 id="research-h">Research</h2>
-<p class="small">{one("research line")}</p>
+<h3>Papers</h3>
 </div>
 <div class="stack papers">
 {PAPERS_HTML}</div>
@@ -381,7 +385,7 @@ home = page("Jak Potvin", "", "home", f"""
 <h1>{one("name")}</h1>
 <p class="lede">{one("tagline")}</p>
 <p class="note">{BIO}</p>
-<nav class="intro-links" aria-label="Jump to">{" ".join(sitetext.inline(x) for x in TEXT["first screen links"])}</nav>
+<nav class="intro-links" aria-label="Jump to">{" ".join(sitetext.inline(x) for x in TEXT["first screen links"] if PAPERS or "(#research)" not in x)}</nav>
 </div>
 <div class="caption">
 <span class="yr">{first[3]}</span>
@@ -441,7 +445,7 @@ home = page("Jak Potvin", "", "home", f"""
 </div>
 </div>
 </section>
-""", home=True, url=SITE_URL, head=PERSON_LD + ME_LINKS)
+""", home=True, url=SITE_URL, head=PERSON_LD)
 
 # ---------------------------------------------------------------- atoms page
 data = json.load(open(COUNTS))
@@ -569,14 +573,16 @@ OUT.mkdir(exist_ok=True)
 (OUT / "atoms").mkdir(exist_ok=True)
 (OUT / "atoms" / "index.html").write_text(atoms_page, encoding="utf-8", newline="\n")
 calc = open(CALC, encoding="utf-8").read()
-back = ('<p style="max-width:1180px;margin:0 auto;padding:14px 20px 0;font:14px/1.5 \'IBM Plex Sans\',system-ui,sans-serif">'
-        '<a href="../index.html">Atom by atom</a> &middot; <a href="../../index.html#projects">Jak Potvin, projects</a></p>')
+back = ('<div style="max-width:1180px;margin:0 auto;padding:14px 20px 0;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 22px;'
+        'font:14px/1.5 \'IBM Plex Sans\',system-ui,sans-serif"><a href="../index.html">Atom by atom</a>'
+        '<nav aria-label="Site" style="display:flex;flex-wrap:wrap;gap:4px 22px">'
+        + "".join(f'<a href="../../index.html#{k}">{t}</a>' for t, k in MENU) + '</nav></div>')
 assert calc.count("<body>") == 1
 (OUT / "atoms" / "calculator").mkdir(exist_ok=True)
 assert calc.count("</head>") == 1 and "<title>" in calc
 calc_title = html.unescape(re.search(r"<title>(.*?)</title>", calc).group(1))
 calc_head = (f'<meta name="description" content="{html.escape(" ".join(TEXT["page description"]))}">\n'
-             + social(calc_title, SITE_URL + "atoms/calculator/").replace("{CARD_ALT}", CARD_ALT))
+             + social(calc_title, SITE_URL + "atoms/calculator/").replace("{CARD_ALT}", CARD_ALT) + ME_LINKS)
 assert calc.count('href="../../assets/fonts/fonts.css"') == 1
 calc = calc.replace('href="../../assets/fonts/fonts.css"', 'href="../../assets/fonts/fonts.css' + asset_v("assets/fonts/fonts.css") + '"', 1)
 calc = calc.replace("</head>", calc_head + "</head>", 1).replace("<body>", "<body>\n" + back, 1)

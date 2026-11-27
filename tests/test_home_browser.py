@@ -38,7 +38,7 @@ BANNER = "washington-crossing.jpg"
 STILL = ("none", "matrix(1, 0, 0, 1, 0, 0)")
 
 
-BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
+BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "balloon-1783.jpg", "constitution-guerriere.jpg",
                 "ether-first-operation.jpg", "london-sewers-1859.jpg", "wright-first-flight.jpg", "fleming-gabain.jpg",
                 "marshall-plan-france.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg", "iphone-2007.jpg",
                 "f22-raptor.jpg", "starship-booster-catch.jpg"]
@@ -79,7 +79,7 @@ def test_phone_first_screen_contents_fit(browser, site):
         r = rect(page, sel)
         assert r is not None and r["height"] > 0 and r["bottom"] <= 915, sel
     assert page.eval("parseFloat(getComputedStyle(document.querySelector('.intro .caption .yr')).fontSize)") <= 16
-    assert page.eval("[...document.querySelectorAll('.intro-links a')].map(a => a.getAttribute('href'))") == ["#projects", "#writing"]
+    assert page.eval("[...document.querySelectorAll('.intro-links a')].map(a => a.getAttribute('href'))") == ["#projects", "#writing", "#research"]
 
 
 LUMINANCE = (r"(() => { const c = getComputedStyle(document.querySelector(%s)).color.match(/[\d.]+/g).map(Number);"
@@ -499,7 +499,7 @@ def test_every_room_painting_fills_the_screen(browser, site, cfg):  # tall ones 
     page.eval(NO_FADE)
     for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
         assert page.eval(f"document.querySelectorAll('#{rid} .bg').length") == 0, rid
-        for k in range(3):
+        for k in range(page.eval(f"document.querySelectorAll('#{rid} .slide').length")):
             set_painting(page, rid, k)
             s = f"#{rid} .slide.on .art"
             cover = rect(page, s)
@@ -538,7 +538,8 @@ def test_slides_hidden_from_screen_readers(browser, site):
     page = open_home(browser, site, DESKTOP)
     page.wait(1.2)
     assert page.eval("document.querySelector('.slides').getAttribute('aria-hidden')") == "true"
-    assert page.eval("document.querySelectorAll('.room-bg[aria-hidden=\"true\"]').length") == 10
+    hidden = "document.querySelectorAll('.room-bg[aria-hidden=\"true\"]').length"
+    assert page.eval(hidden) == page.eval("document.querySelectorAll('.room').length") == 11  # ten rooms and Research's screen
     assert page.eval("[...document.querySelectorAll('.slide .art, .slide .bg')].every(i => i.getAttribute('alt') === '')")
     assert page.eval("[...document.querySelectorAll('.slide:not(.on):not(.leaving)')].every(s => getComputedStyle(s).visibility === 'hidden')")
     assert page.eval("document.querySelector('.intro .caption .what').textContent.length") > 0
@@ -598,11 +599,12 @@ def test_room_text_is_readable_over_every_painting(browser, site, cfg):
     page.click("#s-philosophy .pause")  # every room holds still while it is measured
     low = []
     for rid in page.eval("[...document.querySelectorAll('.room')].map(r => r.id)"):
-        for k in range(3):
+        n = page.eval(f"document.querySelectorAll('#{rid} .slide').length")
+        for k in range(n):
             set_painting(page, rid, k)
             assert page.eval(LOADED % rid) == 1, (rid, k)
             got = text_contrast(page, [f"#{rid} {s}" for s in ROOM_TEXT + [".pause span"]])
-            assert len(got) == len(ROOM_TEXT) + 1, (rid, k, got)
+            assert len(got) == len(ROOM_TEXT) + (n > 1), (rid, k, got)  # a room of one painting has no pause button
             low += [(rid, k, s, round(v, 2)) for s, v in got.items() if v < (3 if s.endswith(".pause span") else 4.5)]
     assert low == []  # text 4.5 to 1, the pause icon 3 to 1
 
@@ -621,8 +623,8 @@ def test_research_fits_a_small_phone(browser, site):  # long doi.org addresses, 
     page = open_home(browser, site, dict(width=320, height=640, mobile=True), hash="#research")
     page.wait(1)
     assert page.eval("document.documentElement.scrollWidth <= innerWidth")
-    assert page.eval("[...document.querySelectorAll('#research a, .top a')].every(a => a.getBoundingClientRect().right <= innerWidth)")
-    assert page.eval("document.querySelector('#research h3').getBoundingClientRect().top") < 640
+    assert page.eval("[...document.querySelectorAll('#research a, .research-papers a, .top a')].every(a => a.getBoundingClientRect().right <= innerWidth)")
+    assert 0 <= page.eval("document.querySelector('#research h2').getBoundingClientRect().top") < 640
 
 
 # ---------------------------------------------------------------- final review: JavaScript turned off

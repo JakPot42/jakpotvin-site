@@ -48,7 +48,7 @@ def test_outputs_lf_and_no_long_dashes():
 def test_every_plate_has_a_blurred_copy():
     assert run_build().returncode == 0
     plates = sorted(p.name for p in (SITE / "assets/img").glob("*.jpg"))
-    assert len(plates) == 45  # 30 in the rooms and Washington, and fourteen more on the first screen
+    assert len(plates) == 47  # 30 in the rooms and Washington, fifteen more on the first screen, and Research's
     assert sorted(p.name for p in (SITE / "assets/img/blur").glob("*.jpg")) == plates
     assert not (SITE / "assets/img/small").exists()
 
@@ -176,7 +176,7 @@ ROOM_PAINTINGS = {  # old, middle, modern, by the date of what each shows
     "s-future": ["verne-earth-to-moon.jpg", "kennedy-von-braun.jpg", "webb-cosmic-cliffs.jpg"],
 }
 BANNER = "washington-crossing.jpg"
-BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "constitution-guerriere.jpg",
+BANNER_FILES = ["washington-crossing.jpg", "newton-prism.jpg", "gaspee-burning.jpg", "balloon-1783.jpg", "constitution-guerriere.jpg",
                 "ether-first-operation.jpg", "london-sewers-1859.jpg", "wright-first-flight.jpg", "fleming-gabain.jpg",
                 "marshall-plan-france.jpg", "laika-1957.jpg", "von-braun-office.jpg", "earthrise-apollo8.jpg", "iphone-2007.jpg",
                 "f22-raptor.jpg", "starship-booster-catch.jpg"]  # the first screen, Washington first, then by date
@@ -190,6 +190,7 @@ BANNER_CREDITS = [
     "Laika before her orbital flight, 1957. Museum of Cosmonautics and the Moscow Main Archive, via Mos.ru, licensed CC BY 4.0.",
     "NASA photograph, Marshall Space Flight Center, Huntsville, Alabama, September 1960.",
     "Tech. Sgt. Steven Tucker, U.S. Air National Guard, an F-22 Raptor at Thunder Over New Hampshire, Pease Air National Guard Base, 11 September 2021.",
+    "Expérience du globe aérostatique de MM. Charles et Robert au jardin des Thuilleries, le 1er décembre 1783, coloured print. Bibliothèque nationale de France.",
     "Robert C. Hinckley, The First Operation Under Ether, 1882 to 1893. Boston Medical Library in the Francis A. Countway Library of Medicine, Boston.",
     "Ethel Gabain, Sir Alexander Fleming, FRS, the Discoverer of Penicillin, 1944. Imperial War Museums, London.",
     "Marshall Plan aid arriving in France, 1949. Economic Cooperation Administration photograph, U.S. National Archives.",
@@ -348,9 +349,9 @@ def test_orcid_sits_in_contact_with_its_icon_and_rel_me():
     contact = t[start:t.index("</section>", start)]
     assert (f'<a class="orcid" href="{ORCID}" rel="me"><img src="assets/orcid-id.svg" width="16" height="16" alt="">'
             f'{ORCID}</a>') in contact
-    assert t[:t.index("</head>")].count(f'<link rel="me" href="{ORCID}">') == 1  # the same person, for search engines
-    for page in ("plates.html", "atoms/index.html", "404.html"):
-        assert 'rel="me"' not in (SITE / page).read_text(encoding="utf-8"), page
+    for page in ("index.html", "plates.html", "atoms/index.html", "atoms/calculator/index.html", "404.html"):  # every page
+        page_text = (SITE / page).read_text(encoding="utf-8")
+        assert page_text[:page_text.index("</head>")].count(f'<link rel="me" href="{ORCID}">') == 1, page  # the same person
     icon = (SITE / "assets/orcid-id.svg").read_bytes()
     assert hashlib.sha256(icon).hexdigest() == ORCID_ICON_SHA256  # ORCID's own file, as provided, never changed
 
@@ -385,21 +386,37 @@ def test_banner_pictures_are_credited():
 def test_research_sits_between_the_rooms_and_projects():
     assert run_build().returncode == 0
     t = (SITE / "index.html").read_text(encoding="utf-8")
-    r = t.index('<section id="research"')
-    assert t.index('<section id="writing"') < t.index('<div class="rooms">') < r < t.index('<section id="projects"')
-    research = t[r:t.index("</section>", r)]
-    assert '<h2 id="research-h">Research</h2>' in research
-    assert research.index("research-h") < research.index(f'<a class="orcid" href="{ORCID}" rel="me">') < research.index("<h3>")
+    r = t.index('<section class="room research-room" id="research"')
+    p = t.index('<section class="research-papers"')
+    assert t.index('<section id="writing"') < t.index('<section class="room" id="s-future"') < r < p < t.index('<section id="projects"')
+    screen = t[r:t.index("</section>", r)]
+    assert '<h2 id="research-h">Research</h2>' in screen
+    assert screen.index("research-h") < screen.index(f'<a class="orcid" href="{ORCID}" rel="me">')  # ORCID right under the heading
+    research = t[p:t.index("</section>", p)]
     assert "<h3>Predicting the adopted organisation before simulating it (Study 2A)</h3>" in research
     assert "Preregistered November 2026 " + chr(0xB7) + " Paper in preparation" in research
     assert "Earlier work found that chemistries grown from lifeless conditions" in research
     assert "which is what a law has to do." in research
     assert f'Plan: <a href="{DOI_PLAN}">{DOI_PLAN}</a>' in research
     assert f'Amendment: <a href="{DOI_AMENDMENT}">{DOI_AMENDMENT}</a>' in research
-    for page, root in (("index.html", ""), ("plates.html", ""), ("atoms/index.html", "../")):  # the pages with the site menu
-        nav = re.search(r'<nav aria-label="Site">(.*?)</nav>', (SITE / page).read_text(encoding="utf-8")).group(1)
+    for page, root in (("index.html", ""), ("plates.html", ""), ("atoms/index.html", "../"), ("atoms/calculator/index.html", "../../")):
+        nav = re.search(r'<nav aria-label="Site"[^>]*>(.*?)</nav>', (SITE / page).read_text(encoding="utf-8")).group(1)  # the calculator styles its own
         assert re.findall(r">([A-Za-z]+)</a>", nav) == ["Writing", "Research", "Projects", "Contact"], page
         assert f'href="{root}index.html#research"' in nav, page
+
+
+def test_research_opens_with_the_air_pump_like_a_room():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    r = t.index('<section class="room research-room" id="research"')
+    screen = t[r:t.index("</section>", r)]
+    assert screen.count('<figure class="slide') == 1 and 'data-src="assets/img/wright-air-pump.jpg"' in screen  # loads as it nears
+    assert '<noscript><img class="art" src="assets/img/wright-air-pump.jpg"' in screen  # and shows without JavaScript
+    assert '<span class="yr">1768</span> <span class="what">A lecturer pumps the air from a glass flask</span>' in screen
+    assert '<span class="credit">Wright of Derby, An Experiment on a Bird in the Air Pump</span>' in screen
+    assert "Joseph Wright of Derby, An Experiment on a Bird in the Air Pump, 1768. The National Gallery, London." in visible_text(SITE / "plates.html")
+    intro = t[t.index('<nav class="intro-links"'):t.index("</nav>", t.index('<nav class="intro-links"'))]
+    assert re.findall(r'href="(#[a-z]+)"', intro) == ["#projects", "#writing", "#research"]  # the first screen's buttons
 
 
 def test_research_stays_hidden_until_it_has_a_paper(tmp_path):
@@ -410,9 +427,9 @@ def test_research_stays_hidden_until_it_has_a_paper(tmp_path):
     try:
         r = run_build(empty)
         assert r.returncode == 0, r.stderr
-        for page in ("index.html", "plates.html", "atoms/index.html"):
+        for page in ("index.html", "plates.html", "atoms/index.html", "atoms/calculator/index.html"):
             t = (SITE / page).read_text(encoding="utf-8")
-            assert 'id="research"' not in t and "#research" not in t, page
+            assert 'id="research"' not in t and "#research" not in t and "research-papers" not in t, page
     finally:
         assert run_build().returncode == 0
 
