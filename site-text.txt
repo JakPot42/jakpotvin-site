@@ -35,38 +35,38 @@ Scroll
 Ten subjects, each with its own room. Scroll through them.
 
 [writing note]
-The first essays go up from 15 December.
+The first essays are coming soon.
 
 # The note under each room's title, one per room.
 [room note: Philosophy and religion]
-First essay from 15 December
+Coming soon
 
 [room note: Psychology]
-First essay from 15 December
+Coming soon
 
 [room note: Sociology]
-First essay from 15 December
+Coming soon
 
 [room note: Political science]
-First essay from 15 December
+Coming soon
 
 [room note: Economics]
-First essay from 15 December
+Coming soon
 
 [room note: War and defense]
-First essay from 15 December
+Coming soon
 
 [room note: Physics and chemistry]
-First essay from 15 December
+Coming soon
 
 [room note: Biology and medicine]
-First essay from 15 December
+Coming soon
 
 [room note: Technology and AI]
-First essay from 15 December
+Coming soon
 
 [room note: The future]
-First essay from 15 December
+Coming soon
 
 # Projects, the atoms part. The note is about the Alchemist painting, which hangs in the Physics room.
 [atoms heading]
