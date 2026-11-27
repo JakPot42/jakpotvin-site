@@ -405,6 +405,13 @@ def test_research_sits_between_the_rooms_and_projects():
         assert f'href="{root}index.html#research"' in nav, page
 
 
+def test_the_war_room_takes_in_strategy():
+    assert run_build().returncode == 0
+    t = (SITE / "index.html").read_text(encoding="utf-8")
+    assert '<h2 id="s-warfare-h">War, strategy and defense</h2>' in t  # one room for war and the thinking behind it
+    assert "War and defense" not in t  # the old name, in no heading and in no painting's caption data
+
+
 def test_research_opens_with_the_air_pump_like_a_room():
     assert run_build().returncode == 0
     t = (SITE / "index.html").read_text(encoding="utf-8")
