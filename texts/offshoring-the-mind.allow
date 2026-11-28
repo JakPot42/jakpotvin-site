@@ -1,0 +1,7 @@
+# Differences meant between this text's PDF (as pdftotext reads it) and its web page, for tools/check_text.py.
+# OLD=NEW: the PDF text says OLD, the page says NEW. "order: <start of a paragraph>": pdftotext reads it out of order.
+# Real hyphens that fall at the end of a line in the PDF, which pdftotext joins up:
+selfdetermination=self-determination
+industrialcommons=industrial-commons
+s00146025=s00146-025
+s00146024=s00146-024

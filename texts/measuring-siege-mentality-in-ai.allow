@@ -1,0 +1,10 @@
+# Differences meant between this text's PDF (as pdftotext reads it) and its web page, for tools/check_text.py.
+# OLD=NEW: the PDF text says OLD, the page says NEW. "order: <start of a paragraph>": pdftotext reads it out of order.
+# Jak's correction for the web page (27 November 2026); the PDF still says "analyzes":
+analyzes=analyses
+# Words split at the end of a line inside list items, which pdftotext leaves split:
+meth- ods=methods
+re- ported=reported
+un- explained=unexplained
+# pdftotext reads this reference's arXiv number before its title; the PDF prints the title first:
+order: Anthropic (2026). Emotion Concepts

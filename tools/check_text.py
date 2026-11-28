@@ -111,7 +111,7 @@ class _Article(html.parser.HTMLParser):
 def page_words(page):
     page = pathlib.Path(page)
     if page.suffix == ".md":
-        meta, body = texts.parse(page.read_text(encoding="utf-8"))
+        meta, body = texts.parse(page.read_text(encoding="utf-8-sig"))
         doc = (f'<article class="text"><h1>{meta["title"]}</h1><p>Jak Potvin</p><p>ORCID: {meta["orcid"]}</p>'
                f'<p>{meta["kind"]}</p>{body}</article>')
     else:
@@ -125,7 +125,7 @@ def blocks(page):
     """The words of each paragraph, heading and list item outside the tables, one string each."""
     page = pathlib.Path(page)
     if page.suffix == ".md":
-        meta, body = texts.parse(page.read_text(encoding="utf-8"))
+        meta, body = texts.parse(page.read_text(encoding="utf-8-sig"))
         doc = f'<h1>{meta["title"]}</h1><p>Jak Potvin</p><p>ORCID: {meta["orcid"]}</p><p>{meta["kind"]}</p>{body}'
     else:
         t = page.read_text(encoding="utf-8")
@@ -140,7 +140,44 @@ def blocks(page):
     return out
 
 
+def read_allow(src):
+    """The differences meant for a text, kept beside its source as texts/<name>.allow, one per line: OLD=NEW (the PDF
+    says OLD, the page says NEW), or 'order: <start of a paragraph>' for a paragraph pdftotext reads out of the PDF's
+    order. Lines starting with # say why. No file: nothing is allowed."""
+    path = pathlib.Path(src).with_suffix(".allow")
+    pairs, order = [], []
+    for line in path.read_text(encoding="utf-8-sig").splitlines() if path.exists() else []:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("order: "):
+            order.append(line[len("order: "):])
+        else:
+            old, sep, new = line.partition("=")
+            if not sep:
+                sys.exit(f"{path.name}: a line is OLD=NEW or 'order: ...': {line}")
+            pairs.append((old, new))
+    return pairs, order
+
+
+def order_problems(blocks_, words, allowed):
+    """Each paragraph, heading and list item must read in the PDF as one run of words, each after the one before."""
+    whole, pos, out = " " + " ".join(words) + " ", 0, []
+    for block in blocks_:
+        if any(block.startswith(a) for a in allowed):
+            continue
+        at = whole.find(f" {block} ", pos)
+        if at >= 0:
+            pos = at + len(block) + 1
+        elif f" {block} " in whole:
+            out.append(f"out of order: {block[:150]!r}")
+        else:
+            out.append(f"not one run in the PDF: {block[:150]!r}")
+    return out
+
+
 def main(argv):
+    sys.stdout.reconfigure(encoding="utf-8")  # a difference can hold letters a Windows console's code page lacks
     args, allow, order = [], [], False
     it = iter(argv)
     for a in it:
@@ -154,7 +191,9 @@ def main(argv):
     pdf, page = args
     src = pathlib.Path(page)
     md = src if src.suffix == ".md" else pathlib.Path(__file__).resolve().parent.parent / "texts" / (src.parent.name + ".md")
-    meta, body = texts.parse(md.read_text(encoding="utf-8"))
+    meta, body = texts.parse(md.read_text(encoding="utf-8-sig"))
+    more, order_allowed = read_allow(md)
+    allow += more
     heads = []
     for thead in re.findall(r"<thead>(.*?)</thead>", body):
         p = _Article()
@@ -167,14 +206,13 @@ def main(argv):
         print(f"missing from the page: {w!r} x{n}")
     for w, n in sorted(extra.items()):
         print(f"extra on the page: {w!r} x{n}")
-    if order:  # every paragraph, heading and list item outside the tables reads in the PDF as one run of words
-        whole = " " + " ".join(a) + " "
-        for block in blocks(page):
-            if f" {block} " not in whole:
-                print(f"order: not one run in the PDF: {block[:150]!r}")
+    problems = order_problems(blocks(page), a, order_allowed) if order else []
+    for line in problems:
+        print("order: " + line)
     print(f"{pathlib.Path(pdf).name}: {len(a)} words in the PDF, {len(b)} on the page, "
-          + ("the same words" if not missing and not extra else f"{sum(missing.values())} missing, {sum(extra.values())} extra"))
-    return 0 if not missing and not extra else 1
+          + ("the same words" if not missing and not extra else f"{sum(missing.values())} missing, {sum(extra.values())} extra")
+          + (f", {len(problems)} out of the PDF's order" if problems else ""))
+    return 0 if not missing and not extra and not problems else 1
 
 
 if __name__ == "__main__":

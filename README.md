@@ -10,6 +10,7 @@ site-text.txt       the words on the home page, the page description and the foo
 sitetext.py         reads and checks site-text.txt for build.py
 texts/              each essay and paper: its PDF and its words (<name>.md), made into a page by build.py
 texts.py            reads and checks a texts/ source for build.py
+tools/check_text.py checks that an essay or paper page says what its PDF says (see Adding an essay or a paper)
 data/counts.json    mechdb export (format mechdb-counts-2) used for the chart on the atoms page
 data/calculator.html  the Atom Factory Calculator, copied to site/atoms/calculator/ with a back link
 .github/workflows/pages.yml  publishes site/ to GitHub Pages on every push to main (it does not run build.py)
@@ -44,6 +45,8 @@ pip install pillow
 python build.py data/counts.json data/calculator.html
 ```
 
+Two more arguments are optional, for tests: another words file in place of `site-text.txt`, then another texts folder in place of `texts/`.
+
 Rebuild after editing `site.css`, `home.js` or `fonts.css` too: the pages ask for those files by an address with `?v=` and a fingerprint of the file (`asset_v` in `build.py`), so a browser never runs a new page with an old copy it kept. GitHub Pages lets browsers keep files for 10 minutes.
 
 Tests: `pip install pytest`, then `python -m pytest` (the browser tests need Microsoft Edge).
@@ -71,7 +74,8 @@ Each essay and paper is two files in `texts/`: its PDF, as Jak made it, and a so
    - `summary`: one of the text's own sentences that makes sense alone. It shows in the room or the Papers list, and as the description search engines show.
 3. Then the text, in the small set of marks `texts.py` describes at its top: `##` and `###` headings, paragraphs, `**bold**`, `*italic*`, lists, tables, links. Anything else stops the build with its line number.
 4. Make the words from the PDF, never retyped: `pdftotext` (it comes with Git for Windows) gives the words; bold, italic and tables follow the PDF's pages.
-5. Rebuild, then check the page against its PDF: `python tools/check_text.py texts/<name>.pdf site/<essays or research>/<name>/index.html --order`. It counts every word on both sides and must say "the same words". Pass `--allow OLD=NEW` for a correction Jak approved, and for a real hyphen `pdftotext` drops at the end of a line (it reads "self-determination" split over two lines as "selfdetermination"). It also checks that each paragraph reads in the PDF's order.
+5. Rebuild, then check the page against its PDF: `python tools/check_text.py texts/<name>.pdf site/<essays or research>/<name>/index.html --order`. It counts every word on both sides and must say "the same words", and with `--order` it checks that every paragraph, heading and list item is one run of the PDF's words, each after the one before. The tests run this check on every text.
+6. A difference that is meant goes in `texts/<name>.allow`, one per line, with a `#` line saying why: `OLD=NEW` for a correction Jak approved, or for a real hyphen `pdftotext` joins at the end of a line (it reads "self-determination" split over two lines as "selfdetermination"); `order: <start of a paragraph>` for a paragraph `pdftotext` reads out of the PDF's order (check the PDF page first).
 
 On a phone a wide table scrolls sideways in its own box; the page itself never does.
 
