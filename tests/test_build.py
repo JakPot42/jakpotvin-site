@@ -619,3 +619,48 @@ def test_papers_lists_the_three_texts_first():
 def test_writing_note_says_more_are_coming():
     assert run_build().returncode == 0
     assert "More essays are coming soon." in (SITE / "index.html").read_text(encoding="utf-8")
+
+
+def test_stray_and_old_files_under_the_text_folders_are_cleared():
+    stray = SITE / "essays" / "desktop.ini"  # Windows writes files like this into folders it shows
+    old_pdf = SITE / "essays" / "offshoring-the-mind" / "an-old-name.pdf"  # a PDF renamed since the last build
+    stray.write_text("x", encoding="utf-8")
+    old_pdf.write_bytes(b"%PDF old")
+    try:
+        r = run_build()
+        assert r.returncode == 0, r.stderr
+        assert not stray.exists() and not old_pdf.exists()
+        assert sorted(x.name for x in (SITE / "essays" / "offshoring-the-mind").iterdir()) == ["index.html", "offshoring-the-mind.pdf"]
+    finally:
+        stray.unlink(missing_ok=True)
+        old_pdf.unlink(missing_ok=True)
+
+
+def test_a_source_saved_with_a_byte_order_mark_builds(tmp_path):  # Notepad can save "UTF-8 with BOM"
+    import codecs
+    texts_dir = tmp_path / "texts"
+    texts_dir.mkdir()
+    src = ROOT / "texts" / "labeling-claims-by-kind-of-support.md"
+    (texts_dir / src.name).write_bytes(codecs.BOM_UTF8 + src.read_bytes())
+    shutil.copy(src.with_suffix(".pdf"), texts_dir)
+    try:
+        r = run_build(None, texts_dir)
+        assert r.returncode == 0, r.stderr
+        assert (SITE / "research" / "labeling-claims-by-kind-of-support" / "index.html").exists()
+    finally:
+        assert run_build().returncode == 0
+
+
+def test_a_broken_source_stops_the_build_and_names_its_file_and_line(tmp_path):  # Review Focus 3, at the build
+    texts_dir = tmp_path / "texts"
+    texts_dir.mkdir()
+    src = ROOT / "texts" / "labeling-claims-by-kind-of-support.md"
+    text = src.read_text(encoding="utf-8")
+    (texts_dir / src.name).write_text(text + "\nA line with **no end.\n", encoding="utf-8")
+    shutil.copy(src.with_suffix(".pdf"), texts_dir)
+    try:
+        r = run_build(None, texts_dir)
+        assert r.returncode == 2
+        assert r.stderr.startswith(f"labeling-claims-by-kind-of-support.md: line {text.count(chr(10)) + 2}:"), r.stderr
+    finally:
+        assert run_build().returncode == 0

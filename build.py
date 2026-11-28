@@ -43,7 +43,7 @@ TEXTS_DIR = pathlib.Path(sys.argv[4]) if len(sys.argv) > 4 else pathlib.Path(__f
 TEXTS = []  # each: slug (the file name), meta (its header), body (HTML), folder (essays or research: its address)
 for _src in sorted(TEXTS_DIR.glob("*.md")):
     try:
-        _meta, _body = texts.parse(_src.read_text(encoding="utf-8"))
+        _meta, _body = texts.parse(_src.read_text(encoding="utf-8-sig"))  # Notepad may save "UTF-8 with BOM"
     except texts.TextError as e:
         print(f"{_src.name}: {e}", file=sys.stderr)
         sys.exit(2)
@@ -643,10 +643,9 @@ not_found = page("Page not found | Jak Potvin", "/", "", f"""
 (OUT / "404.html").write_text(not_found, encoding="utf-8", newline="\n")
 
 # ---------------------------------------------------------------- the essay and paper pages, each with its PDF
-for _f in ("essays", "research"):  # a text taken out of texts/ leaves no page behind
-    for _old in sorted((OUT / _f).iterdir()) if (OUT / _f).is_dir() else []:
-        if _old.name not in {t["slug"] for t in TEXTS if t["folder"] == _f}:
-            shutil.rmtree(_old)
+for _f in ("essays", "research"):  # made afresh each time: no page of a text taken out, no renamed PDF, no stray file
+    if (OUT / _f).is_dir():
+        shutil.rmtree(OUT / _f)
 for _t in TEXTS:
     _m, _slug, _folder = _t["meta"], _t["slug"], _t["folder"]
     _url = f"{SITE_URL}{_folder}/{_slug}/"

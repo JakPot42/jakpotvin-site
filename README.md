@@ -51,7 +51,7 @@ Rebuild after editing `site.css`, `home.js` or `fonts.css` too: the pages ask fo
 
 Tests: `pip install pytest`, then `python -m pytest` (the browser tests need Microsoft Edge).
 
-The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html`, `site/atoms/calculator/index.html` and the pages under `site/essays/` and `site/research/` (a text taken out of `texts/` loses its page). A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
+The build overwrites `site/index.html`, `site/plates.html`, `site/atoms/index.html`, `site/atoms/calculator/index.html` and remakes `site/essays/` and `site/research/` from `texts/` each time: anything else put there is removed. A build with no changes to `build.py`, `data/` or `site/assets/` produces identical files.
 
 ## Editing the words
 
