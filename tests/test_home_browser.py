@@ -447,7 +447,7 @@ def test_pause_button_is_a_named_button_clear_of_the_words(browser, site, w, h, 
                      " && b.getAttribute('aria-label') === 'Pause the paintings' && !b.closest('[aria-hidden]'))")
     assert page.eval("(b => { b.focus(); return document.activeElement === b; })(document.querySelector('#s-politics .pause'))")
     assert page.eval("document.querySelector('.room .caption').getAttribute('aria-live')") is None  # changes are not announced
-    for rid in ("s-politics", "s-tech"):
+    for rid in ("s-politics", "s-warfare", "s-tech"):  # the war room carries an essay list too
         room_on_screen(page, rid)
         b = rect(page, f"#{rid} .pause")
         assert b["top"] >= 0 and b["bottom"] <= h and b["left"] >= 0 and b["right"] <= w, (rid, b)
@@ -472,7 +472,7 @@ def test_resize_mid_room_keeps_one_right_painting(browser, site):  # a phone tur
 @pytest.mark.parametrize("w, h, mobile", [(1440, 900, False), (412, 915, True), (915, 412, True), (1280, 600, False), (800, 600, False)])
 def test_room_words_never_overlap_the_caption(browser, site, w, h, mobile):  # Review Focus 4
     page = open_home(browser, site, dict(width=w, height=h, mobile=mobile))
-    for rid in ("s-politics", "s-tech"):
+    for rid in ("s-politics", "s-warfare", "s-tech"):  # the war room carries an essay list too
         room_on_screen(page, rid)
         assert rect(page, f"#{rid} .room-text")["bottom"] <= rect(page, f"#{rid} .caption")["top"], rid
         assert rect(page, f"#{rid} .room-text h2")["top"] >= 0, rid

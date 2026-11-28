@@ -50,3 +50,15 @@ def test_tables_are_set_apart_from_the_prose(browser, site):
     cell = "getComputedStyle(document.querySelector('.table td'))"
     assert "Plex" in page.eval(f"{cell}.fontFamily")  # small sans in the cells, as in the site's captions and lists
     assert page.eval("getComputedStyle(document.querySelector('.table th')).borderBottomStyle") == "solid"
+
+
+CPL = """(() => { const p = [...document.querySelectorAll('.text-body p')].find(p => p.textContent.length > 700);
+  const lines = Math.round(p.getBoundingClientRect().height / parseFloat(getComputedStyle(p).lineHeight));
+  return p.textContent.length / lines; })()"""
+
+
+def test_reading_column_holds_about_68_characters_a_line(browser, site):  # the plan's measure, for comfortable reading
+    page = browser.open(site.url(PAGES[0]), **DESKTOP)
+    page.wait(0.3)
+    cpl = page.eval(CPL)
+    assert 58 <= cpl <= 75, cpl
